@@ -1,0 +1,28 @@
+name: Suggest an improvement
+description: Share a public idea without including private family or medical details
+title: "Idea: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is a public issue. Please use fictional examples and avoid personal or medical information.
+  - type: textarea
+    id: improvement
+    attributes:
+      label: What could Being There do better?
+      description: Explain the idea in plain language.
+      placeholder: It would be easier to enjoy photos if...
+    validations:
+      required: true
+  - type: textarea
+    id: benefit
+    attributes:
+      label: Why might this help?
+      description: Optional; use general or fictional examples.
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Privacy
+      options:
+        - label: I understand this is public and have not included private family or medical information.
+          required: true

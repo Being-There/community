@@ -1,0 +1,37 @@
+name: Accessibility feedback
+description: Report accessibility problems with the public website or fictional examples
+title: "Accessibility: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is public. Please do not include personal health information, private media, or contact details.
+  - type: dropdown
+    id: surface
+    attributes:
+      label: What are you reviewing?
+      options:
+        - Community website
+        - Contributor documentation
+        - Fictional community app prototype
+        - General design guidance
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is difficult to use?
+      description: Describe the barrier, not your diagnosis or personal history.
+    validations:
+      required: true
+  - type: textarea
+    id: improvement
+    attributes:
+      label: Suggested improvement
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Privacy
+      options:
+        - label: I understand this is public and have not included private family or medical information.
+          required: true
