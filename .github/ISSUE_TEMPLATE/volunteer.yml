@@ -1,0 +1,38 @@
+name: Offer to help
+description: Public volunteer interest (do not share personal or medical information)
+title: "Volunteer: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This is a public GitHub issue.** Your GitHub username and responses are visible to everyone. Do not share email addresses, contact details, diagnoses, real family stories, photos, recordings, or other private information.
+  - type: dropdown
+    id: area
+    attributes:
+      label: How would you like to help?
+      options:
+        - Accessibility and design
+        - Caregiver experience (general feedback only)
+        - Software engineering
+        - Privacy and security architecture
+        - Documentation and testing
+        - Community and nonprofit development
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: contribution
+    attributes:
+      label: What kind of contribution would you like to make?
+      description: Share skills or general ideas only. No personal information is needed.
+      placeholder: I can help review mobile accessibility...
+    validations:
+      required: true
+  - type: checkboxes
+    id: public
+    attributes:
+      label: Public posting acknowledgment
+      options:
+        - label: I understand this issue is public and will not include private family or medical information.
+          required: true
