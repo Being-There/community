@@ -10,6 +10,12 @@
 
 The launch question is therefore **not** "where do we host plaintext?" but "can people enjoy and share E2EE family stories through a simple web app without the operator holding keys?" Existing technical deployment cards are supporting work and may not authorize a lower-security edition.
 
+## Availability and originals are equally non-negotiable
+
+**The project must never encrypt, modify, relocate or delete a family's existing Drive/phone/NAS originals.** User-selected files are read on an authorized client and copied into a separate Being There **encrypted vault**; the existing originals remain untouched and readable under their existing provider permissions. This does **not** mean that pre-existing plaintext files in the user's own Drive become E2EE. The project's no-plaintext/no-keys promise applies to all **Being There-managed** data, not the owner's separate source files.
+
+Every newly created recording, transcript, comment and enriched story must have **verified encrypted backups in another independent location** plus **at least two family-held recovery paths** (e.g. trusted second device and offline recovery kit). If every key is lost, Being There can't recover vault-only stories. No "protected" status without tested recovery readiness, remote hash verification, versioned restore points, and an offline open-source recovery path. Never silently propagate delete/hide to every copy. See the [preservation/security contract](SECURITY_PROMISE.md).
+
 ## The family journey
 
 1. **Open Being There.** A regular web link on a phone, computer or tablet; eventually an installable home-screen shortcut.
