@@ -8,7 +8,7 @@
 - [M2 — Cognito-first OIDC and first invitation](https://github.com/Being-There/community/issues/14) (integrates existing [real OAuth pilot](https://github.com/Being-There/community/issues/8))
 - [M3 — independent S3 backup and verified non-AWS restore](https://github.com/Being-There/community/issues/15)
 - [M4 — novice pilot, maintenance and portable home-host path](https://github.com/Being-There/community/issues/16)
-- **Google option:** [Google Sites + Drive design](deployment/GOOGLE.md). Track Drive/backup and owner-connected OAuth implementation separately; it must not displace the AWS release gates.
+- **Google option:** [Google Sites + Drive design](deployment/GOOGLE.md) and [Drive/optional Sites delivery #17](https://github.com/Being-There/community/issues/17). This is an optional provider route that must not displace the AWS release gates.
 
 **Sequence:** M1 and M2 must meet before the first live private install; M3 is a release blocker, and M4 supplies the independent family-ready evidence. Do not grow a parallel feature backlog while these gates remain open.
 
