@@ -2,15 +2,20 @@
 
 **Status:** Proposed delivery plan, not an available one-click installer. The original private family installation is out of scope. The public Community Edition runs Node.js + SQLite + private filesystem originals and currently requires a real Google OAuth web client and HTTPS. A family-owned Cognito/OIDC adapter is proposed to remove Google setup on AWS. Existing verification is synthetic, not a real cloud/pilot deployment. Nothing in this document claims a real cloud installation, security audit or independent-family pilot.
 
+## One app, several hosting and access choices
+
+See [the deployment and access options matrix](deployment/OPTIONS.md). We favor one pinned container/runtime, provider-neutral backup/restore and a small number of validated installer templates—rather than distinct AWS, Google, NAS and managed-host apps. **Build portable OCI packaging and verified backup first**, then make AWS's reviewed one-click launch and a Compose/home-NAS path consume the same artifact. Managed hosting and extra storage adapters must pass identical privacy and cross-host recovery gates; easy deploy without recoverable storage is not a supported release.
+
 ## Execution milestones
 
+- **P0 — Portable OCI container and Compose baseline** (work item linked below), shared by cloud VM, NAS and managed-host paths.
 - [M1 — AWS CDK/CloudFormation launch](https://github.com/Being-There/community/issues/13)
 - [M2 — Cognito-first OIDC and first invitation](https://github.com/Being-There/community/issues/14) (integrates existing [real OAuth pilot](https://github.com/Being-There/community/issues/8))
 - [M3 — independent S3 backup and verified non-AWS restore](https://github.com/Being-There/community/issues/15)
 - [M4 — novice pilot, maintenance and portable home-host path](https://github.com/Being-There/community/issues/16)
 - **Google option:** [Google Sites + Drive design](deployment/GOOGLE.md) and [Drive/optional Sites delivery #17](https://github.com/Being-There/community/issues/17). This is an optional provider route that must not displace the AWS release gates.
 
-**Sequence:** M1 and M2 must meet before the first live private install; M3 is a release blocker, and M4 supplies the independent family-ready evidence. Do not grow a parallel feature backlog while these gates remain open.
+**Sequence:** portable package + verified independent recovery form the common technical foundation; AWS M1/M2 may progress in parallel and cannot be called ready for real data until M3 and the live family pilot pass. Other providers add thin templates/adapters only after passing the same contract; M4 supplies independent family-ready evidence. Do not grow a parallel feature backlog while these gates remain open.
 
 ## Goal
 
@@ -22,7 +27,9 @@ A family with limited technical knowledge can launch a private instance **in an 
 
 | Route | User | How it works | Status |
 | --- | --- | --- | --- |
+| **Portable Compose / OCI package (base installer)** | Technical helper or existing Docker/NAS operator | One pinned app artifact, mounted private data/archives and HTTPS | **Planned foundation; not yet a released container** |
 | **AWS guided launch (first)** | Family with an AWS account or helper | CDK-authored stack, **versioned/signed-off synthesized CloudFormation template**, AWS console quick-create link; resources deploy in family's account | **Planned; template not built or tested** |
+| **Managed persistent-volume hosting (evaluated later)** | Families wanting less infrastructure maintenance | Paid Render/Railway with provider-owned private disk; application authorization and independent off-site backup | **Candidate only; no production template** |
 | **Home server / NAS (second)** | Comfortable running a home server, or helper | Pinned image/Compose, host storage and off-device backups; optional mounted/synced Drive intake | Planned |
 | **Google-first family experience (additional option)** | Families who already use Sites and Drive | Google Site links to the private app; family-selected Drive folder for verified originals/backup; backend on a separately owned/managed host | **Sites link possible today; native Drive storage and beginner hosting planned** |
 | **Advanced/manual installation (existing)** | Linux/Node operator | Follow [application guide](../packages/app/README.md) | Working reference; no real-world deployment verification |
