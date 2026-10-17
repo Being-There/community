@@ -27,3 +27,9 @@
 .enjoy #next{min-height:60px}
 .enjoy #photo{height:min(68vh,820px)}
 @media(max-width:700px){.enjoy #photo{height:54vh}.enjoy #experience button{flex:1 1 100%}}
+
+/* Shared brand mark: readable at small sizes; decorative to screen readers. */
+.brand-line{display:flex;align-items:center;gap:12px;min-height:56px}
+.brand-line img{width:56px;height:56px;flex:none}
+.brand-line .eyebrow{margin:0;line-height:1.2}
+@media(max-width:700px){.brand-line img{width:46px;height:46px}.brand-line{min-height:46px}}

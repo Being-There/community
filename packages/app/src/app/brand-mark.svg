@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Being There: sunset over mountains and a winding river">
+<defs>
+ <clipPath id="c"><circle cx="256" cy="256" r="241"/></clipPath>
+ <linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FADEAF"/><stop offset=".56" stop-color="#F5C576"/><stop offset="1" stop-color="#94C4B8"/></linearGradient>
+</defs>
+<circle cx="256" cy="256" r="247" fill="#104B40"/>
+<g clip-path="url(#c)">
+<rect x="-10" y="-10" width="532" height="540" fill="url(#s)"/>
+<circle cx="308" cy="151" r="78" fill="#FFD176"/>
+<path d="M-8 288 L128 172 L206 231 L313 155 L419 267 L530 185 V525 H-8Z" fill="#4E8BA1"/>
+<path d="M-8 337 L109 259 L178 303 L273 234 L375 318 L480 255 L530 303 V530 H-8Z" fill="#237478"/>
+<path d="M-8 392 Q80 338 158 365 Q225 317 302 368 Q396 307 530 365 V540 H-8Z" fill="#145448"/>
+<path d="M282 302 C207 326 357 346 261 381 C175 408 330 416 292 445 C266 469 235 489 201 526 L344 532 C366 478 384 438 338 408 C291 376 369 353 329 325Z" fill="#FDF1CF"/>
+</g>
+<circle cx="256" cy="256" r="241" fill="none" stroke="#FCF4E4" stroke-width="15"/>
+</svg>
