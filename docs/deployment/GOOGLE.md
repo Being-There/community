@@ -20,9 +20,17 @@ Google Sites can embed external URLs as pages or sections, but the destination m
 
 **Optional later:** A verified full-page iframe mode *only* for owner-approved, exact site origins, with CSP `frame-ancestors` allowlist, secure cookie/OAuth and accessibility/mobile/microphone acceptance tests. Test Safari and Chromium, third-party-cookie blocking, domain changes, and Sites access changes. Fail closed and offer the direct link. No general `frame-ancestors *` or public iframe endpoint.
 
+## Protect sources: read selected files, create a new encrypted vault
+
+**Do not encrypt existing files in place.** A person's normal Drive photos, albums and other files must remain untouched, readable in Drive and under their existing permissions. Being There must only import an explicitly selected item by reading it **on the authorized browser/device**, then encrypting a *new* Being There-managed copy. The Being There backend must never receive plaintext originals or have a broad credential capable of reading all of the family's Drive content.
+
+Create or select a **separate Being There vault folder**, with app-managed opaque filenames and encrypted media, story records and manifests. Those vault files will **not** show normal photo previews in Drive—view them from an authorized Being There device. Existing source originals are outside the app's E2EE guarantee; disclose that Google and anyone who has separate access to the source can still read them. Never advertise external plaintext Drive originals as “only the family has the key.”
+
+**Durability:** Do not treat originals outside the vault as the backup for new audio/stories/tags. The vault needs independently verified backups in another failure domain plus multiple family-controlled ways to recover keys. Cloud-sync mirroring alone can propagate accidental deletion, so preserve explicit versioned restore points and test independent recovery.
+
 ## Google Drive: make storage owner-visible and portable
 
-The family selects a **regular, visible Drive folder** for originals/backups, not Google's hidden `appDataFolder`: it is not suitable as the principal family-visible archive and is not designed for shared family folders. Organize originals by family, contributor and immutable ID, and store checksummed manifest/snapshot files that can be copied out of Drive without the app. Meaningful readable folder hierarchy is fine, but avoid putting a diagnosis, family identity or confidential story text into public link names/URLs.
+The family selects a **separate regular, visible Drive vault folder** for encrypted Being There copies/backups, not Google's hidden `appDataFolder`: it is not suitable as the principal family-visible archive and is not designed for shared family folders. Organize originals by family, contributor and immutable ID, and store checksummed manifest/snapshot files that can be copied out of Drive without the app. Meaningful readable folder hierarchy is fine, but avoid putting a diagnosis, family identity or confidential story text into public link names/URLs.
 
 Suggested layout (illustrative, not a shipped writer):
 
@@ -35,7 +43,7 @@ Being There (private folder chosen by owner)/
     snapshots/<sequence>-<opaque-snapshot-id>.json
 ```
 
-The family can browse/manage the folder in Drive; access should be granted only to the owner-selected Google identity or an owner-administered Workspace shared drive. **Do not make media shareable to anyone with a link.** Family contributors upload/play through the *authorized app API*, not by requiring every contributor to have direct Google Drive permissions.
+The family can browse/download ciphertext and recovery manifests in the dedicated vault folder; only the Being There app running on an authorized family device can preview/decrypt them. Access should be granted only to the owner-selected Google identity or an owner-administered Workspace shared drive. **Do not make media shareable to anyone with a link.** Family contributors upload/play through the *authorized app API*, not by requiring every contributor to have direct Google Drive permissions.
 
 ### Connection and credentials
 
