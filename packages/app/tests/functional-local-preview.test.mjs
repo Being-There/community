@@ -63,7 +63,8 @@ test('npm dev runs the full authenticated app on loopback with only synthetic di
     assert.equal(JSON.parse(families.body.toString()).families[0].id, 'previewFamily');
     const memories = await request('/api/families/previewFamily/memories');
     assert.equal(memories.status, 200);
-    assert.equal(JSON.parse(memories.body.toString()).memories.length, 1);
+    assert.equal(JSON.parse(memories.body.toString()).memories.length, 2);
+    assert.deepEqual(JSON.parse(memories.body.toString()).memories.find(row => row.id === 'sharedSunset').personIds, []);
     const sample = JSON.parse(memories.body.toString()).memories[0];
     const original = await request('/api/families/previewFamily/media/' + sample.originalIds[0]);
     assert.equal(original.status, 200);
@@ -80,7 +81,7 @@ test('npm dev runs the full authenticated app on loopback with only synthetic di
     assert.equal(upload.status, 200, upload.body.toString());
     assert.equal(JSON.parse(upload.body.toString()).durable, true);
     const next = await request('/api/families/previewFamily/memories');
-    assert.equal(JSON.parse(next.body.toString()).memories.length, 2);
+    assert.equal(JSON.parse(next.body.toString()).memories.length, 3);
     assert.equal((await request('/auth/google/start')).status, 404);
     assert.equal((await get('https://127.0.0.1:' + port + '/api/families', { headers: { Host: 'localhost:' + port } })).status, 401);
   } finally {
