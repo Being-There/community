@@ -4,6 +4,12 @@
 
 **Current reality:** The public Community Edition is a self-hosted technical preview using Node.js, SQLite, a private filesystem archive and manually configured Google OAuth/HTTPS. There is no hosted family service, native Drive storage, single-click installer or completed independent-family privacy review yet. Keep the original private family installation separate.
 
+## Non-negotiable release gate: family-held E2EE only
+
+**[Zero-access privacy and security commitment](SECURITY_PROMISE.md) is now the top architectural requirement.** All sensitive family photos, videos, voice recordings, stories, profiles, tags, derivatives and metadata must be encrypted on an authorized device *before* upload. Only family-authorized devices hold decryption keys. No hosted Being There backend or cloud storage service receives those keys or plaintext. The current public app DOES NOT do this; no hosted launch or real family rollout until full E2EE, shared-device invitations, family-held recovery, exact-byte restore and independent review pass. An AWS KMS key, HTTPS connection or a family-owned Google Drive account is **not sufficient** by itself.
+
+The launch question is therefore **not** "where do we host plaintext?" but "can people enjoy and share E2EE family stories through a simple web app without the operator holding keys?" Existing technical deployment cards are supporting work and may not authorize a lower-security edition.
+
 ## The family journey
 
 1. **Open Being There.** A regular web link on a phone, computer or tablet; eventually an installable home-screen shortcut.
