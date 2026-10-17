@@ -182,3 +182,33 @@ test('short family video preserves original bytes, access isolation, range playb
   assert.deepEqual(Buffer.from(f.repository.getMediaBytes('videoRecovery', saved.originalId)), videoBytes);
   assert.equal((await owner.request('/api/families/videoRecovery/memories')).status, 404);
 });
+
+test('untagged shared memory stays in family collection and explicit speaker survives archive recovery', async t => {
+  const { f, owner } = await household(t);
+  const photo = await sharp({ create: { width: 12, height: 12, channels: 3, background: '#577a54' } }).png().toBuffer();
+  const input = { id: 'sharedMoment', title: 'An invented sunset', personIds: [], base64: photo.toString('base64') };
+  const added = await json(await owner.request('/api/families/familyA/contributions', { method: 'POST', body: input }));
+  const memories = await json(await owner.request('/api/families/familyA/memories'));
+  assert.equal(memories.memories.find(memory => memory.id === 'sharedMoment')?.personIds.length, 0);
+  const voice = await json(await owner.request('/api/families/familyA/memories/sharedMoment/stories', {
+    method: 'POST', body: { id: 'voice1', text: 'Avery tells a story about this memory.', speakerPersonId: 'avery' }
+  }));
+  assert.equal(voice.durable, true);
+  const [{ stories }] = await Promise.all([json(await owner.request('/api/families/familyA/memories/sharedMoment/stories'))]);
+  assert.equal(stories[0].speakerPersonId, 'avery');
+  assert.notEqual(stories[0].contributorId, 'avery', 'A person profile cannot impersonate the signed-in contributor');
+  const invalid = await owner.request('/api/families/familyA/memories/sharedMoment/stories', {
+    method: 'POST', body: { id: 'voice2', text: 'not allowed', speakerPersonId: 'not_in_family' }
+  });
+  assert.equal(invalid.status, 400);
+  const exported = await json(await owner.request('/api/families/familyA/exports', { method: 'POST' }));
+  const restored = await prepareFamilyRestore({
+    files: decodeArchiveFiles(exported), expectedFamilyId: 'familyA', targetFamilyId: 'sharedRecovery',
+    subtleCrypto: webcrypto.subtle
+  });
+  assert.equal(f.repository.commitIsolatedRestore(restored).access, 'disabled');
+  assert.deepEqual(Buffer.from(f.repository.getMediaBytes('sharedRecovery', added.originalId)), photo);
+  assert.deepEqual(f.repository.getMemory('sharedRecovery', 'sharedMoment').personIds, []);
+  assert.equal(f.repository.listStories('sharedRecovery', 'sharedMoment')[0].speakerPersonId, 'avery');
+  assert.equal((await owner.request('/api/families/sharedRecovery/memories')).status, 404);
+});
