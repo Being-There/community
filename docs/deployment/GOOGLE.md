@@ -1,6 +1,6 @@
 # Google Sites and Google Drive: optional, family-owned integration
 
-**Status: design, not implemented.** The current Community application is a Node.js/SQLite server with a private filesystem archive. Neither a native Google Drive write-through storage adapter nor a Google Sites-hosted version is shipped. Current import works from a host-mounted/synced folder, not by connecting directly to the Drive API.
+**Status: design, not implemented.** [Tracking issue #17](https://github.com/Being-There/community/issues/17). The current Community application is a Node.js/SQLite server with a private filesystem archive. Neither a native Google Drive write-through storage adapter nor a Google Sites-hosted version is shipped. Current import works from a host-mounted/synced folder, not by connecting directly to the Drive API.
 
 ## Separate the three choices
 
