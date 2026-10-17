@@ -13,7 +13,7 @@ A family with a dedicated mini PC/NAS, or a trusted family helper, who prefers t
 3. Bind app to localhost behind HTTPS reverse proxy. For access over the public internet, require an owned domain, secure DNS and router configuration; alternatively use a carefully documented private remote-access method, **not** an anonymous public tunnel.
 4. Create owner-controlled Google OAuth credentials and secret store; configure exact HTTPS callback. Do not bundle a central developer OAuth client. Provision first organizer invitation by authenticated local admin action, never first-visitor-wins.
 5. Invite family, load synthetic data first, then verify private image/audio retrieval and that unauthenticated requests cannot access originals.
-6. Configure **automatic off-device encrypted backups** to a family-owned second storage location (e.g. separately owned NAS, cloud bucket or offline drive); verify actual recovery on a fresh host before loading valuable content.
+6. Configure **automatic off-device backups** to a family-owned second storage location (e.g. separately owned NAS, encrypted cloud bucket or offline drive); verify backup integrity and actual recovery on a fresh host before loading valuable content. **Google Drive** is a planned optional remote archive; today's supported mounted/synced-folder photo importer is not itself off-device backup.
 7. Show health and backup status without exposure of secrets/photos/story content; document how to update, roll back, export to AWS, and remove an authorized helper.
 
 ## Existing vs missing
@@ -26,5 +26,7 @@ A family with a dedicated mini PC/NAS, or a trusted family helper, who prefers t
 | Full verified export / fresh family restore | Synthetic tests | Scheduled independent backup and actual host loss drill |
 | Media upload + tablet presentation | Yes (with limits) | Tablet/browsers and accessibility review |
 | Docker Compose + nonexpert lifecycle | No | Installer, HTTPS, persistence, updates, troubleshooting |
+
+**Google Sites/Drive complement home hosting; they do not replace the backend.** Families may add a Google Site link to a private hosted app, or later connect an owner-selected Drive archive without moving their runtime to Google. See [Google option](GOOGLE.md).
 
 **Home hosting is not automatically more private.** Unsafe port forwarding, missed patches, stolen disks and same-disk backups can expose or erase content. Avoid marketing the DIY path as easier or safer until independently tested.

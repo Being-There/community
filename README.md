@@ -22,9 +22,9 @@ For real accounts and persistent independent hosting, follow the separate produc
 
 ## Planning a family-owned installation
 
-We are designing an **AWS guided launch** (CDK-authored, published CloudFormation quick-create button) and a later home server/NAS option. Neither installer is available yet. Both must preserve family-owned data, encryption keys/credential controls, verified off-device backups and the ability to migrate elsewhere.
+We are designing an **AWS guided launch** (CDK-authored, published CloudFormation quick-create button), a later home server/NAS option, and **an optional Google Drive archive/storage connector with Google Sites as a family landing page**. Neither installer is available yet. Both must preserve family-owned data, encryption keys/credential controls, verified off-device backups and the ability to migrate elsewhere.
 
-Start with [family-friendly getting started](docs/GETTING_STARTED.md), [deployment milestones](docs/DEPLOYMENT_ROADMAP.md), [AWS design](docs/deployment/AWS.md) or [keys/ownership/recovery](docs/deployment/DATA_AND_KEYS.md). Existing advanced operators can install the Node app manually below.
+Start with [family-friendly getting started](docs/GETTING_STARTED.md), [deployment milestones](docs/DEPLOYMENT_ROADMAP.md), [AWS design](docs/deployment/AWS.md), [Google Sites/Drive option](docs/deployment/GOOGLE.md) or [keys/ownership/recovery](docs/deployment/DATA_AND_KEYS.md). Existing advanced operators can install the Node app manually below.
 
 ## Technical-preview installation
 

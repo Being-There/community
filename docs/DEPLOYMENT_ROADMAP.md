@@ -8,6 +8,7 @@
 - [M2 — Cognito-first OIDC and first invitation](https://github.com/Being-There/community/issues/14) (integrates existing [real OAuth pilot](https://github.com/Being-There/community/issues/8))
 - [M3 — independent S3 backup and verified non-AWS restore](https://github.com/Being-There/community/issues/15)
 - [M4 — novice pilot, maintenance and portable home-host path](https://github.com/Being-There/community/issues/16)
+- **Google option:** [Google Sites + Drive design](deployment/GOOGLE.md) and [Drive/optional Sites delivery #17](https://github.com/Being-There/community/issues/17). This is an optional provider route that must not displace the AWS release gates.
 
 **Sequence:** M1 and M2 must meet before the first live private install; M3 is a release blocker, and M4 supplies the independent family-ready evidence. Do not grow a parallel feature backlog while these gates remain open.
 
@@ -23,8 +24,13 @@ A family with limited technical knowledge can launch a private instance **in an 
 | --- | --- | --- | --- |
 | **AWS guided launch (first)** | Family with an AWS account or helper | CDK-authored stack, **versioned/signed-off synthesized CloudFormation template**, AWS console quick-create link; resources deploy in family's account | **Planned; template not built or tested** |
 | **Home server / NAS (second)** | Comfortable running a home server, or helper | Pinned image/Compose, host storage and off-device backups; optional mounted/synced Drive intake | Planned |
+| **Google-first family experience (additional option)** | Families who already use Sites and Drive | Google Site links to the private app; family-selected Drive folder for verified originals/backup; backend on a separately owned/managed host | **Sites link possible today; native Drive storage and beginner hosting planned** |
 | **Advanced/manual installation (existing)** | Linux/Node operator | Follow [application guide](../packages/app/README.md) | Working reference; no real-world deployment verification |
 | Being There-managed hosting | No-hosting family | Would put hosting, billing and trust at project/operator boundary | **Not a required path and not committed** |
+
+### Keep storage and hosting independent
+
+A family chooses where the **app runs** independently from where it **archives originals**. The existing filesystem+SQLite implementation remains authoritative until an independently tested provider storage adapter can preserve exact originals and snapshots. Google Drive should be a first-class, owner-visible archive choice rather than something that requires migrating to AWS or granting access to a project-maintained account. Google Sites is an optional portal/link; it does not run this application's private backend. See [Google integration design](deployment/GOOGLE.md). Initial Drive implementation should be a verified off-device mirror, then a reviewed native originals/archive provider; a Google Site iframe is optional only after origin, auth-cookie and tablet testing.
 
 ### First AWS architecture: simple and recoverable
 

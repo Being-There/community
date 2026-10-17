@@ -9,6 +9,9 @@ A technical user can run `cd packages/app && npm ci --ignore-scripts && npm run 
 ### Will I be able to deploy it in my own AWS account?
 **Planned, not yet available.** We intend to publish a reviewed and immutable CloudFormation template authored in AWS CDK, with a **Deploy to AWS** console link, backed by the family's own EC2, encrypted EBS and private S3 backup storage. It will still need a family-owned AWS account and DNS/domain; planned Cognito sign-in should be provisioned in the account without extra Google OAuth setup. The current app is still Google-only and requires a new, audited OIDC adapter before this flow ships. Optional Google sign-in would require owner-configured credentials. No shared Being There AWS credential or secret is required. See [the milestone plan](docs/DEPLOYMENT_ROADMAP.md) and [AWS guide](docs/deployment/AWS.md).
 
+### Can I use Google Sites or Google Drive?
+A family can put a **link to its private hosted Being There app** on a Google Site right now. Google Sites cannot run the existing Node/SQLite backend or automatically replace its login/security boundary. The app currently imports photos from a mounted/synced folder, but **does not yet connect directly to the Drive API or persist new originals to Drive**. We plan an owner-selected, visible Drive folder for verified archives and eventually a native storage option alongside S3/NAS. A private Drive folder is not an invitation or an authenticated Being There account. See [Google integration design](docs/deployment/GOOGLE.md).
+
 ### Could we host it on a home server or NAS?
 This is planned as a separate portable installer. The currently shipped Node app can be operated manually by someone comfortable with Linux and HTTPS; a validated Docker Compose quickstart is not yet delivered. All routes must use the same family-owned export/recovery format.
 

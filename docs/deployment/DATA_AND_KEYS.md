@@ -9,11 +9,14 @@
 | Photos, videos, original audio and transcripts | Family, in their instance/archive | Application runtime can read content to serve it to authorized people |
 | SQLite family metadata and account permissions | Family's EBS/local filesystem | Do not treat copied WAL files as a backup without consistency checks |
 | AWS S3 backup bucket, KMS key policy and IAM | Family's AWS account | AWS and identities granted KMS/use privileges are within the trust model |
+| Optional Google Drive originals/archive folder (planned) | Family's Google account or authorized Workspace drive | Drive OAuth grants and the family-hosted runtime can access allowed files; Google can process the data under its service terms; Drive does not make the data end-to-end encrypted |
 | OIDC identity directory/client | Family's AWS Cognito User Pool by default on planned AWS installer; optional Google client in family's Google project | Authentication identifies accounts; it does **not** encrypt memories. Current runtime only supports Google. |
 | HTTPS domain and DNS | Family | Renewal/DNS outage can make the app unavailable |
 | Family invite URLs | Only intended invite recipients | Invite tokens are credentials; don't put in logs or publicly indexed documents |
 | Archive export | Family, only authorized organizer with recent sign-in | Downloaded JSON archive is not app-encrypted: store and transfer privately |
 | Code and deployment manifest | Public open-source project | No family secrets or private material in the repo/release artifacts |
+
+**Storage choice does not change app authorization.** Google Sites, Drive folder permissions and sign-in accounts are separate layers: only server-enforced invite/membership checks may authorize private memories. The family should be able to revoke a storage token, rotate it and export everything without giving the project access. See [Google option](GOOGLE.md).
 
 **Customer-managed AWS KMS keys are not equivalent to end-to-end encryption.** They provide account-level encryption control, IAM governance and audit paths. If an operator or service has decrypt rights, it may read data. Losing/disabled keys can make recovery impossible. Do not require families to invent or manually carry raw keys for the basic flow. An optional app/client-side zero-knowledge mode would need independent design, recovery and accessibility review.
 
