@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Being There — fictional local demo</title>
+<style>
+:root{color-scheme:light dark;font:18px/1.5 system-ui,sans-serif}body{max-width:860px;margin:auto;padding:1rem}button{font:inherit;min-height:48px;padding:.6rem 1rem;margin:.25rem;border:2px solid currentColor;border-radius:.5rem;cursor:pointer}button:focus-visible{outline:4px solid #b7791f;outline-offset:3px}nav{display:flex;flex-wrap:wrap}article{border:2px solid #777;border-radius:1rem;padding:1rem;margin:1rem 0}.art{font-size:clamp(5rem,20vw,10rem);text-align:center;background:#d7e9d6;color:#142e24;border-radius:1rem}small{display:block}#notice{font-weight:600}textarea{display:block;width:95%;font:inherit;min-height:100px}h1{line-height:1.2}
+</style></head><body>
+<header><h1>Being There</h1><p><strong>Fictional local demo.</strong> No accounts, uploads, audio recording, or saved family data. Do not enter real personal information.</p></header>
+<nav aria-label="Demo views"><button type="button" data-view="family">Family</button><button type="button" data-view="memory">Enjoy a memory</button><button type="button" data-view="stories">Stories</button><button type="button" id="reset">Reset demo</button></nav>
+<main id="app" tabindex="-1"></main><p id="notice" role="status" aria-live="polite"></p>
+<script>
+(() => {
+ const initial = () => ({view:'family',stories:[{by:'Morgan',text:'We brought a picnic to the garden.'},{by:'Casey',text:'I remember the bright yellow flowers.'}]});
+ let state = initial();
+ const app=document.querySelector('#app'),notice=document.querySelector('#notice');
+ const escape = s=>s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+ function render(){
+  const body=state.view==='family'?'<h2>Sample household</h2><p>Avery and Riley are fictional people. Morgan and Casey are fictional contributors. Profiles are not accounts.</p><p>Choose “Enjoy a memory” to explore a moment without answering a question.</p>':
+  state.view==='memory'?'<h2>The garden picnic</h2><div class="art" role="img" aria-label="Illustration of flowers in a garden">🌻🌼</div><p>Enjoy this moment. There is nothing to remember or answer.</p><button type="button" id="read-stories">Read stories</button>':
+  '<h2>Stories about the garden picnic</h2>'+state.stories.map(s=>'<article><strong>'+escape(s.by)+'</strong><p>'+escape(s.text)+'</p></article>').join('')+'<h3>Add a fictional version</h3><label for="story">Sample story text</label><textarea id="story" maxlength="500" placeholder="Write an invented story only"></textarea><button type="button" id="add-story">Add sample story</button><small>Stories exist in this tab only and disappear when refreshed.</small>';
+  app.innerHTML=body;
+  document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===state.view)));
+  document.querySelector('#read-stories')?.addEventListener('click',()=>show('stories'));
+  document.querySelector('#add-story')?.addEventListener('click',()=>{const value=document.querySelector('#story').value.trim();if(!value){notice.textContent='Enter an invented story first.';return;}state.stories.push({by:'You (fictional)',text:value});notice.textContent='Sample story added for this session only.';render();});
+ }
+ function show(view){state.view=view;notice.textContent='';render();app.focus();}
+ document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.view)));
+ document.querySelector('#reset').addEventListener('click',()=>{state=initial();notice.textContent='Demo reset. No data was saved.';render();app.focus();});
+ render();
+})();
+</script></body></html>
