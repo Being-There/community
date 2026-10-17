@@ -23,7 +23,7 @@ Everyday family members should only see **Family space** (contribute/organize) o
 
 | Experience | How the family starts | Tradeoff | Recommendation |
 | --- | --- | --- | --- |
-| **Hosted web app + connected family Drive** | Open site → Google sign-in → authorize private Drive folder → invite family | Easiest onboarding. A hosted backend that keeps storage tokens may be able to read family data. A browser-direct Drive approach could reduce backend custody but needs its own collaboration/auth design. | **Evaluate first** |
+| **Hosted web app + connected family Drive** | Open site → Google sign-in → authorize private Drive folder → invite family | Easiest onboarding, but only with proven end-to-end encrypted content. A backend holding Drive tokens may read/corrupt **ciphertext** and metadata, not decrypt content. Browser client integrity and recovery remain critical. | **Evaluate first** |
 | **Same hosted web app + another family-controlled store** | Open site → sign in → connect supported bucket/folder | More choice and portable archives; requires provider-specific permissions, backup and recovery tests | Next, reuse same app |
 | **Family-owned deployment** | Use a guided installer or ask a technical helper to deploy into the family's account/home server | More direct infrastructure and key custody, more setup/maintenance | Always an option, community-enabled |
 
@@ -39,15 +39,15 @@ This is **one web app with choices**, not separate Google/AWS/NAS applications. 
 
 ### 2. Storage and data custody
 
-- The organizer selects a family-owned destination. Ideally originals, recordings and a portable history/metadata archive are readable and exportable without a continuing Being There subscription.
+- The organizer selects a family-owned destination. Store **only encrypted originals, recordings, history and private metadata archives** outside an authorized device; the family can export and decrypt them locally using its own keys without any subscription.
 - **Drive as a first option**, not a mandatory dependency. Add other stores through adapters once there is demand.
 - The existing app has **local SQLite runtime state and filesystem originals**. Moving primary storage to Drive/S3 isn't implemented and cannot be implied by connecting a folder. A web service may still need a secure database for accounts/indexing and a secret store for provider refresh tokens.
-- Be explicit about the trust model: if the Being There operator hosts a backend holding Drive OAuth tokens, it has technical ability to access permitted content. A family-owned deployment provides more control. Neither configuration should be called zero-knowledge without a separately verified encryption design.
+- Be explicit about the trust model: a backend holding Drive OAuth tokens can access, alter or delete **encrypted files and exposed metadata**, but must never receive plaintext or decryption keys. Independent family-held recovery is mandatory; the provider and our service cannot recover lost keys. Browser code integrity and device compromise remain meaningful risks.
 - **Nonnegotiable:** no cross-family leakage, private-by-default access, a verified independent backup/export, and successful restore on another host without restoring old invitations/sessions.
 
 ## Next product validation, not more infrastructure design
 
-- **Proof of the simplest flow:** use *fictional* test content to prototype a hosted web sign-in, invited second person, connected test Drive folder, photo/video/audio contributions and private tablet view. Decide whether a browser-direct Drive model or a small trusted backend is actually maintainable. Record clearly which party can read tokens and content.
+- **Proof of the simplest flow:** use *fictional* test content to prototype a hosted web sign-in, invited second person, connected test Drive folder, photo/video/audio contributions and private tablet view. Decide whether a browser-direct Drive model or a small trusted backend is actually maintainable. Record who handles OAuth tokens, who sees ciphertext and metadata, and prove only family devices can decrypt. This is **not** a choice between operator-readable models.
 - **Proof of family ownership:** verify original-byte export and clean restore with credentials revoked; show the owner where their data lives and how to leave.
 - **Usability trial:** someone unfamiliar with servers gets to a first private memory without an operator explaining cloud services. If not, simplify the product rather than add another provider.
 
