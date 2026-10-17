@@ -16,7 +16,7 @@ npx playwright install --with-deps chromium --only-shell
 npm run test:browser
 ```
 
-These tests run against **synthetic identities and temporary local storage**; no Google account or cloud server is needed. The browser suite uses an emulated microphone, not real family audio. To try the actual API/UI locally with a disposable synthetic owner and temporary data, see [PR #7](https://github.com/Being-There/community/pull/7) until it merges; that branch changes `npm run dev` to run the functional HTTPS loopback preview. On published `main` before #7 merges, `npm run dev` still starts the fictional page—**it is not the real app**.
+These tests run against **synthetic identities and temporary local storage**; no Google account or cloud server is needed. The browser suite uses an emulated microphone, not real family audio. To try the actual API/UI locally with a disposable synthetic owner and temporary data, run `npm run dev` and open `https://localhost:3000`. This now runs the functional loopback-only app preview (implemented in [PR #7](https://github.com/Being-There/community/pull/7)); `npm run demo` starts the older fictional page. Neither uses a real Google account. Never expose the synthetic `dev` server outside your own computer.
 
 For the real persistent app, `npm run family:start` requires a separate HTTPS host and your **own** Google OAuth web client. See the [operator guide](packages/app/README.md). Never send your client secret, real media or invitation tokens to GitHub Issues/PRs.
 
