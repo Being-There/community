@@ -78,4 +78,6 @@ Sources: [Safari Add to Home Screen](https://support.apple.com/guide/iphone/open
 
 A new entry must produce public, synthetic, reproducible evidence: first launch; external HTTPS + exact provider callbacks; independent organizer/contributor access with outsider denied; photo/video/audio originals and attributed story saved; kill the entire application host; restore to a separate instance/provider with byte-exact checks; old tokens and invitations denied; upgrade, revocation, and documented offboarding; explicit monthly costs, ownership and logs privacy. **No new provider merely because it exposes a Deploy button.**
 
+**Cross-provider implementation:** [Portable OCI/Compose #19](https://github.com/Being-There/community/issues/19), [managed persistent-volume candidate #20](https://github.com/Being-There/community/issues/20), [tablet/PWA/secure invite #21](https://github.com/Being-There/community/issues/21).
+
 **Related existing work:** [AWS deployment #13](https://github.com/Being-There/community/issues/13), [Cognito onboarding #14](https://github.com/Being-There/community/issues/14), [S3 backup #15](https://github.com/Being-There/community/issues/15), [portability and novice pilot #16](https://github.com/Being-There/community/issues/16), [Google Drive #17](https://github.com/Being-There/community/issues/17).
