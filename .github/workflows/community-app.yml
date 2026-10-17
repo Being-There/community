@@ -1,9 +1,8 @@
 name: Community app verification
 on:
+  # Required check must be reported on every PR, including docs-only changes.
+  # A paths-filtered required workflow leaves skipped PR checks pending.
   pull_request:
-    paths:
-      - 'packages/app/**'
-      - '.github/workflows/community-app.yml'
   push:
     branches:
       - release/community-v0.1.0-candidate
