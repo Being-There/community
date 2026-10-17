@@ -4,9 +4,9 @@
 
 ## What an AWS owner should expect
 
-**You own:** the AWS account and bill, domain/DNS, Google OAuth web client and credentials, S3 originals/backups, EBS database volume, KMS key policies, CloudFormation stack and ability to export/delete. Being There does **not** receive these credentials or a shared administrative role.
+**You own:** the AWS account and bill, domain/DNS, family-owned Cognito sign-in directory (or optional Google OAuth client), private S3 backups, EBS database/originals volume, KMS key policies, CloudFormation stack and ability to export/delete. Being There does **not** receive these credentials or a shared administrative role.
 
-**You need initially:** AWS account with billing controls, domain or subdomain you administer (Route 53 is simplest for the guided v1), an organizer's email for the future AWS-owned Cognito sign-in (or a Google Cloud project if opting into current Google OAuth), and permission to approve the first private invitation. A family helper may administer the account under revocable IAM/Identity Center permissions. Domain purchase, Cognito User Pool and managed login can be provisioned in the family's AWS stack **once the not-yet-implemented OIDC integration exists**. Optional Google OAuth still requires external setup. Neither domain purchase nor account creation is literally one click.
+**You need initially:** AWS account with billing controls, domain or subdomain you administer (Route 53 is simplest for the guided v1), an organizer's email for the future AWS-owned Cognito sign-in (or a Google Cloud project if opting into current Google OAuth), and permission to approve the first private invitation. A family helper may administer the account under revocable IAM/Identity Center permissions. Cognito User Pool and managed login can be provisioned in the family's AWS stack **once the not-yet-implemented OIDC integration exists**. Domain registration is a separate prerequisite; optional Google OAuth still requires external setup. Neither domain purchase nor account creation is literally one click.
 
 **You will pay AWS directly** for running compute, disk, snapshots, stored backups, encryption/key usage, Secrets Manager, DNS/domain, internet transfer and optional monitoring. Display the selected-region line-item estimate **before** launch. No default claim that AWS is free.
 
@@ -28,7 +28,7 @@ Family's domain + HTTPS (Caddy or similarly reviewed reverse proxy)
               EC2 (single host)
               - Node 24 application (loopback only)
               - SSM maintenance, no SSH ingress
-              - identity role, read Google OAuth secret
+              - identity role, Cognito OIDC metadata and optional OAuth secret
                     |
     encrypted EBS data volume: DATA_DIR + original-archive
                     |
