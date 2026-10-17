@@ -10,6 +10,25 @@ This statement becomes a **publishable capability claim only after independently
 
 **Non-negotiable:** No vendor/operator/developer, analytics service, transcription vendor, backend role, shared OAuth app, cloud KMS key or service-held recovery secret may decrypt a family's memory contents. Zero-knowledge excludes server-managed copies of the user encryption key. Avoid "zero liability": the project can minimize access/risk but cannot promise that legal/security responsibilities vanish. Consult counsel before shipping Terms/Privacy policies.
 
+## Preservation without touching existing originals
+
+**Never encrypt, rename, move, modify, replace, or delete a family's existing Google Drive, phone, NAS or other source photos/videos.** Existing files are outside the Being There encrypted vault and must stay exactly where the family put them. For an import, the authorized **family device** reads explicitly selected source bytes directly, makes a separate encrypted copy for Being There, verifies the copy and leaves the source untouched. No plaintext import proxy through Being There's server; no project-held broad Drive read token. Use least-privilege selected-file access and show which sources are available.
+
+**Two different things, different privacy claims:** (a) external unencrypted sources a family chose to keep, which remain subject to that source provider's own permissions; (b) Being There-managed originals, stories and archive, which must be E2EE ciphertext everywhere outside authorized devices. We can promise the Being There backend cannot decrypt (b), but **cannot claim** Google or anyone authorized to read the family's pre-existing unencrypted Drive originals is unable to view (a).
+
+**Never lose the only new story.** A newly recorded voice, transcript, caption or contribution might have **no pre-existing source file**. It must be durably encrypted and independently backed up, with tested family-held key recovery, before the app reports it protected. Source preservation by itself does not protect these additions.
+
+### Availability is a release requirement, not an optional convenience
+
+- The owner gets an **unambiguous recovery kit** and at least one independently enrolled family device / trusted family-held backup of key material. Neither the Being There service nor a hosting operator gets the keys. Test total phone loss and recovery **without** any project staff intervention.
+- Keep at least **two independently controlled copies of each verified encrypted archive** in separate failure domains (e.g., encrypted vault in Drive plus encrypted offline/second-provider backup). Do not count the original only, another folder on the same disk, or a synced deletion as an independent backup.
+- The app confirms **source unchanged**, successful encrypted write, remote readback/hash and recovery-key readiness independently. Never acknowledge “safe” because a background upload was merely queued. Show backup freshness/failure plainly.
+- Use immutable/versioned object history and explicit restore points for originals and story versions, with separate policies for hiding from rotation, archiving, and owner-authorized permanent deletion. Avoid silently propagating deletions to every backup.
+- Publish a stable, documented ciphertext/archive format and **offline open-source restoration/decryption tool** that works on a family-authorized machine without Being There servers. Prove full photo/video/audio/story restore in a second environment, including migrations and corrupted-backup scenarios.
+- Clarify irreducible limitations: if every family device and recovery key is lost, app-created encrypted stories are unrecoverable; external original photos may still survive if their owners kept them. Someone with access to an unencrypted external original can still view it independent of Being There.
+
+**No in-place encryption of an owner's Drive, ever.** This is both a data-loss prevention and informed-consent boundary.
+
 ## What is encrypted
 
 Encrypt **before upload**, on an authorized family device:
@@ -28,7 +47,7 @@ Server may need minimal routing metadata: opaque family/item IDs, encrypted obje
 3. **Invite family.** Authorized member verifies a new recipient/device and shares the family key through an E2EE device-to-device invitation, with the private key remaining on that recipient's device. Never email the master secret or place it in a QR/link that can be publicly copied. The application enforces invitation/membership *and* E2EE key possession.
 4. **Enjoy memories on tablet.** An organizer securely provisions the tablet with a limited device grant and encrypted key envelope. The person using the simplified view does not need to manage secrets. A lost tablet can be denied future access; previously downloaded or viewed copies can't magically be taken back.
 5. **Save/recover.** The family receives a clearly labeled **offline recovery key or securely encrypted recovery kit** and is encouraged to have a second trusted device/guardian. A lost device can be re-enrolled with a valid recovery method; **lost all devices and recovery material = no Being There recovery**.
-6. **Move storage.** Store only ciphertext and encrypted manifests in Google Drive (owner-selected folder), S3 or another destination. A family can export encrypted files independently. Local decryption/export is possible **only on a family-authorized device**. Drive itself should not be expected to preview arbitrary encrypted app files as normal photos.
+6. **Move storage.** Store only Being There-managed ciphertext and encrypted manifests in a **separate Being There vault folder** in the family's selected Drive, S3 or another destination. Never transform unrelated files in a source folder. A family can export encrypted files independently. Local decryption/export is possible **only on a family-authorized device**. Drive itself should not be expected to preview arbitrary encrypted app files as normal photos.
 
 ## Architecture constraints
 

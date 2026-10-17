@@ -2,6 +2,14 @@
 
 **MANDATORY:** [End-to-end encryption with family-held keys only](../SECURITY_PROMISE.md). This is the product's security bar for every hosting/storage option. The existing public technical preview is **NOT E2EE**, and its database, archive and JSON exports can contain **plaintext**. It is not suitable for real sensitive family stories and must not be marketed as zero-access.
 
+## Preserve memories, not just their secrecy
+
+**Existing originals must never be edited in place.** When importing an older photo from Drive, the browser on an authorized family device can read the selected original and create a **separate encrypted Being There copy**; the source photo stays readable and unchanged in its existing folder. This source is **outside** Being There's E2EE claim; its cloud provider and other authorized viewers may still be able to view it.
+
+**New content needs its own preservation.** A freshly told audio story has no earlier original in Drive. It is encrypted on device, stored as a verified original inside the Being There vault, and copied to an independent encrypted backup. A second enrolled device or offline recovery kit lets the family unlock the archive without the project. If all decryption keys are lost, the new stories are not recoverable, so require a clear recovery readiness check rather than assuming encryption alone protects them.
+
+The vault uses a portable encrypted archive with versioned restore points and explicit, independently confirmed deletion. A user removing something from the slideshow must **not** implicitly delete originals or all encrypted backup copies. Avoid syncing accidental deletions into the only other copy. Aim for a separate Drive vault plus an off-Drive encrypted backup, or equivalent independent storage. Provide an offline family-authorized recovery tool that works even when the project no longer operates.
+
 ## The simple promise
 
 **Only an approved family device can unlock the family album.** Google Drive, Amazon S3, a NAS and Being There's hosted server can store, copy and restore the locked album, but none of them has the combination. Even a system administrator with the entire database, every stored backup and OAuth storage credentials should not be able to decrypt it. Someone controlling a family device, browser code or an invited person's copies remains a separate risk.

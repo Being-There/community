@@ -6,9 +6,15 @@
 
 ## Non-negotiable release gate: family-held E2EE only
 
-**[P0 mandatory E2EE implementation blocker #25](https://github.com/Being-There/community/issues/25).** [Zero-access privacy and security commitment](SECURITY_PROMISE.md) is now the top architectural requirement.** All sensitive family photos, videos, voice recordings, stories, profiles, tags, derivatives and metadata must be encrypted on an authorized device *before* upload. Only family-authorized devices hold decryption keys. No hosted Being There backend or cloud storage service receives those keys or plaintext. The current public app DOES NOT do this; no hosted launch or real family rollout until full E2EE, shared-device invitations, family-held recovery, exact-byte restore and independent review pass. An AWS KMS key, HTTPS connection or a family-owned Google Drive account is **not sufficient** by itself.
+**[P0 mandatory E2EE implementation blocker #25](https://github.com/Being-There/community/issues/25).** [Zero-access privacy and security commitment](SECURITY_PROMISE.md) is now the top architectural requirement. All sensitive family photos, videos, voice recordings, stories, profiles, tags, derivatives and metadata must be encrypted on an authorized device *before* upload. Only family-authorized devices hold decryption keys. No hosted Being There backend or cloud storage service receives those keys or plaintext. The current public app DOES NOT do this; no hosted launch or real family rollout until full E2EE, shared-device invitations, family-held recovery, exact-byte restore and independent review pass. An AWS KMS key, HTTPS connection or a family-owned Google Drive account is **not sufficient** by itself.
 
 The launch question is therefore **not** "where do we host plaintext?" but "can people enjoy and share E2EE family stories through a simple web app without the operator holding keys?" Existing technical deployment cards are supporting work and may not authorize a lower-security edition.
+
+## Availability and originals are equally non-negotiable
+
+**The project must never encrypt, modify, relocate or delete a family's existing Drive/phone/NAS originals.** User-selected files are read on an authorized client and copied into a separate Being There **encrypted vault**; the existing originals remain untouched and readable under their existing provider permissions. This does **not** mean that pre-existing plaintext files in the user's own Drive become E2EE. The project's no-plaintext/no-keys promise applies to all **Being There-managed** data, not the owner's separate source files.
+
+Every newly created recording, transcript, comment and enriched story must have **verified encrypted backups in another independent location** plus **at least two family-held recovery paths** (e.g. trusted second device and offline recovery kit). If every key is lost, Being There can't recover vault-only stories. No "protected" status without tested recovery readiness, remote hash verification, versioned restore points, and an offline open-source recovery path. Never silently propagate delete/hide to every copy. See the [preservation/security contract](SECURITY_PROMISE.md).
 
 ## The family journey
 

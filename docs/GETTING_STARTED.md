@@ -17,6 +17,14 @@ One web app supports these experiences. Google Sites and other family homepages 
 
 We will explain this clearly during setup. Connecting a personal Drive folder does not automatically give end-to-end encryption. If a future hosted backend stores Drive tokens, it may access or delete the **encrypted** files and see limited metadata, but must not hold the keys that reveal the memories. The site supplying the viewing code and the family devices are also important trust points. Sign-in and invitations must protect who receives encrypted keys, and portable ciphertext backup and family-held recovery must work independently.
 
+## Will encryption endanger our family photos?
+
+**No existing photo will be encrypted or changed in place.** When you select a picture from your Google Drive, Being There is designed to leave the source exactly where it is and create a **second, encrypted copy** in a private Being There vault.
+
+The existing picture remains a normal Drive photo, with the same permissions it already had. The encrypted copy will only be viewable through an authorized Being There device, not through Google's normal image preview. The originals' existing Drive access is a **separate privacy decision**—Being There cannot make those outside copies end-to-end encrypted.
+
+For new voice stories, which might have no other original, Being There must create a **second independent encrypted backup** and help your family save its recovery key on more than one trusted device or offline. Losing every key would still mean losing access to encrypted stories; that is why the recovery process must be tested **before** we call this family-ready.
+
 ## What can I try now?
 
 **See the interface:** A technical helper can launch a **fictional, temporary** preview using [the local run instructions](../README.md#try-the-actual-interface-locally). Never upload real family media to this sandbox.
