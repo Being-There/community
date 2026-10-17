@@ -12,13 +12,13 @@ One private collection of photographs, short videos, recordings and stories. Fam
 
 **We want our own private version.** Today this requires someone comfortable with Linux, domain/HTTPS, Google OAuth configuration and backups. They can use the [advanced host guide](../packages/app/README.md). The family controls the host, access and archives. This has not yet passed a full real-family production pilot.
 
-**We want to click a button and set it up ourselves.** The family-owned AWS launch is **planned, not yet released**. It should deploy in your AWS account, use your Google credentials and your own private backup bucket without giving Being There access. See the [AWS deployment plan](deployment/AWS.md) and [milestone requirements](DEPLOYMENT_ROADMAP.md).
+**We want to click a button and set it up ourselves.** The family-owned AWS launch is **planned, not yet released**. It should deploy in your AWS account, create a **family-owned Cognito sign-in** (without needing Google Cloud after the planned OIDC integration), and use your own private backup bucket without giving Being There access. Google sign-in remains an optional owner-configured provider. See the [AWS deployment plan](deployment/AWS.md) and [milestone requirements](DEPLOYMENT_ROADMAP.md).
 
 **We already have a home server/NAS.** A simpler Docker Compose path is planned; see [home server plan](deployment/HOME_SERVER.md). A backup on the same box is not enough.
 
 ## What you'll need for a real installation
 
-An account you own with your preferred host (initial AWS option or home server), a domain or safe access method, an identity provider (Google for the current version), someone authorized to issue the first private family invitation, and a second location for verified backups. AWS account and domain setup may incur fees; being open-source does not make hosting free.
+An account you own with your preferred host (initial AWS option or home server), a domain or safe access method, an identity provider (Google for the current version; planned family-owned Cognito by default in the future AWS installer), someone authorized to issue the first private family invitation, and a second location for verified backups. AWS account and domain setup may incur fees; being open-source does not make hosting free.
 
 ## Three important privacy questions
 
