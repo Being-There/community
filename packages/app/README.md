@@ -18,6 +18,10 @@ A family organizer receives a private invitation from their own operator, signs 
 
 Ordinary invitees never configure hosting, databases, DNS or credentials. A technical steward currently provisions and maintains the independent instance. A verified no-technical-operator installer is still a separate roadmap gate, not a capability of this reference.
 
+## Easier owner-controlled deployment (planned, not available yet)
+
+For the proposed AWS guided installer, Docker Compose path and the specific privacy, key ownership, onboarding and recovery release gates, see [the public deployment plan](../../docs/DEPLOYMENT_ROADMAP.md). AWS CloudFormation one-click launch is **not** implemented; please do not claim the application is production-ready. The current operator install remains below.
+
 ## Advanced host prerequisites
 
 - Linux, Node.js 22.13+ or Node 24, npm, persistent private disk and a real HTTPS reverse proxy.

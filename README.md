@@ -20,6 +20,12 @@ Open **https://localhost:3000** (a temporary self-signed certificate may require
 
 For real accounts and persistent independent hosting, follow the separate production setup below.
 
+## Planning a family-owned installation
+
+We are designing an **AWS guided launch** (CDK-authored, published CloudFormation quick-create button) and a later home server/NAS option. Neither installer is available yet. Both must preserve family-owned data, encryption keys/credential controls, verified off-device backups and the ability to migrate elsewhere.
+
+Start with [family-friendly getting started](docs/GETTING_STARTED.md), [deployment milestones](docs/DEPLOYMENT_ROADMAP.md), [AWS design](docs/deployment/AWS.md) or [keys/ownership/recovery](docs/deployment/DATA_AND_KEYS.md). Existing advanced operators can install the Node app manually below.
+
 ## Technical-preview installation
 
 On Linux with Node.js 22.13+ or 24, npm, private persistent storage and an HTTPS reverse proxy:
