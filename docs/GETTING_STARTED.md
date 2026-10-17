@@ -14,6 +14,8 @@ One private collection of photographs, short videos, recordings and stories. Fam
 
 **We want to click a button and set it up ourselves.** The family-owned AWS launch is **planned, not yet released**. It should deploy in your AWS account, create a **family-owned Cognito sign-in** (without needing Google Cloud after the planned OIDC integration), and use your own private backup bucket without giving Being There access. Google sign-in remains an optional owner-configured provider. See the [AWS deployment plan](deployment/AWS.md) and [milestone requirements](DEPLOYMENT_ROADMAP.md).
 
+**We already use Google Sites and Google Drive.** You can add a link to your own private Being There app on a Google Site. This does not host the app or grant access to private media. Google Drive as a connected, verified archive and later native storage is planned; [Google integration details](deployment/GOOGLE.md). No automatic Drive API connection or Google-only one-click installer exists yet.
+
 **We already have a home server/NAS.** A simpler Docker Compose path is planned; see [home server plan](deployment/HOME_SERVER.md). A backup on the same box is not enough.
 
 ## What you'll need for a real installation
