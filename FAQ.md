@@ -6,7 +6,7 @@ The [Community Edition v0.1.0 technical-preview source](packages/app/) is public
 
 ### Can I try it without a Google account?
 
-Automated unit, browser and recovery tests use invented identities and content. The published `npm run dev` currently opens a fictional sample. [PR #7](https://github.com/Being-There/community/pull/7) adds a functional local preview using the real API and **synthetic, disposable** credentials, bound to loopback only. A persistent hosted instance instead uses verified Google OAuth and invitations, not a fake login.
+Automated unit, browser and recovery tests use invented identities and content. From `packages/app`, `npm run dev` starts the functional real-API local preview using **synthetic, disposable** credentials, bound to loopback only ([implementation PR #7](https://github.com/Being-There/community/pull/7)). The older fictional page remains available with `npm run demo`. A persistent hosted instance instead uses verified Google OAuth and invitations, not a fake login.
 
 ### Could we try a temporary hosted preview with real Google sign-in?
 
