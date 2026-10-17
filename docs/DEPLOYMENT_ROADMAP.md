@@ -1,101 +1,50 @@
-# Community Edition: family-owned onboarding and deployment plan
+# Being There — simple family onboarding
 
-**Status:** Proposed delivery plan, not an available one-click installer. The original private family installation is out of scope. The public Community Edition runs Node.js + SQLite + private filesystem originals and currently requires a real Google OAuth web client and HTTPS. A family-owned Cognito/OIDC adapter is proposed to remove Google setup on AWS. Existing verification is synthetic, not a real cloud/pilot deployment. Nothing in this document claims a real cloud installation, security audit or independent-family pilot.
+**Product direction (not a shipped service):** A family opens a website, signs in, chooses where memories are stored, and starts enjoying them. We want this to work for someone with no knowledge of hosting, GitHub, DNS, databases, Docker or cloud consoles.
 
-## One app, several hosting and access choices
+**Current reality:** The public Community Edition is a self-hosted technical preview using Node.js, SQLite, a private filesystem archive and manually configured Google OAuth/HTTPS. There is no hosted family service, native Drive storage, single-click installer or completed independent-family privacy review yet. Keep the original private family installation separate.
 
-See [the deployment and access options matrix](deployment/OPTIONS.md). We favor one pinned container/runtime, provider-neutral backup/restore and a small number of validated installer templates—rather than distinct AWS, Google, NAS and managed-host apps. **Build portable OCI packaging and verified backup first**, then make AWS's reviewed one-click launch and a Compose/home-NAS path consume the same artifact. Managed hosting and extra storage adapters must pass identical privacy and cross-host recovery gates; easy deploy without recoverable storage is not a supported release.
+## The family journey
 
-## Execution milestones
+1. **Open Being There.** A regular web link on a phone, computer or tablet; eventually an installable home-screen shortcut.
+2. **Sign in.** Start with Google, with additional identity providers later. One family organizer invites other contributors. A person using Tablet view can enjoy the family collection without technology prompts; device access still requires an appropriately authorized session.
+3. **Choose storage.** The organizer connects a private family-owned location. **Google Drive first to evaluate**, then other provider choices such as S3, OneDrive and a local/NAS folder. No one needs to grant individual relatives direct storage-provider access just to use the app.
+4. **Enjoy memories.** Add photographs, short videos and recorded stories; invite family; verify that originals and a portable backup belong to the family. A shared memory does not have to feature the tablet user.
 
-- [**P0 — Portable OCI container and Compose baseline #19**](https://github.com/Being-There/community/issues/19), shared by cloud VM, NAS and managed-host paths.
-- [M1 — AWS CDK/CloudFormation launch](https://github.com/Being-There/community/issues/13)
-- [M2 — Cognito-first OIDC and first invitation](https://github.com/Being-There/community/issues/14) (integrates existing [real OAuth pilot](https://github.com/Being-There/community/issues/8))
-- [M3 — independent S3 backup and verified non-AWS restore](https://github.com/Being-There/community/issues/15)
-- [M4 — novice pilot, maintenance and portable home-host path](https://github.com/Being-There/community/issues/16)
-- [P1 — Managed persistent-volume hosting #20](https://github.com/Being-There/community/issues/20)
-- [P1 — Installable private tablet/PWA + invitations #21](https://github.com/Being-There/community/issues/21)
-- **Google option:** [Google Sites + Drive design](deployment/GOOGLE.md) and [Drive/optional Sites delivery #17](https://github.com/Being-There/community/issues/17). This is an optional provider route that must not displace the AWS release gates.
+Everyday family members should only see **Family space** (contribute/organize) or **Tablet view** (enjoy/listen/optionally tell stories). Technical details belong in advanced help or community documentation.
 
-**Sequence:** portable package + verified independent recovery form the common technical foundation; AWS M1/M2 may progress in parallel and cannot be called ready for real data until M3 and the live family pilot pass. Other providers add thin templates/adapters only after passing the same contract; M4 supplies independent family-ready evidence. Do not grow a parallel feature backlog while these gates remain open.
+## Three high-level product options
 
-## Goal
-
-A family with limited technical knowledge can launch a private instance **in an account they own**, invite a contributor, open the large-screen Tablet view, keep exact originals, and restore an archive elsewhere without needing an account, login, backend, API key or subscription from Being There.
-
-**Reduce setup steps, not ownership.** One-click infrastructure is helpful, but an account and identity provider still need setup. A trusted volunteer may assist; the family must retain administrative control, billing access, backup/recovery instructions and the ability to revoke that helper.
-
-## Delivery choice
-
-| Route | User | How it works | Status |
+| Experience | How the family starts | Tradeoff | Recommendation |
 | --- | --- | --- | --- |
-| **Portable Compose / OCI package (base installer)** | Technical helper or existing Docker/NAS operator | One pinned app artifact, mounted private data/archives and HTTPS | **Planned foundation; not yet a released container** |
-| **AWS guided launch (first)** | Family with an AWS account or helper | CDK-authored stack, **versioned/signed-off synthesized CloudFormation template**, AWS console quick-create link; resources deploy in family's account | **Planned; template not built or tested** |
-| **Managed persistent-volume hosting (evaluated later)** | Families wanting less infrastructure maintenance | Paid Render/Railway with provider-owned private disk; application authorization and independent off-site backup | **Candidate only; no production template** |
-| **Home server / NAS (second)** | Comfortable running a home server, or helper | Pinned image/Compose, host storage and off-device backups; optional mounted/synced Drive intake | Planned |
-| **Google-first family experience (additional option)** | Families who already use Sites and Drive | Google Site links to the private app; family-selected Drive folder for verified originals/backup; backend on a separately owned/managed host | **Sites link possible today; native Drive storage and beginner hosting planned** |
-| **Advanced/manual installation (existing)** | Linux/Node operator | Follow [application guide](../packages/app/README.md) | Working reference; no real-world deployment verification |
-| Being There-managed hosting | No-hosting family | Would put hosting, billing and trust at project/operator boundary | **Not a required path and not committed** |
+| **Hosted web app + connected family Drive** | Open site → Google sign-in → authorize private Drive folder → invite family | Easiest onboarding. A hosted backend that keeps storage tokens may be able to read family data. A browser-direct Drive approach could reduce backend custody but needs its own collaboration/auth design. | **Evaluate first** |
+| **Same hosted web app + another family-controlled store** | Open site → sign in → connect supported bucket/folder | More choice and portable archives; requires provider-specific permissions, backup and recovery tests | Next, reuse same app |
+| **Family-owned deployment** | Use a guided installer or ask a technical helper to deploy into the family's account/home server | More direct infrastructure and key custody, more setup/maintenance | Always an option, community-enabled |
 
-### Keep storage and hosting independent
+This is **one web app with choices**, not separate Google/AWS/NAS applications. Google Sites may link to the private app but does not host its Node/SQLite API.
 
-A family chooses where the **app runs** independently from where it **archives originals**. The existing filesystem+SQLite implementation remains authoritative until an independently tested provider storage adapter can preserve exact originals and snapshots. Google Drive should be a first-class, owner-visible archive choice rather than something that requires migrating to AWS or granting access to a project-maintained account. Google Sites is an optional portal/link; it does not run this application's private backend. See [Google integration design](deployment/GOOGLE.md). Initial Drive implementation should be a verified off-device mirror, then a reviewed native originals/archive provider; a Google Site iframe is optional only after origin, auth-cookie and tablet testing.
+## Only two architecture decisions should gate the experience
 
-### First AWS architecture: simple and recoverable
+### 1. Authentication and family authorization
 
-Use **one small EC2 instance** (not ECS/Fargate/RDS/ALB by default), with a separate persistent **encrypted EBS data volume** for `DATA_DIR` (SQLite database, originals, metadata snapshots), an HTTPS reverse proxy bound to the family's domain, a **private S3 bucket for independent versioned backups**, and **customer-managed AWS KMS encryption keys**. Application process stays bound to 127.0.0.1; only public HTTPS/required certificate validation traffic reaches the proxy. IAM instance profile narrowly permits needed reads/writes, Session Manager replaces SSH ingress, Cognito User Pool (managed login) is the preferred **AWS-owned default identity provider** after a new, secure OIDC integration is implemented. A Google OAuth client remains an optional existing alternative, with credentials in the family's Secrets Manager. Cognito feature-plan costs and passwordless verification requirements must be disclosed. No S3 static website, public objects, shared central app database or family keys in CloudFormation parameters. Pin the public app release/source digest.
+- **Sign-in** identifies a real person: existing implementation supports Google OAuth, with configurable family-owned credentials. Evaluate Microsoft or email/passwordless after the basic web flow works.
+- **Invitation** controls family access; only authorized people can see media or contribute. Verified roles, expiry, revocation and account recovery still matter.
+- **Tablet use** is a simplified interface, *not* a public URL or permission bypass. A caregiver can set up an approved device or session; patient/storyteller/person profiles remain separate from login identities.
 
-This matches the present single-process/SQLite design. **S3 is a backup target, not the live database/media adapter**: current archive preservation requires synchronized filesystem writes, and pretending `aws s3 sync` is a transactional storage backend would be incorrect. A native S3 originals provider is a separately validated future decision, requiring exact-byte reads, atomic acknowledgment, recovery equivalence and failure injection. Default one-instance service has planned maintenance/downtime and needs sizing/cost testing.
+### 2. Storage and data custody
 
-Use CDK for maintainable infrastructure code; **do not make families install CDK**. CI should synthesize a *reviewed, immutable, version-pinned* CloudFormation template, publish it at a release-specific S3 URL, and expose a CloudFormation quick-create link. Include template hash and complete resource manifest. No deployment from an unreviewed moving branch. Developers may use `cdk deploy`; that path requires AWS credentials and account/region bootstrapping.
+- The organizer selects a family-owned destination. Ideally originals, recordings and a portable history/metadata archive are readable and exportable without a continuing Being There subscription.
+- **Drive as a first option**, not a mandatory dependency. Add other stores through adapters once there is demand.
+- The existing app has **local SQLite runtime state and filesystem originals**. Moving primary storage to Drive/S3 isn't implemented and cannot be implied by connecting a folder. A web service may still need a secure database for accounts/indexing and a secret store for provider refresh tokens.
+- Be explicit about the trust model: if the Being There operator hosts a backend holding Drive OAuth tokens, it has technical ability to access permitted content. A family-owned deployment provides more control. Neither configuration should be called zero-knowledge without a separately verified encryption design.
+- **Nonnegotiable:** no cross-family leakage, private-by-default access, a verified independent backup/export, and successful restore on another host without restoring old invitations/sessions.
 
-AWS references: [CloudFormation quick-create links](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-create-stacks-quick-create-links.html), [CDK deployment prerequisites](https://docs.aws.amazon.com/cdk/v2/guide/deploy.html), [EBS encryption](https://docs.aws.amazon.com/ebs/latest/userguide/ebs-encryption.html), [S3 SSE-KMS](https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingKMSEncryption.html), [SSM Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html).
+## Next product validation, not more infrastructure design
 
-## Human journey (design target, not yet implemented)
+- **Proof of the simplest flow:** use *fictional* test content to prototype a hosted web sign-in, invited second person, connected test Drive folder, photo/video/audio contributions and private tablet view. Decide whether a browser-direct Drive model or a small trusted backend is actually maintainable. Record clearly which party can read tokens and content.
+- **Proof of family ownership:** verify original-byte export and clean restore with credentials revoked; show the owner where their data lives and how to leave.
+- **Usability trial:** someone unfamiliar with servers gets to a first private memory without an operator explaining cloud services. If not, simplify the product rather than add another provider.
 
-1. **Choose control model.** Explain AWS account ownership versus a home-server path, who sees data, ongoing costs, and who is responsible for backups. Never ask a family to send keys, media or passwords to the project.
-2. **Launch in own AWS account.** Choose region, DNS/domain (initial guided path assumes control of a public DNS name), approximate capacity and backup retention. Review resources and monthly cost *before* deploy. No CLI or GitHub required for family.
-3. **Connect private sign-in.** **AWS default (planned):** CDK provisions a family-owned Cognito User Pool and managed login with an OIDC authorization-code/PKCE integration; eligible plans can support verified email OTP/passkeys. No Google Cloud project needed. **Optional existing provider:** family-configured Google OAuth web client, with its client secret held only in that family's Secrets Manager. Current app only knows Google and must gain the Cognito/OIDC adapter **before** this flow is advertised. Explain Cognito feature plan/email delivery costs.
-4. **Claim ownership safely.** An authorized AWS owner uses a scoped one-time provisioning action to issue a first organizer invitation to a *verified* recipient. This action must not appear as a publicly callable bootstrap endpoint or first-visitor-wins admin. Do not log the one-use invite token into central systems.
-5. **First-minute family experience.** Organizer invites family; adds a photo/video or imports photos; family uses tablet mode for enjoyable, pressure-free browsing and optional independent stories. No clinical or cognitive setup.
-6. **Backup check before real import.** Show a human-readable backup status, storage destination, last successful *verified* backup and a restore walkthrough. Warn clearly until the first valid off-device backup exists.
-7. **Maintain and leave.** Clear account-level cost view, update/pause controls, key rotation/revocation guidance, explicit export + restore in another environment, and a **separate** retention-aware deletion process. Normal stack deletion must not silently destroy original memories.
+Existing work to reuse: [Google Drive option #17](https://github.com/Being-There/community/issues/17), [identity/onboarding #14](https://github.com/Being-There/community/issues/14), [backup/recovery #15](https://github.com/Being-There/community/issues/15), [family usability pilot #16](https://github.com/Being-There/community/issues/16) and [private tablet/PWA access #21](https://github.com/Being-There/community/issues/21).
 
-### Identity and access truth
-
-A **family account** is the authenticated contributor, distinct from the person enjoying memories and any speaker named on a story. Tablet view is a presentation mode and **does not** grant login rights. All data access remains invite-only and server-authorized. Multiple family/person profiles are supported. Never use a person selector, family name or browser flag as an authorization mechanism.
-
-## Privacy / control contract
-
-- **Private by default:** S3 public access blocked; public ACLs disabled, TLS enforced; access from only owner-authorized identities. No public family data, tracking SDKs, telemetry of stories, default vendor access or mandatory paid AI.
-- **At-rest protection:** encrypted EBS and bucket default SSE-KMS, preferably customer-managed KMS key(s) in the family's account. The family controls IAM and KMS policies and can rotate/revoke keys. **This is not zero-knowledge encryption**: AWS services and application runtime can process plaintext where permissions allow. Separate application/client-side encryption would be an additional advanced design with key-loss risks.
-- **Least privilege:** no long-lived AWS access keys in app or repository; instance role for precise bucket prefix, Secrets Manager secret and KMS operations; no open SSH, SSM for operator work; no blanket cross-account trusted principal or project backdoor. Avoid inserting OAuth secrets into EC2 UserData, CloudFormation outputs, or logs.
-- **Archive:** immutable originals and validated manifest metadata preserved independently of SQLite; versioned private S3 backups, optional bounded retention/Object Lock only when lifecycle/offboarding and cost effects are explained. No false promises from a copied folder on the same disk. Never delete original S3/EBS stores on routine stack teardown.
-- **Recoverability:** backup includes SQLite-consistent state or complete validated independent original+snapshot material, with hashes. Prove restore with the original compute unavailable, in a **new** installation, and re-verify access grants. Deny imported logins/sessions/tokens.
-- **No lock-in:** export and restore must work outside AWS using the public format and standard filesystem tools. A family's AWS account, optional Google configuration, identity provider and data remain independently controlled.
-
-## Release gates (must have before calling it 'one click')
-
-**M1 — Package and template:** pinned application/runtime artifact; repeatable Linux service on EC2; reviewed CDK source; synthesized template and trust/provenance check; restricted networking; boot success/health/HTTPS after reboots. Prove ordinary user can see all deployed resources/costs.
-
-**M2 — Guided owner onboarding:** implement a tested family-owned Cognito/OIDC provider (default on AWS) without a Google Cloud project, and retain optional standalone Google OAuth. Provide domain+HTTPS, confidential credential handling, safe first invite and account lifecycle; never a first-visitor admin. Verify real provider identity for organizer and second contributor. Empty/incorrect credentials fail closed without secret leakage. Include Cognito account/plan costs.
-
-**M3 — Backup/recovery (release blocking):** encrypted versioned off-volume S3 backup with status, budget/retention controls, alarming for failure/expiry, original-byte verification; destructive simulated machine loss; cross-provider restore from downloaded backup; revoke old access; key-loss and quota/permission failure rehearsals. S3 retention must not block family offboarding unintentionally.
-
-**M4 — Life-cycle safety:** pinned upgrade and rollback with database migration tests; safe server replacement preserving EBS/S3; no auto-update from main; clear rotate/revoke/export/delete instructions; no surprise billing; cloud resources retained or explicitly destroyed with informed confirmation.
-
-**M5 — Usability + independent review:** guided AWS console installation by someone unfamiliar with code (target: no CLI/GitHub and first private memory without unexplained steps); separate tablet/contributor walkthrough; real-device/screen reader tests; security review. Pilot with a *fresh family-owned AWS account* and no production private family data.
-
-**M6 — Portable installer:** Docker Compose path and documented migration from AWS backup to non-AWS host, not another mandatory provider.
-
-### Success measures
-
-- Zero Being There-held secrets, AWS credentials, family originals or required vendor-hosted account.
-- One reviewed release link plus necessary AWS/domain and optional Google steps, **not** a hidden operator script run by project maintainers.
-- No use of real family data until identity, access, backup and restoration pass live checks.
-- Fresh owner can restore all photos/video/audio with attribution on a second host after losing the original server.
-- Understandable monthly bill preview, operator-free everyday interaction, documented updates and offboarding.
-
-## Explicitly not shipping yet
-
-No live AWS CDK stack, CloudFormation quick-create URL, S3 backup adapter, Cognito/OIDC adapter, automated certificate/domain installation, optional Google OAuth connection wizard, novice-tested setup, real-account pilot, or independent security certification currently exists. The manual self-hosted Node app is a technical preview only. Do not represent this plan as a deployment service.
+**Community-led implementation details (not blocking the design decision):** [portable container #19](https://github.com/Being-There/community/issues/19), [AWS guide/deployment #13](https://github.com/Being-There/community/issues/13), [managed hosting evaluation #20](https://github.com/Being-There/community/issues/20), [other deployment choices](deployment/OPTIONS.md), [AWS spec](deployment/AWS.md) and [home server spec](deployment/HOME_SERVER.md). Their existence should not turn a family-facing product into an infrastructure project.
