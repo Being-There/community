@@ -59,6 +59,12 @@ try {
   await write('/api/families/previewFamily/memories/garden/stories', {
     id: 'story1', text: 'A fictional afternoon together in the garden.'
   });
+  await write('/api/families/previewFamily/contributions', {
+    id: 'sharedSunset', title: 'A sunset for the whole family', personIds: [], base64: png.toString('base64')
+  });
+  await write('/api/families/previewFamily/memories/sharedSunset/stories', {
+    id: 'sunsetStory', text: 'I loved watching the light fade.', speakerPersonId: 'avery'
+  });
   const listener = createNodeRequestListener({
     appOrigin: origin,
     handle: async request => {
