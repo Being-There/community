@@ -72,6 +72,8 @@ try {
   await page.locator('#stories audio').evaluate(audio => { audio.preload = 'metadata'; audio.load(); });
   await page.waitForFunction(() => document.querySelector('#stories audio')?.readyState >= 1, null, { timeout: 10000 }).catch(async error => { console.log(await page.locator('#stories audio').evaluate(audio => ({ error: audio.error?.code, network: audio.networkState, ready: audio.readyState, type: audio.currentSrc, supports: audio.canPlayType('audio/webm;codecs=opus') }))); throw error; });
   assert.equal(await page.locator('#pending button').count(), 0);
+  // Reload closes details; reopen family contribution tools before the second upload.
+  await page.locator('#contribute > summary').click();
   // Verify video uses the real upload API, browser player, byte-preserved scoped transport.
   await page.locator('#file').setInputFiles({ name: 'fictional-video.webm', mimeType: 'video/webm', buffer: syntheticWebm });
   await page.locator('#caption').fill('A fictional little video');
