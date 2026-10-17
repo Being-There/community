@@ -1,6 +1,6 @@
 # Home server and NAS — self-owned deployment route
 
-**Status: future low-friction installer, not shipped.** The existing app supports an advanced Linux/Node setup; a tested Docker Compose distribution, prebuilt signed image, home-router/security setup wizard and no-CLI installer do **not** exist yet. See [current operator guide](../../packages/app/README.md).
+**Status: future low-friction installer, not shipped; [client-side E2EE is a release blocker](../SECURITY_PROMISE.md).** A self-hosted server is **not exempt** from the ban on readable originals/metadata on the server. The existing app supports an advanced Linux/Node setup; a tested Docker Compose distribution, prebuilt signed image, home-router/security setup wizard and no-CLI installer do **not** exist yet. See [current operator guide](../../packages/app/README.md).
 
 ## Target user
 
