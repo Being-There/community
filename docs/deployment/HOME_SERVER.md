@@ -16,6 +16,10 @@ A family with a dedicated mini PC/NAS, or a trusted family helper, who prefers t
 6. Configure **automatic off-device backups** to a family-owned second storage location (e.g. separately owned NAS, encrypted cloud bucket or offline drive); verify backup integrity and actual recovery on a fresh host before loading valuable content. **Google Drive** is a planned optional remote archive; today's supported mounted/synced-folder photo importer is not itself off-device backup.
 7. Show health and backup status without exposure of secrets/photos/story content; document how to update, roll back, export to AWS, and remove an authorized helper.
 
+## Alternative hosting and access
+
+A single pinned OCI image can be reused through Linux Docker Compose, TrueNAS custom app/Compose, Coolify or selected NAS package manifests; every platform still needs its own persistent storage and backup validation. A managed persistent-volume platform is a potential low-maintenance route after the baseline is secure. A private Tailscale Serve access path may help a technically managed household, but family members would need appropriate tailnet participation and it never replaces app invitations. See [host/access options](OPTIONS.md).
+
 ## Existing vs missing
 
 | Area | Existing today | Needed before promoting this route |
