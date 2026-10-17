@@ -8,6 +8,18 @@ It started as a personal family project. We are developing a **separate communit
 
 **Current status:** The [Community Edition application](packages/app/) is available as a **v0.1.0 self-hosted technical preview** for technically capable operators. It is not a turnkey family service or a validated clinical product. The original private family application and its data are not included.
 
+## Try the actual interface locally
+
+```bash
+cd packages/app
+npm ci --ignore-scripts
+npm run dev
+```
+
+Open **https://localhost:3000** (a temporary self-signed certificate may require a browser trust exception). This is a **disposable, localhost-only example-family sandbox running the actual application**, including photos, short videos, microphone stories and separate Family space / Enjoy memories presentations. It never contacts real Google OAuth or Dad's private installation. Its media and database are deleted on exit; do not use real family information here. The old noninteractive mockup is `npm run demo`.
+
+For real accounts and persistent independent hosting, follow the separate production setup below.
+
 ## Technical-preview installation
 
 On Linux with Node.js 22.13+ or 24, npm, private persistent storage and an HTTPS reverse proxy:
