@@ -150,3 +150,35 @@ test('expired browser-bound OAuth attempts and expired invitations cannot be reu
   assert.throws(() => f.repository.previewInvitation(principal, invite.token));
   assert.equal((await later.request('/api/invitations/accept', { method: 'POST', body: { token: invite.token } })).status, 401);
 });
+
+test('short family video preserves original bytes, access isolation, range playback and restored grants', async t => {
+  const { f, owner } = await household(t);
+  // Minimal synthetic MP4 container marker: transport/storage test, not codec playback.
+  const videoBytes = Buffer.concat([Buffer.from([0, 0, 0, 24]), Buffer.from('ftypisom'), Buffer.alloc(16), Buffer.from('fictional media bytes')]);
+  const input = { id: 'video1', title: 'An invented short clip', personIds: ['avery'],
+    base64: videoBytes.toString('base64'), mimeType: 'video/mp4' };
+  const saved = await json(await owner.request('/api/families/familyA/contributions', { method: 'POST', body: input }));
+  assert.equal(saved.durable, true);
+  assert.equal((await json(await owner.request('/api/families/familyA/memories'))).memories.find(row => row.id === input.id)?.mediaKind, 'video');
+  const response = await owner.request('/api/families/familyA/media/' + saved.originalId);
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('content-type'), 'video/mp4');
+  assert.deepEqual(Buffer.from(await response.arrayBuffer()), videoBytes);
+  const range = await owner.request('/api/families/familyA/media/' + saved.originalId, { headers: { range: 'bytes=4-7' } });
+  assert.equal(range.status, 206);
+  assert.equal(await range.text(), 'ftyp');
+  const outsider = await f.login('fictional-video-outsider', 'outsider@family.example.test');
+  assert.equal((await outsider.request('/api/families/familyA/media/' + saved.originalId)).status, 404);
+  const wrong = await owner.request('/api/families/familyA/contributions', {
+    method: 'POST', body: { ...input, id: 'badvideo', mimeType: 'video/webm' }
+  });
+  assert.equal(wrong.status, 415);
+  const exported = await json(await owner.request('/api/families/familyA/exports', { method: 'POST' }));
+  const restored = await prepareFamilyRestore({
+    files: decodeArchiveFiles(exported), expectedFamilyId: 'familyA', targetFamilyId: 'videoRecovery',
+    subtleCrypto: webcrypto.subtle
+  });
+  assert.equal(f.repository.commitIsolatedRestore(restored).access, 'disabled');
+  assert.deepEqual(Buffer.from(f.repository.getMediaBytes('videoRecovery', saved.originalId)), videoBytes);
+  assert.equal((await owner.request('/api/families/videoRecovery/memories')).status, 404);
+});

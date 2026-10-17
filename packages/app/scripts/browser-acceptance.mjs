@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import sharp from 'sharp';
+import { syntheticWebm } from '../tests/helpers/synthetic-video.mjs';
 import { integratedFixture } from '../tests/helpers/integrated-app-fixture.mjs';
 import { createNodeRequestListener } from '../src/server/host.mjs';
 import { decodeArchiveFiles } from '../src/server/archive-transport.mjs';
@@ -48,7 +49,7 @@ try {
   await page.locator('#caption').fill('A fictional garden afternoon');
   const people = await page.locator('#upload-people option').evaluateAll(options => options.map(option => option.value));
   assert.equal(people.length, 2); await page.locator('#upload-people').selectOption(people);
-  await page.getByRole('button', { name: 'Share photograph', exact: true }).click();
+  await page.getByRole('button', { name: 'Share media', exact: true }).click();
   await page.waitForFunction(() => document.getElementById('photo').complete && document.getElementById('photo').naturalWidth > 0);
   await page.locator('#story-text').fill('A separate fictional perspective. <img src=x onerror=alert(1)>');
   await page.getByRole('button', { name: 'Share these words', exact: true }).click();
@@ -71,6 +72,23 @@ try {
   await page.locator('#stories audio').evaluate(audio => { audio.preload = 'metadata'; audio.load(); });
   await page.waitForFunction(() => document.querySelector('#stories audio')?.readyState >= 1, null, { timeout: 10000 }).catch(async error => { console.log(await page.locator('#stories audio').evaluate(audio => ({ error: audio.error?.code, network: audio.networkState, ready: audio.readyState, type: audio.currentSrc, supports: audio.canPlayType('audio/webm;codecs=opus') }))); throw error; });
   assert.equal(await page.locator('#pending button').count(), 0);
+  // Reload closes details; reopen family contribution tools before the second upload.
+  await page.locator('#contribute > summary').click();
+  // Verify video uses the real upload API, browser player, byte-preserved scoped transport.
+  await page.locator('#file').setInputFiles({ name: 'fictional-video.webm', mimeType: 'video/webm', buffer: syntheticWebm });
+  await page.locator('#caption').fill('A fictional little video');
+  await page.locator('#upload-people').selectOption(people);
+  await page.getByRole('button', { name: 'Share media', exact: true }).click();
+  await page.waitForFunction(() => document.getElementById('status').textContent.includes('Video shared'));
+  for (let n = 0; n < 2 && !(await page.locator('#video').isVisible()); n++)
+    await page.getByRole('button', { name: 'Next memory', exact: false }).click();
+  assert.equal(await page.locator('#video').isVisible(), true, 'Short video must be in family rotation');
+  await page.locator('#video').evaluate(video => { video.preload = 'metadata'; video.load(); });
+  await page.waitForFunction(() => document.querySelector('#video')?.readyState >= 1, null, { timeout: 10000 });
+  assert.equal(await page.locator('#video').evaluate(video => video.videoWidth > 0 && video.duration > 0), true);
+  for (let n = 0; n < 2 && !(await page.locator('#photo').isVisible()); n++)
+    await page.getByRole('button', { name: 'Next memory', exact: false }).click();
+  assert.equal(await page.locator('#photo').isVisible(), true);
   await page.locator('#organizer > summary').click();
   const downloadWait = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download a verified family archive', exact: true }).click();
@@ -78,11 +96,13 @@ try {
   for await (const part of source) parts.push(part);
   const files = decodeArchiveFiles(JSON.parse(Buffer.concat(parts).toString()));
   const checked = await inspectFamilyArchive({ files, expectedFamilyId: 'familyA', subtleCrypto: webcrypto.subtle });
-  assert.equal(checked.content.people.length, 2); assert.equal(checked.content.stories.length, 2); assert.equal(checked.content.originals.length, 2);
+  assert.equal(checked.content.people.length, 2); assert.equal(checked.content.stories.length, 2); assert.equal(checked.content.originals.length, 3);
   if (process.env.BROWSER_QA_SCREENSHOTS) await page.screenshot({ path: '/tmp/being-there-family-desktop.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-  await page.locator('#simple').check(); assert.equal(await page.locator('#organizer').isVisible(), false);
+  await page.getByRole('button', { name: 'Enjoy memories', exact: true }).click();
+  assert.equal(await page.locator('#enjoy-view').getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator('#organizer').isVisible(), false);
   assert.equal(await page.locator('#photo').isVisible(), true);
   await page.getByRole('button', { name: 'Next memory', exact: false }).click();
   await page.waitForFunction(() => document.activeElement.id === 'memory-title');

@@ -23,6 +23,14 @@ function bytes(base64) {
   if (typeof base64 !== 'string' || base64.length > 20 * 1024 * 1024) throw new AccessError(413);
   const result = Buffer.from(base64, 'base64'); if (!result.length || result.toString('base64') !== base64) throw new AccessError(400); return result;
 }
+function videoBytes(base64, mimeType) {
+  const data = bytes(base64);
+  if (data.length > 14 * 1024 * 1024) throw new AccessError(413);
+  const webm = data.length >= 4 && data.subarray(0, 4).equals(Buffer.from([26, 69, 223, 163]));
+  const mp4 = data.length >= 12 && data.subarray(4, 8).toString() === 'ftyp';
+  if (!((mimeType === 'video/webm' && webm) || (mimeType === 'video/mp4' && mp4))) throw new AccessError(415);
+  return data;
+}
 export function createFamilyWriteApi({ sessions, repository, appOrigin, readApi }) {
   return async request => {
     const url = new URL(request.url);
@@ -93,7 +101,10 @@ export function createFamilyWriteApi({ sessions, repository, appOrigin, readApi 
       if (family[2] === 'invitations') { fields(input, ['email', 'role']); requireOrganizer(membership); return json(201, repository.createInvitation(principal, familyId, input)); }
       if (family[2] === 'members' && family[4] === 'revoke') { fields(input, []); requireOrganizer(membership); return json(200, repository.revokeMember(principal, familyId, family[3])); }
       if (family[2] === 'contributions') {
-        fields(input, ['id', 'title', 'personIds', 'base64']);
+        fields(input, ['id', 'title', 'personIds', 'base64'], ['mimeType']);
+        if (input.mimeType !== undefined) {
+          return json(200, repository.commitVideo(principal, familyId, { ...input, bytes: videoBytes(input.base64, input.mimeType) }));
+        }
         let photo;
         try { photo = await preparePhoto(bytes(input.base64)); }
         catch (error) { if (error instanceof AccessError) throw error; throw new AccessError(415); }

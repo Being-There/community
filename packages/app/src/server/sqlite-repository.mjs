@@ -73,13 +73,14 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
   }
   // Shared insert path; the authenticated API and an explicitly local operator
   // both use it. No network endpoint accepts an operator importer identity.
-  function insertPhoto(familyId, input, contributorId) {
+  function insertPhoto(familyId, input, contributorId, kind = 'photo') {
+    if (!['photo', 'video'].includes(kind) || (kind === 'video' && input.derivatives?.length)) throw new AccessError(400);
     const memory = { ...createMemory({ id: valid(input.id), familyId, personIds: input.personIds,
-      title: input.title, contributorId }), originalIds: ['photo_' + hash(text([familyId, input.id])).slice(0, 48)], hidden: false };
+      title: input.title, contributorId }), originalIds: [kind + '_' + hash(text([familyId, input.id])).slice(0, 48)], hidden: false };
     if (memory.personIds.some(key => !getRecord('people', familyId, key))) throw new AccessError(400);
     const bytes = Uint8Array.from(input.bytes);
     const original = createMediaOriginal({ id: memory.originalIds[0], familyId, memoryId: memory.id,
-      contributorId, kind: 'photo', byteLength: bytes.length, sha256: hash(bytes) });
+      contributorId, kind, byteLength: bytes.length, sha256: hash(bytes) });
     const existing = getRecord('memories', familyId, memory.id);
     if (existing) {
       const old = getRecord('media', familyId, original.id);
@@ -145,6 +146,11 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
       const membership = actor(principal, familyId);
       if (membership.scope.kind !== 'family') throw new AccessError(404);
       return insertPhoto(familyId, input, membership.contributorId);
+    }); },
+    commitVideo(principal, familyId, input) { return durable(familyId, () => {
+      const membership = actor(principal, familyId);
+      if (membership.scope.kind !== 'family') throw new AccessError(404);
+      return insertPhoto(familyId, { ...input, derivatives: [] }, membership.contributorId, 'video');
     }); },
     // Trusted on-host intake only. Requires private database filesystem access.
     // Imported files are attributed to a distinct non-login source, not a forged member.

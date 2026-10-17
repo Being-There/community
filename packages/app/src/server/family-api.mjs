@@ -14,8 +14,8 @@ function safeMediaType(bytes, kind) {
   }
   if (bytes.length >= 8 && Buffer.from(bytes.subarray(0, 8)).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) return 'image/png';
   if (bytes.length >= 3 && bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255) return 'image/jpeg';
-  if (bytes.length >= 4 && Buffer.from(bytes.subarray(0, 4)).equals(Buffer.from([26, 69, 223, 163]))) return kind === 'audio' ? 'audio/webm' : null;
-  if (bytes.length >= 12 && Buffer.from(bytes.subarray(4, 8)).toString() === 'ftyp') return kind === 'audio' ? 'audio/mp4' : null;
+  if (bytes.length >= 4 && Buffer.from(bytes.subarray(0, 4)).equals(Buffer.from([26, 69, 223, 163]))) return kind === 'audio' ? 'audio/webm' : kind === 'video' ? 'video/webm' : null;
+  if (bytes.length >= 12 && Buffer.from(bytes.subarray(4, 8)).toString() === 'ftyp') return kind === 'audio' ? 'audio/mp4' : kind === 'video' ? 'video/mp4' : null;
   return null;
 }
 function rangeFor(value, size) {
@@ -68,7 +68,7 @@ export function createFamilyApi({ sessions, repository, appOrigin, subtleCrypto,
         if (current.accountId !== principal.accountId) throw new AccessError(401);
         return validateMembership(await repository.getMembership(current.accountId, familyId), current.accountId, familyId);
       }
-      function project(memory) { return { id: memory.id, originalIds: Array.isArray(memory.originalIds) ? memory.originalIds.filter(id) : [], title: typeof memory.title === 'string' ? memory.title : '', personIds: Array.isArray(memory.personIds) ? memory.personIds.filter(id) : [], hidden: memory.hidden === true, renditions: repository.getImageRenditions?.(familyId, memory.originalIds?.[0]) ?? [] }; }
+      function project(memory) { return { id: memory.id, originalIds: Array.isArray(memory.originalIds) ? memory.originalIds.filter(id) : [], title: typeof memory.title === 'string' ? memory.title : '', personIds: Array.isArray(memory.personIds) ? memory.personIds.filter(id) : [], hidden: memory.hidden === true, mediaKind: memory.originalIds?.[0]?.startsWith('video_') ? 'video' : 'photo', renditions: repository.getImageRenditions?.(familyId, memory.originalIds?.[0]) ?? [] }; }
       if (!['GET', 'HEAD'].includes(request.method)) return json(405, { error: 'Method not allowed' });
       if (resource === 'memories' && !resourceId) {
         if (request.method !== 'GET') return json(405, { error: 'Method not allowed' });

@@ -4,6 +4,14 @@ More meaningful moments together. No pressure to remember.
 
 This **pre-release advanced-host reference** connects invite-only family access, multiple people, original photos, separate text/audio stories, recording recovery, responsive image variants and verified portable recovery. It has automated synthetic integration/browser evidence. It has **not** completed a real Google-account pilot, independent security/accessibility review or a nontechnical installation trial. Do not upload family data to an unreviewed deployment.
 
+## Functional local preview (no accounts or deployment needed)
+
+From this directory, run `npm ci --ignore-scripts && npm run dev` and open the displayed `https://localhost:3000` URL. You may need to accept the one-day self-signed local certificate in the browser (or trust it locally to test microphone permissions). This is a **loopback-only temporary sandbox using the real application and API** with a synthetic owner, two example people and a fictional memory. You can upload JPEG/PNG/WebP photos or **short MP4/WebM videos**, record and replay audio, add independent stories, switch between Family space and Enjoy memories, and exercise family export. It deletes its temporary records and generated certificate on exit. **Do not enter real family data** in this disposable preview. Neither OAuth provider credentials nor a cloud service are needed.
+
+The old static, noninteractive fictional page remains available as `npm run demo`. It intentionally cannot upload or record; do not use that page to evaluate the application.
+
+For persistent private family content and actual invitations, use `npm run family:start` with the separate production prerequisites below; there is no fake identity path in the production application.
+
 ## Family experience
 
 A family organizer receives a private invitation from their own operator, signs in with the intended Google account, reviews the family/access scope and accepts. They add people, invite contributors and share a photo. People may simply enjoy it, listen, add a separate story or move on. Simple view reduces the controls; it grants no permissions. Profiles never grant login access.
@@ -44,7 +52,7 @@ The trusted host operator can point Being There at an existing mounted or synced
 DATA_DIR=/private/being-there npm run family:import -- FAMILY_ID PROFILE_ID /mounted/photos
 ```
 
-The importer works recursively on static JPEG/PNG/WebP, creates optimized views, preserves exact originals independently and leaves every input file untouched. Repeated imports skip identical photos. The command needs filesystem access to the **private** family database; it is not a public endpoint or a substitute for login. It does not authenticate to Google Drive, install a sync client, monitor folders automatically, or support HEIC/video yet. Importing the same picture with a new profile association requires an explicit edit rather than silently changing the old association.
+The importer works recursively on static JPEG/PNG/WebP, creates optimized views, preserves exact originals independently and leaves every input file untouched. Repeated imports skip identical photos. The command needs filesystem access to the **private** family database; it is not a public endpoint or a substitute for login. It does not authenticate to Google Drive, install a sync client, monitor folders automatically, or import HEIC/video from a folder. Short videos can instead be uploaded through the authenticated browser UI. Importing the same picture with a new profile association requires an explicit edit rather than silently changing the old association.
 
 ## Original preservation and recovery
 
@@ -77,9 +85,9 @@ Never restore provider credentials or infer identities from contributor names. R
 
 ## Limits and unfinished release gates
 
-Photos: static JPEG/PNG/WebP, 40 megapixels, approximately 14 MiB source limit. Originals stay exact; three WebP variants reuse the 640/1280/2560 policy and never upscale. Microphone access starts only after an explicit recording action. Audio originals support WebM/Opus, MP4 or WAV within the bounded request size. The server does not transcribe or interpret stories. Preserve a long/failed recording locally; this first transport is not a proven unlimited-duration recorder. Browser storage/quota or device loss can affect local recovery; a temporary in-page copy must be sent before closing if local storage fails.
+Photos: static JPEG/PNG/WebP, 40 megapixels, approximately 14 MiB source limit. Video: short MP4/WebM clips up to 14 MiB with original-byte preservation and browser-native playback; no thumbnails, transcoding, HEIC, MOV or large-video streaming. The header and declared format are checked but no comprehensive codec/container validation is claimed. Originals stay exact; three WebP variants reuse the 640/1280/2560 policy and never upscale. Microphone access starts only after an explicit recording action. Audio originals support WebM/Opus, MP4 or WAV within the bounded request size. The server does not transcribe or interpret stories. Preserve a long/failed recording locally; this first transport is not a proven unlimited-duration recorder. Browser storage/quota or device loss can affect local recovery; a temporary in-page copy must be sent before closing if local storage fails.
 
-Metadata lists and story lists are bounded (10,000/100); large-family pagination remains work. Media reads verify bounded complete objects before slicing ranges; streaming large collections is not proven. Core archives are capped at 256 MiB and reject unsupported richer fields instead of silently dropping notes/reactions/dates/preferences/consent metadata. This is not yet a complete exporter for a richer legacy application. Account linking, fine-grained invitation scopes, transcription, graph UI, reactions, retained-item management and guided provisioning remain outside this first workflow.
+Metadata lists and story lists are bounded (10,000/100); large-family pagination remains work. Media reads verify bounded complete objects before slicing ranges; streaming large collections is not proven. Core archives are capped at 256 MiB and reject unsupported richer fields instead of silently dropping notes/reactions/dates/preferences/consent metadata. This is not yet a complete exporter for a richer legacy application. Account linking, fine-grained invitation scopes, transcription, graph UI, reactions, retained-item management and guided provisioning remain outside this first workflow. Family space and Enjoy memories are distinct **presentation modes**, not separate identities or permission boundaries; users still require their own invited account in production. The richer private-family UI has not been fully ported.
 
 Before a family-ready release: real provider callback/reauthentication and independent accounts/storage trial; independent security review; screen-reader and nontechnical-family testing; deployment/backup/export-lifecycle review; exact public diff/provenance/license signoff and verified destination branch enforcement. Automated synthetic checks do not satisfy these human/provider gates.
 
@@ -95,4 +103,4 @@ npm run test:browser
 
 Browser acceptance uses synthetic, locally signed test tokens, a temporary local HTTPS certificate and Chromium's fake audio device. It exercises the actual maintained Google JWT verifier against test keys, not a real Google-account sign-in. The fake verifier/certificate wiring exists in test code only; no test sign-in endpoint ships in the app. No real family content or microphone is used.
 
-Read [TENETS.md](TENETS.md) and [AGENTS.md](AGENTS.md). Licensed under [Apache License 2.0](LICENSE); native/third-party dependencies carry their own licenses. Publication remains a separate maintainer decision.
+Read [TENETS.md](TENETS.md) and [AGENTS.md](AGENTS.md). Licensed under [Apache License 2.0](LICENSE); native/third-party dependencies carry their own licenses. Community Edition v0.1.0 was released as a technical preview; subsequent improvements must be validated and released separately.
