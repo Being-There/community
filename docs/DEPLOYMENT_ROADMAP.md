@@ -1,6 +1,15 @@
 # Community Edition: family-owned onboarding and deployment plan
 
-**Status:** Proposed delivery plan, not an available one-click installer. Dad's private installation is out of scope. The public Community Edition runs Node.js + SQLite + private filesystem originals and currently requires a real Google OAuth web client and HTTPS. A family-owned Cognito/OIDC adapter is proposed to remove Google setup on AWS. Existing verification is synthetic, not a real cloud/pilot deployment. Nothing in this document claims a real cloud installation, security audit or independent-family pilot.
+**Status:** Proposed delivery plan, not an available one-click installer. The original private family installation is out of scope. The public Community Edition runs Node.js + SQLite + private filesystem originals and currently requires a real Google OAuth web client and HTTPS. A family-owned Cognito/OIDC adapter is proposed to remove Google setup on AWS. Existing verification is synthetic, not a real cloud/pilot deployment. Nothing in this document claims a real cloud installation, security audit or independent-family pilot.
+
+## Execution milestones
+
+- [M1 — AWS CDK/CloudFormation launch](https://github.com/Being-There/community/issues/13)
+- [M2 — Cognito-first OIDC and first invitation](https://github.com/Being-There/community/issues/14) (integrates existing [real OAuth pilot](https://github.com/Being-There/community/issues/8))
+- [M3 — independent S3 backup and verified non-AWS restore](https://github.com/Being-There/community/issues/15)
+- [M4 — novice pilot, maintenance and portable home-host path](https://github.com/Being-There/community/issues/16)
+
+**Sequence:** M1 and M2 must meet before the first live private install; M3 is a release blocker, and M4 supplies the independent family-ready evidence. Do not grow a parallel feature backlog while these gates remain open.
 
 ## Goal
 
