@@ -16,7 +16,7 @@ async function api(path, { method = 'GET', body } = {}) {
 }
 async function run(action) { try { await action(); } catch (error) { say(error.message || 'That did not work. Please try again.', true); } }
 const option = (value, label) => { const el = document.createElement('option'); el.value = value; el.textContent = label; return el; };
-function current() { const selected = memories.filter(memory => !memory.hidden && (!$('person').value || memory.personIds.includes($('person').value))); return selected.length ? selected[index % selected.length] : null; }
+function current() { const selected = memories.filter(memory => !memory.hidden); return selected.length ? selected[index % selected.length] : null; }
 function base() { return '/api/families/' + familyId; }
 const blobBase64 = blob => new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1]); reader.onerror = () => reject(new Error('Could not read this file.')); reader.readAsDataURL(blob); });
 function textNode(tag, value) { const el = document.createElement(tag); el.textContent = value; return el; }
@@ -25,7 +25,10 @@ function setExperience(next) {
   document.body.classList.toggle('enjoy', experience === 'enjoy');
   $('family-view').setAttribute('aria-pressed', String(experience === 'family'));
   $('enjoy-view').setAttribute('aria-pressed', String(experience === 'enjoy'));
-  $('family-controls').setAttribute('aria-label', experience === 'enjoy' ? 'Choose whose moments to enjoy' : 'Your family');
+  $('view-description').textContent = experience === 'enjoy'
+    ? 'Tablet view: enjoy any shared memory, listen, or tell a story. Nothing to answer.'
+    : 'Family space: add memories and stories, and manage family access.';
+  $('share-title').textContent = experience === 'enjoy' ? 'Tell a story, if you feel like it' : 'Add a story to this memory, if you like';
 }
 async function showMemory() {
   const memory = current(); $('viewer').hidden = !familyId; $('empty').hidden = Boolean(memory); $('photo').hidden = !memory || memory.mediaKind === 'video'; $('video').hidden = !memory || memory.mediaKind !== 'video'; $('next').disabled = !memory;
@@ -45,7 +48,9 @@ async function showMemory() {
   if (!stories.length) $('stories').append(textNode('p', 'Enjoy this moment. There is no need to add anything.'));
   for (const story of stories) {
     const row = document.createElement('article'); row.className = 'story';
-    row.append(textNode('strong', contributorNames.get(story.contributorId) || 'Family member'));
+    const contributor = contributorNames.get(story.contributorId) || 'Family member';
+    const speaker = story.speakerPersonId && people.find(person => person.id === story.speakerPersonId)?.displayName;
+    row.append(textNode('strong', speaker ? speaker + ' · shared by ' + contributor : contributor));
     if (story.text) row.append(textNode('p', story.text));
     if (story.recordingId) { const audio = document.createElement('audio'); audio.controls = true; audio.preload = 'none'; audio.src = base() + '/media/' + story.recordingId; audio.setAttribute('aria-label', 'Listen to this family story'); row.append(audio); }
     $('stories').append(row);
@@ -72,7 +77,7 @@ async function pendingRecordings() {
 async function sendRecording(item) {
   await sameAccount();
   if (!recovery || item.familyId !== familyId) throw new Error('Switch to the family this recording belongs to.');
-  const result = await api(base() + '/memories/' + item.memoryId + '/stories', { method: 'POST', body: { id: item.id, text: item.text || '', base64: await blobBase64(item.blob), mimeType: item.mimeType } });
+  const result = await api(base() + '/memories/' + item.memoryId + '/stories', { method: 'POST', body: { id: item.id, text: item.text || '', base64: await blobBase64(item.blob), mimeType: item.mimeType, ...(item.speakerPersonId ? { speakerPersonId: item.speakerPersonId } : {}) } });
   if (result.durable !== true || result.storyId !== item.id || !result.recordingId) throw new Error('Recording acknowledgment was incomplete. Your local copy is retained.');
   await recovery.removeRecording(item.id); volatileRecordings.delete(item.id); await pendingRecordings(); await showMemory(); say('Your story is preserved.');
 }
@@ -82,7 +87,8 @@ async function loadFamily() {
   if (!familyId) { $('viewer').hidden = true; return; }
   const results = await Promise.all([api(base() + '/memories'), api(base() + '/people'), api(base() + '/contributors')]);
   memories = results[0].memories; people = results[1].people; contributorNames = new Map(results[2].contributors.map(row => [row.id, row.displayName]));
-  $('person').replaceChildren(option('', 'Everyone'), ...people.map(row => option(row.id, row.displayName || 'Person')));
+  $('speaker').replaceChildren(option('', 'The signed-in family contributor'), ...people.map(row => option(row.id, row.displayName || 'Person')));
+  $('account-note').textContent = 'Signed in as a family ' + (families.find(row => row.id === familyId)?.role || 'member') + '. Profiles are not login accounts.';
   $('upload-people').replaceChildren(...people.map(row => option(row.id, row.displayName || 'Person')));
   $('record').disabled = false;
   try { recovery = createRecordingRecovery({ familyId, accountId }); await pendingRecordings(); }
@@ -113,12 +119,12 @@ async function init() {
 $('accept-invite').onclick = () => run(async () => { await api('/api/invitations/accept', { method: 'POST', body: { token: sessionStorage.getItem('pending-invitation'), displayName: $('nickname').value || 'Family member' } }); sessionStorage.removeItem('pending-invitation'); await init(); say('Welcome. Your family memories are private.'); });
 $('family-view').onclick = () => setExperience('family');
 $('enjoy-view').onclick = () => run(async () => { setExperience('enjoy'); await showMemory(); $('memory-title').focus(); });
-$('family').onchange = () => run(loadFamily); $('person').onchange = () => run(async () => { index = 0; await showMemory(); });
+$('family').onchange = () => run(loadFamily);
 
 $('next').onclick = () => run(async () => { index++; await showMemory(); $('memory-title').focus(); });
 $('person-form').onsubmit = event => { event.preventDefault(); run(async () => { await api(base() + '/people', { method: 'POST', body: { id: crypto.randomUUID(), displayName: $('person-name').value } }); $('person-name').value = ''; await loadFamily(); say('Person added. A profile does not grant account access.'); }); };
 $('upload').onsubmit = event => { event.preventDefault(); run(async () => { const file = $('file').files[0]; if (!file || file.size > 14 * 1024 * 1024) throw new Error('Choose a JPEG, PNG, WebP, MP4 or WebM file no larger than 14 MB.'); const mimeType = ['video/mp4', 'video/webm'].includes(file.type) ? file.type : null; if (!mimeType && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Unsupported photo or video format.'); const button = $('upload').querySelector('button'); button.disabled = true; try { const personIds = [...$('upload-people').selectedOptions].map(row => row.value); const signature = JSON.stringify([familyId, $('caption').value, personIds]); if (!uploadAttempt || uploadAttempt.file !== file || uploadAttempt.signature !== signature) uploadAttempt = { id: crypto.randomUUID(), file, signature }; const result = await api(base() + '/contributions', { method: 'POST', body: { id: uploadAttempt.id, title: $('caption').value, personIds, base64: await blobBase64(file), ...(mimeType ? { mimeType } : {}) } }); if (!result.durable) throw new Error('The original was not acknowledged. Please try again.'); uploadAttempt = null; $('upload').reset(); await loadFamily(); say((mimeType ? 'Video' : 'Photograph') + ' shared. The exact original is preserved.'); } finally { button.disabled = false; } }); };
-$('share-text').onclick = () => run(async () => { const memory = current(); if (!memory || !$('story-text').value.trim()) return; const signature = JSON.stringify([familyId, memory.id, $('story-text').value]); if (!textAttempt || textAttempt.signature !== signature) textAttempt = { id: crypto.randomUUID(), signature }; const saved = await api(base() + '/memories/' + memory.id + '/stories', { method: 'POST', body: { id: textAttempt.id, text: $('story-text').value } }); if (!saved.durable || saved.storyId !== textAttempt.id) throw new Error('The contribution was not durably acknowledged.'); textAttempt = null; await showMemory(); say('Your words are preserved as a separate contribution.'); });
+$('share-text').onclick = () => run(async () => { const memory = current(); if (!memory || !$('story-text').value.trim()) return; const signature = JSON.stringify([familyId, memory.id, $('story-text').value, $('speaker').value]); if (!textAttempt || textAttempt.signature !== signature) textAttempt = { id: crypto.randomUUID(), signature }; const saved = await api(base() + '/memories/' + memory.id + '/stories', { method: 'POST', body: { id: textAttempt.id, text: $('story-text').value, ...($('speaker').value ? { speakerPersonId: $('speaker').value } : {}) } }); if (!saved.durable || saved.storyId !== textAttempt.id) throw new Error('The contribution was not durably acknowledged.'); textAttempt = null; await showMemory(); say('Your words are preserved as a separate contribution.'); });
 $('invite-form').onsubmit = event => { event.preventDefault(); run(async () => { const invitation = await api(base() + '/invitations', { method: 'POST', body: { email: $('invite-email').value, role: $('invite-role').value } }); $('invite-link').value = location.origin + '/?invite=' + invitation.token; $('invite-link-label').hidden = false; await loadTools(); say('Copy the private invitation link and share it with the intended person.'); }); };
 $('export').onclick = () => run(async () => { const value = await api(base() + '/exports', { method: 'POST' }); const url = URL.createObjectURL(new Blob([JSON.stringify(value)], { type: 'application/json' })); const link = document.createElement('a'); link.href = url; link.download = 'being-there-private-archive.json'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); say('Verified archive prepared. Keep the downloaded file private.'); });
 $('record').onclick = () => run(async () => {
@@ -129,11 +135,11 @@ $('record').onclick = () => run(async () => {
   const mimeType = ['audio/webm;codecs=opus', 'audio/mp4'].find(type => MediaRecorder.isTypeSupported(type));
   if (!mimeType) { stream.getTracks().forEach(track => track.stop()); throw new Error('This browser cannot save a supported audio recording.'); }
   const recorder = new MediaRecorder(stream, { mimeType }); const chunks = []; const scopedRecovery = recovery;
-  const item = { id: crypto.randomUUID(), familyId, accountId, memoryId: memory.id, mimeType, text: '' }; let save = Promise.resolve();
+  const item = { id: crypto.randomUUID(), familyId, accountId, memoryId: memory.id, mimeType, text: '', ...($('speaker').value ? { speakerPersonId: $('speaker').value } : {}) }; let save = Promise.resolve();
   recorder.ondataavailable = event => { if (!event.data.size) return; chunks.push(event.data); const snapshot = { ...item, blob: new Blob(chunks, { type: mimeType }) }; volatileRecordings.set(item.id, snapshot); save = save.catch(() => {}).then(() => scopedRecovery.saveRecording(snapshot)); };
   recording = { recorder, stream, done: null };
-  recording.done = new Promise(resolve => { recorder.onstop = async () => { stream.getTracks().forEach(track => track.stop()); try { await save; volatileRecordings.delete(item.id); $('record-status').textContent = 'Your recording is saved on this device. Send it when you are ready.'; } catch { say('Local recovery could not be saved. Keep this page open and try again.', true); } finally { recording = null; $('record').hidden = false; $('stop').hidden = true; for (const key of ['family', 'person', 'next']) $(key).disabled = false; try { await pendingRecordings(); } catch (error) { say(error.message, true); } resolve(); } }; });
-  recorder.start(5000); $('record').hidden = true; $('stop').hidden = false; for (const key of ['family', 'person', 'next']) $(key).disabled = true;
+  recording.done = new Promise(resolve => { recorder.onstop = async () => { stream.getTracks().forEach(track => track.stop()); try { await save; volatileRecordings.delete(item.id); $('record-status').textContent = 'Your recording is saved on this device. Send it when you are ready.'; } catch { say('Local recovery could not be saved. Keep this page open and try again.', true); } finally { recording = null; $('record').hidden = false; $('stop').hidden = true; for (const key of ['family', 'speaker', 'next']) $(key).disabled = false; try { await pendingRecordings(); } catch (error) { say(error.message, true); } resolve(); } }; });
+  recorder.start(5000); $('record').hidden = true; $('stop').hidden = false; for (const key of ['family', 'speaker', 'next']) $(key).disabled = true;
   $('record-status').textContent = 'Recording. Take your time. Finish whenever you like.';
 });
 $('stop').onclick = () => { if (recording && recording.recorder.state !== 'inactive') recording.recorder.stop(); };
