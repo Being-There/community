@@ -1,5 +1,7 @@
 # Being There
 
+<img src="docs/assets/brand-banner.svg" alt="Being There — sunset over mountains and a winding path." width="960">
+
 **Keep the stories. Share the moments. Stay connected.**
 
 Being There is a family-centered, volunteer-driven project exploring how familiar photographs, voices, and stories can help people connect and enjoy meaningful moments together.
