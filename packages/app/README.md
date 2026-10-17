@@ -1,4 +1,4 @@
-# Being There — private family workflow candidate
+# Being There Community Edition — self-hosted technical preview
 
 More meaningful moments together. No pressure to remember.
 
