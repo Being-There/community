@@ -2,6 +2,8 @@
 
 **Status: design, not implemented.** [Tracking issue #17](https://github.com/Being-There/community/issues/17). The current Community application is a Node.js/SQLite server with a private filesystem archive. Neither a native Google Drive write-through storage adapter nor a Google Sites-hosted version is shipped. Current import works from a host-mounted/synced folder, not by connecting directly to the Drive API.
 
+**Architecture requirement change:** [family-held end-to-end encryption only](../SECURITY_PROMISE.md). Google Drive must receive encrypted files and encrypted indexes/snapshots, not readable family originals or stories. A family still controls where their archive is stored, but Drive's native photo previews cannot display Being There's ciphertext. Decryption and memory viewing happen only in a family-authorized app/device. Native E2EE connector is **not** currently implemented, and the existing plaintext archive must not be represented as compliant.
+
 ## Separate the three choices
 
 - **Open the app:** direct HTTPS app URL (recommended, especially on tablets), a Google Sites page linking to the app (supported by Google Sites without an app change), or an optional *tested* full-page embedded app (not yet supported/approved by this project).
