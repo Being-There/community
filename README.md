@@ -6,7 +6,25 @@ Being There is a family-centered, volunteer-driven project exploring how familia
 
 It started as a personal family project. We are developing a **separate community edition** so that other families can eventually run and control their own private memory spaces.
 
-**Current status:** We are recruiting founding supporters and planning the community edition. The community application is **not available for general use**. The family's original application and its data are private and are not part of this repository.
+**Current status:** The [Community Edition application](packages/app/) is available as a **v0.1.0 self-hosted technical preview** for technically capable operators. It is not a turnkey family service or a validated clinical product. The original private family application and its data are not included.
+
+## Technical-preview installation
+
+On Linux with Node.js 22.13+ or 24, npm, private persistent storage and an HTTPS reverse proxy:
+
+```sh
+cd packages/app
+npm ci --omit=dev --ignore-scripts
+# Configure APP_ORIGIN, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and DATA_DIR
+# in the host's private environment, outside this repository.
+npm run family:start
+```
+
+The listener binds to loopback. A real Google OAuth web client and registered `https://YOUR-HOST/auth/google/callback` are required; startup deliberately has **no unauthenticated/demo-login bypass**. An operator creates the first one-use organizer invitation with `npm run family:operator -- invite-organizer FAMILY_ID EMAIL`.
+
+For complete setup, permission boundaries, mounted/synced-folder import, exported-archive restore, and known limitations, read the [application operator guide](packages/app/README.md). Run verification from `packages/app` with `npm ci --ignore-scripts && npm run check && node scripts/recovery-drill.mjs`; HTTPS browser acceptance additionally requires Playwright Chromium.
+
+**Not yet verified for this technical preview:** real Google-account onboarding, public-host deployment, inexperienced-operator setup, real-host disaster recovery and independent security/accessibility reviews. Families must operate and back up their own private installation; there is no mandatory Being There cloud, paid AI provider or subscription. See [third-party license notices](THIRD_PARTY_NOTICES.md).
 
 ## What matters to us
 
@@ -14,7 +32,7 @@ It started as a personal family project. We are developing a **separate communit
 - **Family control.** Families should control access, archives, and sharing.
 - **Privacy by design.** No public family stories, photos, recordings, or medical information.
 - **Accessible by default.** Simple, respectful experiences for people with different needs.
-- **Open source.** We intend to publish the community application's code after privacy, security, installation, and recovery reviews.
+- **Open source.** The technical-preview source is published for community inspection and validation; independent operational review is still needed before use with sensitive family content.
 
 ## Help build Being There
 
