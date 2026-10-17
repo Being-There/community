@@ -34,9 +34,8 @@ export function createMemory({ id, familyId, personIds, title, contributorId }) 
   requireId(id, "memory id");
   requireId(familyId, "family id");
   requireId(contributorId, "contributor id");
-  if (!Array.isArray(personIds) || personIds.length === 0 ||
-      personIds.some(id => !isId(id)) || new Set(personIds).size !== personIds.length) {
-    throw new TypeError("Memory requires distinct person IDs");
+  if (!Array.isArray(personIds) || personIds.some(id => !isId(id)) || new Set(personIds).size !== personIds.length) {
+    throw new TypeError("Memory needs an array of distinct optional person references");
   }
   return Object.freeze({
     id, familyId, personIds: Object.freeze([...personIds]),
@@ -53,7 +52,7 @@ export function validateMemoryReferences(memory, people) {
   const known = new Set(people.filter(person =>
     person && person.familyId === memory.familyId && isId(person.id)
   ).map(person => person.id));
-  return Array.isArray(memory.personIds) && memory.personIds.length > 0 &&
+  return Array.isArray(memory.personIds) && new Set(memory.personIds).size === memory.personIds.length &&
     memory.personIds.every(id => known.has(id));
 }
 
@@ -73,13 +72,14 @@ const storyText = value => {
  * preservation layer that is not implemented here.
  * Contributor IDs are attribution references, never access grants.
  */
-export function createStory({ id, familyId, memoryId, contributorId, text }) {
+export function createStory({ id, familyId, memoryId, contributorId, text, speakerPersonId }) {
+  if (speakerPersonId !== undefined) requireId(speakerPersonId, 'speaker person ID');
   return Object.freeze({
     id: requireId(id, "story id"),
     familyId: requireId(familyId, "family id"),
     memoryId: requireId(memoryId, "memory id"),
     contributorId: requireId(contributorId, "contributor id"),
-    text: storyText(text)
+    text: storyText(text), ...(speakerPersonId === undefined ? {} : { speakerPersonId })
   });
 }
 

@@ -16,7 +16,7 @@ npm ci --ignore-scripts
 npm run dev
 ```
 
-Open **https://localhost:3000** (a temporary self-signed certificate may require a browser trust exception). This is a **disposable, localhost-only example-family sandbox running the actual application**, including photos, short videos, microphone stories and separate Family space / Enjoy memories presentations. It never contacts real Google OAuth or Dad's private installation. Its media and database are deleted on exit; do not use real family information here. The old noninteractive mockup is `npm run demo`.
+Open **https://localhost:3000** (a temporary self-signed certificate may require a browser trust exception). This is a **disposable, localhost-only example-family sandbox running the actual application**, including photos, short videos, microphone stories, Family space to submit contributions, and Tablet view to enjoy **any** shared memory and optionally tell a story. Profile tags are optional and do not restrict viewing. It never contacts real Google OAuth or Dad's private installation. Its media and database are deleted on exit; do not use real family information here. The old noninteractive mockup is `npm run demo`.
 
 For real accounts and persistent independent hosting, follow the separate production setup below.
 

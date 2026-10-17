@@ -84,7 +84,7 @@ export function createFamilyWriteApi({ sessions, repository, appOrigin, readApi 
       // Authorization is rechecked inside the durable commit transaction.
       if (acceptance) { fields(input, ['token'], ['displayName']); return json(200, url.pathname.endsWith('/preview') ? repository.previewInvitation(principal, input.token) : repository.acceptInvitation(principal, input.token, input.displayName)); }
       if (story) {
-        fields(input, ['id', 'text'], ['base64', 'mimeType']);
+        fields(input, ['id', 'text'], ['base64', 'mimeType', 'speakerPersonId']);
         let audio = null;
         if (input.base64 !== undefined) {
           audio = bytes(input.base64);

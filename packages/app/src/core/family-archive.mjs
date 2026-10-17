@@ -88,9 +88,10 @@ export function validateArchiveContent(input, expectedFamilyId) {
   unique(originals);
   const originalById = new Map(originals.map(record => [record.id, record]));
   const stories = list(input.stories).map(record => {
-    fields(record, ['id', 'familyId', 'memoryId', 'contributorId', 'text', 'recordingId']);
+    fields(record, ['id', 'familyId', 'memoryId', 'contributorId', 'text', 'recordingId'], ['speakerPersonId']);
     inFamily(record); credited(record);
     const story = createStory(record);
+    if (story.speakerPersonId !== undefined && !people.some(person => person.id === story.speakerPersonId)) fail();
     if (!validateStoryReference(story, memoryById.get(story.memoryId))) fail();
     if (record.recordingId !== null) {
       const original = originalById.get(record.recordingId);

@@ -158,7 +158,7 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
       valid(familyId);
       if (!db.prepare('SELECT 1 FROM families WHERE id=?').get(familyId)) throw new AccessError(404);
       if (!(bytes instanceof Uint8Array) || !bytes.length) throw new AccessError(400);
-      if (!Array.isArray(personIds) || !personIds.length || new Set(personIds).size !== personIds.length ||
+      if (!Array.isArray(personIds) || new Set(personIds).size !== personIds.length ||
           personIds.some(key => !id(key) || !getRecord('people', familyId, key))) throw new AccessError(400);
       const digest = hash(bytes);
       const memoryId = 'ingest_' + hash(text([familyId, digest])).slice(0, 48);
@@ -190,7 +190,8 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
       const membership = actor(principal, familyId); const memory = getRecord('memories', familyId, memoryId);
       if (!canReadMemory(membership, memory)) throw new AccessError(404);
       const recordingId = input.bytes ? 'audio_' + hash(text([familyId, input.id])).slice(0, 48) : null;
-      const story = { ...createStory({ id: valid(input.id), familyId, memoryId, contributorId: membership.contributorId, text: input.text }), recordingId };
+      if (input.speakerPersonId !== undefined && !getRecord('people', familyId, valid(input.speakerPersonId))) throw new AccessError(400);
+      const story = { ...createStory({ id: valid(input.id), familyId, memoryId, contributorId: membership.contributorId, text: input.text, speakerPersonId: input.speakerPersonId }), recordingId };
       const bytes = input.bytes ? Uint8Array.from(input.bytes) : null;
       const original = bytes && createMediaOriginal({ id: recordingId, familyId, memoryId, contributorId: membership.contributorId, kind: 'audio', byteLength: bytes.length, sha256: hash(bytes) });
       const existing = getRecord('stories', familyId, story.id);
