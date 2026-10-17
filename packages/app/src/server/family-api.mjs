@@ -89,13 +89,15 @@ export function createFamilyApi({ sessions, repository, appOrigin, subtleCrypto,
           for (const story of rows) {
             if (story?.familyId !== familyId || story.memoryId !== resourceId || !id(story.id) || !id(story.contributorId) ||
                 typeof story.text !== 'string' || story.text.length > 1000000 ||
-                (story.recordingId !== null && !id(story.recordingId))) throw new Error('Invalid scoped story');
+                (story.recordingId !== null && !id(story.recordingId)) ||
+                (story.speakerPersonId !== undefined && (!id(story.speakerPersonId) || !repository.listPeople(familyId).some(person => person.id === story.speakerPersonId)))) throw new Error('Invalid scoped story');
             if (story.recordingId !== null) {
               const recording = await repository.getMedia(familyId, story.recordingId);
               if (!recording || recording.id !== story.recordingId || recording.familyId !== familyId || recording.memoryId !== resourceId ||
                   recording.contributorId !== story.contributorId || recording.kind !== 'audio' || recording.originalId !== undefined) throw new Error('Invalid recording reference');
             }
-            stories.push({ id: story.id, contributorId: story.contributorId, text: story.text, recordingId: story.recordingId });
+            stories.push({ id: story.id, contributorId: story.contributorId, text: story.text, recordingId: story.recordingId,
+              ...(story.speakerPersonId === undefined ? {} : { speakerPersonId: story.speakerPersonId }) });
           }
         }
         const latest = await latestAccess();
