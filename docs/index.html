@@ -6,6 +6,8 @@
 <meta name="description" content="Being There is a volunteer-driven project for family-controlled memories, stories, and connection.">
 <meta name="color-scheme" content="light dark">
 <title>Being There — Keep the stories. Share the moments.</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<meta name="theme-color" content="#104B40">
 <style>
 :root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6;color-scheme:light dark}
 *{box-sizing:border-box}
@@ -14,11 +16,15 @@ body{margin:0;background:Canvas;color:CanvasText}
 .skip:focus{left:1rem;z-index:5}
 .wrap{width:min(100% - 2rem,760px);margin-inline:auto}
 header{border-bottom:1px solid GrayText;padding:1rem 0}
-header a{font-weight:750;text-decoration:none;color:inherit}
+header a{font-weight:750;text-decoration:none;color:inherit;display:inline-flex;align-items:center;gap:.65rem}
+header img{width:46px;height:46px;flex:none}
 main{padding:3.5rem 0}
 h1{font-size:clamp(2.2rem,6vw,3.8rem);line-height:1.12;letter-spacing:-.03em;margin:.2rem 0 1.5rem}
 h2{font-size:1.5rem;margin-top:2.5rem}
 .lead{font-size:1.22rem;max-width:60ch}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:1.5rem;align-items:center}
+.hero-art{display:block;width:100%;max-width:210px;height:auto}
+@media(max-width:640px){.hero-grid{grid-template-columns:1fr}.hero-art{max-width:122px;grid-row:1}.hero-grid h1{margin-top:.5rem}}
 .status{border-inline-start:4px solid currentColor;padding:.7rem 1rem;margin:2rem 0;background:color-mix(in srgb,CanvasText 6%,Canvas)}
 a{color:LinkText;text-underline-offset:.18em}
 a:focus-visible{outline:3px solid Highlight;outline-offset:4px}
@@ -30,11 +36,14 @@ footer{border-top:1px solid GrayText;padding:1.5rem 0;font-size:.95rem}
 </head>
 <body>
 <a class="skip" href="#main">Skip to main content</a>
-<header><div class="wrap"><a href="https://github.com/Being-There/community">Being There</a></div></header>
+<header><div class="wrap"><a href="https://github.com/Being-There/community"><img src="assets/brand-mark.svg" alt="" aria-hidden="true" width="46" height="46">Being There</a></div></header>
 <main id="main" class="wrap">
-<p>Open source · Family connection · Community initiative</p>
+<div class="hero-grid">
+<div><p>Open source · Family connection · Community initiative</p>
 <h1>Keep the stories.<br>Share the moments.<br>Stay connected.</h1>
-<p class="lead">Being There is a family-centered project exploring how familiar photographs, voices, and stories can help people connect and enjoy meaningful moments together.</p>
+<p class="lead">Being There is a family-centered project exploring how familiar photographs, voices, and stories can help people connect and enjoy meaningful moments together.</p></div>
+<img class="hero-art" src="assets/brand-mark.svg" alt="" aria-hidden="true" width="210" height="210">
+</div>
 <p>It began as a personal family project. We're working toward a separate, privacy-focused community edition that families can run and control for themselves.</p>
 <div class="status" role="note"><strong>Early-stage project.</strong> We're welcoming founding supporters. The community application is not yet available for general use, and we are not accepting donations.</div>
 <h2>What we're working toward</h2>
