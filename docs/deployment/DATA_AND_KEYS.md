@@ -9,7 +9,7 @@
 | Photos, videos, original audio and transcripts | Family, in their instance/archive | Application runtime can read content to serve it to authorized people |
 | SQLite family metadata and account permissions | Family's EBS/local filesystem | Do not treat copied WAL files as a backup without consistency checks |
 | AWS S3 backup bucket, KMS key policy and IAM | Family's AWS account | AWS and identities granted KMS/use privileges are within the trust model |
-| Google OAuth client ID/secret | Family's Google project and secret store | OAuth authenticates accounts; it does **not** encrypt memories |
+| OIDC identity directory/client | Family's AWS Cognito User Pool by default on planned AWS installer; optional Google client in family's Google project | Authentication identifies accounts; it does **not** encrypt memories. Current runtime only supports Google. |
 | HTTPS domain and DNS | Family | Renewal/DNS outage can make the app unavailable |
 | Family invite URLs | Only intended invite recipients | Invite tokens are credentials; don't put in logs or publicly indexed documents |
 | Archive export | Family, only authorized organizer with recent sign-in | Downloaded JSON archive is not app-encrypted: store and transfer privately |
