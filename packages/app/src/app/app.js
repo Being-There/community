@@ -3,6 +3,7 @@ const $ = id => document.getElementById(id);
 let accountId, families = [], familyId, memories = [], people = [], contributorNames = new Map(), index = 0, recovery, recording;
 const volatileRecordings = new Map();
 let uploadAttempt, textAttempt;
+let experience = 'family';
 const params = new URL(location.href).searchParams;
 if (params.has('invite')) { sessionStorage.setItem('pending-invitation', params.get('invite')); history.replaceState(null, '', '/'); }
 const say = (message, error = false) => { $('status').textContent = message; $('status').classList.toggle('error', error); };
@@ -19,11 +20,18 @@ function current() { const selected = memories.filter(memory => !memory.hidden &
 function base() { return '/api/families/' + familyId; }
 const blobBase64 = blob => new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1]); reader.onerror = () => reject(new Error('Could not read this file.')); reader.readAsDataURL(blob); });
 function textNode(tag, value) { const el = document.createElement(tag); el.textContent = value; return el; }
+function setExperience(next) {
+  experience = next === 'enjoy' ? 'enjoy' : 'family';
+  document.body.classList.toggle('enjoy', experience === 'enjoy');
+  $('family-view').setAttribute('aria-pressed', String(experience === 'family'));
+  $('enjoy-view').setAttribute('aria-pressed', String(experience === 'enjoy'));
+  $('family-controls').setAttribute('aria-label', experience === 'enjoy' ? 'Choose whose moments to enjoy' : 'Your family');
+}
 async function showMemory() {
   const memory = current(); $('viewer').hidden = !familyId; $('empty').hidden = Boolean(memory); $('photo').hidden = !memory; $('next').disabled = !memory;
   $('memory-title').textContent = memory?.title || (memory ? 'A shared moment' : 'Your family memories');
   $('stories').replaceChildren(); $('story-text').value = '';
-  if (!memory) { $('photo').removeAttribute('src'); return; }
+  if (!memory) { $('photo').removeAttribute('src'); $('video').removeAttribute('src'); $('video').hidden = true; return; }
   const imageUrl = base() + '/media/' + memory.originalIds[0]; const choices = new Map(); for (const rendition of memory.renditions ?? []) if (!choices.has(rendition.width)) choices.set(rendition.width, imageUrl + '?variant=' + rendition.name + ' ' + rendition.width + 'w'); $('photo').srcset = [...choices.values()].join(', '); $('photo').sizes = '(max-width: 700px) 100vw, 90vw'; $('photo').src = imageUrl; $('photo').alt = memory.title ? 'Shared photograph: ' + memory.title : 'A photograph shared with your family';
   const { stories } = await api(base() + '/memories/' + memory.id + '/stories');
   if (!stories.length) $('stories').append(textNode('p', 'Enjoy this moment. There is no need to add anything.'));
@@ -61,7 +69,7 @@ async function sendRecording(item) {
   await recovery.removeRecording(item.id); volatileRecordings.delete(item.id); await pendingRecordings(); await showMemory(); say('Your story is preserved.');
 }
 async function loadFamily() {
-  familyId = $('family').value; index = 0; $('no-family').hidden = Boolean(familyId);
+  familyId = $('family').value; index = 0; $('no-family').hidden = Boolean(familyId); $('experience').hidden = !familyId;
   $('contribute').hidden = !familyId; $('organizer').hidden = families.find(row => row.id === familyId)?.role !== 'organizer';
   if (!familyId) { $('viewer').hidden = true; return; }
   const results = await Promise.all([api(base() + '/memories'), api(base() + '/people'), api(base() + '/contributors')]);
@@ -95,8 +103,10 @@ async function init() {
   await loadFamily(); await previewInvitation(); say(families.length ? 'Choose a memory and enjoy it at your own pace.' : 'A private invitation is needed.');
 }
 $('accept-invite').onclick = () => run(async () => { await api('/api/invitations/accept', { method: 'POST', body: { token: sessionStorage.getItem('pending-invitation'), displayName: $('nickname').value || 'Family member' } }); sessionStorage.removeItem('pending-invitation'); await init(); say('Welcome. Your family memories are private.'); });
+$('family-view').onclick = () => setExperience('family');
+$('enjoy-view').onclick = () => run(async () => { setExperience('enjoy'); await showMemory(); $('memory-title').focus(); });
 $('family').onchange = () => run(loadFamily); $('person').onchange = () => run(async () => { index = 0; await showMemory(); });
-$('simple').onchange = () => document.body.classList.toggle('simple', $('simple').checked);
+
 $('next').onclick = () => run(async () => { index++; await showMemory(); $('memory-title').focus(); });
 $('person-form').onsubmit = event => { event.preventDefault(); run(async () => { await api(base() + '/people', { method: 'POST', body: { id: crypto.randomUUID(), displayName: $('person-name').value } }); $('person-name').value = ''; await loadFamily(); say('Person added. A profile does not grant account access.'); }); };
 $('upload').onsubmit = event => { event.preventDefault(); run(async () => { const file = $('file').files[0]; if (!file || file.size > 14 * 1024 * 1024) throw new Error('Please choose a JPEG, PNG or WebP photograph smaller than 14 MB.'); const button = $('upload').querySelector('button'); button.disabled = true; try { const personIds = [...$('upload-people').selectedOptions].map(row => row.value); const signature = JSON.stringify([familyId, $('caption').value, personIds]); if (!uploadAttempt || uploadAttempt.file !== file || uploadAttempt.signature !== signature) uploadAttempt = { id: crypto.randomUUID(), file, signature }; const result = await api(base() + '/contributions', { method: 'POST', body: { id: uploadAttempt.id, title: $('caption').value, personIds, base64: await blobBase64(file) } }); if (!result.durable) throw new Error('The original was not acknowledged. Please try again.'); uploadAttempt = null; $('upload').reset(); await loadFamily(); say('Photograph shared. The exact original is preserved.'); } finally { button.disabled = false; } }); };
@@ -119,6 +129,6 @@ $('record').onclick = () => run(async () => {
   $('record-status').textContent = 'Recording. Take your time. Finish whenever you like.';
 });
 $('stop').onclick = () => { if (recording && recording.recorder.state !== 'inactive') recording.recorder.stop(); };
-$('logout').onclick = () => run(async () => { if (recording) { const done = recording.done; recording.recorder.stop(); await done; } await api('/api/session/logout', { method: 'POST' }); recovery = null; $('photo').removeAttribute('src'); $('stories').replaceChildren(); await init(); });
+$('logout').onclick = () => run(async () => { if (recording) { const done = recording.done; recording.recorder.stop(); await done; } await api('/api/session/logout', { method: 'POST' }); recovery = null; $('photo').removeAttribute('src'); $('video').removeAttribute('src'); $('stories').replaceChildren(); setExperience('family'); await init(); });
 window.addEventListener('pagehide', () => { if (recording?.recorder.state === 'recording') recording.recorder.stop(); });
 run(init);
