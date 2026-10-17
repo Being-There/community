@@ -15,6 +15,8 @@ export function createApplication({ repository, appOrigin, googleClientId, googl
     ['/', ['../app/index.html', 'text/html; charset=utf-8']],
     ['/app.js', ['../app/app.js', 'text/javascript; charset=utf-8']],
     ['/style.css', ['../app/style.css', 'text/css; charset=utf-8']],
+    ['/brand-mark.svg', ['../app/brand-mark.svg', 'image/svg+xml']],
+    ['/favicon.svg', ['../app/favicon.svg', 'image/svg+xml']],
     ['/modules/recording-recovery.mjs', ['../core/recording-recovery.mjs', 'text/javascript; charset=utf-8']]
   ]);
   const security = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer',
