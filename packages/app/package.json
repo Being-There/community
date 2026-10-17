@@ -1,0 +1,24 @@
+{
+  "name": "being-there-community",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "npm test && node scripts/verify-sample.mjs",
+    "dev": "node src/demo/server.mjs",
+    "family:start": "node scripts/start-family-app.mjs",
+    "family:operator": "node scripts/family-operator.mjs",
+    "test:browser": "node scripts/browser-acceptance.mjs",
+    "family:import": "node scripts/import-folder.mjs"
+  },
+  "dependencies": {
+    "google-auth-library": "11.3.1",
+    "sharp": "0.35.5"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  },
+  "engines": {
+    "node": ">=22.13.0 <25"
+  }
+}

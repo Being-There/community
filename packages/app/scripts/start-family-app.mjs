@@ -1,0 +1,13 @@
+import { resolve, join } from 'node:path';
+import { openFamilyRepository } from '../src/server/sqlite-repository.mjs';
+import { createApplication } from '../src/server/application.mjs';
+import { createNodeHost } from '../src/server/host.mjs';
+const { APP_ORIGIN, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, DATA_DIR } = process.env;
+if (!APP_ORIGIN || !GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !DATA_DIR) throw new Error('Configure APP_ORIGIN, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and a private DATA_DIR. No fake login is available.');
+const repository = openFamilyRepository({ filename: join(resolve(DATA_DIR), 'family.sqlite'), originalsDirectory: process.env.ORIGINALS_DIR });
+const app = createApplication({ repository, appOrigin: APP_ORIGIN, googleClientId: GOOGLE_CLIENT_ID, googleClientSecret: GOOGLE_CLIENT_SECRET });
+const port = Number(process.env.PORT ?? 3000);
+if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid port');
+const server = createNodeHost({ handle: app.handle, appOrigin: APP_ORIGIN });
+server.listen(port, '127.0.0.1', () => console.log('Private family app listening on loopback; configured HTTPS proxy required.'));
+for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => { server.close(() => { repository.close(); process.exit(0); }); });

@@ -1,0 +1,13 @@
+# Local installations and secrets must never be committed
+node_modules/
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite-*
+private-data/
+original-archive/
+archives/
+playwright-report/
+test-results/
+.release-candidate*/

@@ -1,0 +1,63 @@
+name: Community app verification
+on:
+  pull_request:
+    paths:
+      - 'packages/app/**'
+      - '.github/workflows/community-app.yml'
+  push:
+    branches:
+      - release/community-v0.1.0-candidate
+      - main
+    paths:
+      - 'packages/app/**'
+      - '.github/workflows/community-app.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: packages/app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: packages/app/package-lock.json
+      - name: Clean install from public source
+        run: npm ci --ignore-scripts
+      - name: Unit tests and fixture verification
+        run: npm run check
+      - name: Fresh-process family recovery drill
+        run: node scripts/recovery-drill.mjs
+      - name: Install headless Chromium
+        run: npx playwright install --with-deps chromium --only-shell
+      - name: HTTPS browser acceptance
+        run: npm run test:browser
+
+  publish-preview:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag and publish exactly v0.1.0 after public checks pass
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v0.1.0 >/dev/null 2>&1; then
+            echo 'v0.1.0 already released; no action'
+            exit 0
+          fi
+          gh release create v0.1.0 \
+            --target "$GITHUB_SHA" \
+            --title "Being There Community Edition v0.1.0 — Technical Preview" \
+            --notes-file .github/release-notes/v0.1.0.md \
+            --latest=false

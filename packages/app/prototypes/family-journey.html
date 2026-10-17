@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; connect-src 'none'; form-action 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<meta name="color-scheme" content="light">
+<title>Being There — Family experience prototype</title>
+<style>
+:root{--ink:#203226;--muted:#485a4e;--deep:#1e4b36;--soft:#edf4ea;--paper:#fffdfa;--bg:#f7f6ef;--edge:#bdcfc1;--cream:#fcf1de;--focus:#af620a;--radius:22px}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:4px solid var(--focus);outline-offset:3px}button:disabled{cursor:not-allowed;opacity:.6}h1:focus-visible,h2:focus-visible{outline:3px solid var(--focus);outline-offset:5px}main{max-width:780px;margin:auto;padding:18px 18px 48px}header{max-width:780px;margin:auto;padding:21px 18px 10px;display:flex;gap:16px;justify-content:space-between;align-items:center;flex-wrap:wrap}.brand{font-size:clamp(22px,4vw,28px);font-weight:850;letter-spacing:-.03em}.brand-mark{display:inline-grid;place-items:center;width:35px;height:35px;background:var(--deep);color:white;border-radius:12px;margin-right:6px}h1{font-size:clamp(31px,6vw,47px);letter-spacing:-.035em;line-height:1.1;margin:10px 0 14px}h2{font-size:clamp(25px,5vw,34px);letter-spacing:-.025em;line-height:1.17;margin:0 0 12px}h3{font-size:21px;margin:0 0 8px}p{font-size:18px;margin:0 0 15px}small,.help{color:var(--muted);font-size:15px}.skip{position:absolute;left:-9999px;top:auto}.skip:focus{left:16px;top:8px;z-index:20;background:#fff;padding:12px}nav[aria-label="Try different perspectives"]{background:#e4eee5;border-radius:16px;padding:5px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:8px 0 24px}nav button{border:0;min-height:53px;background:transparent;border-radius:12px;color:var(--ink);font-size:clamp(14px,3vw,17px);font-weight:750}nav button[aria-current="page"]{background:white;box-shadow:0 1px 4px #0002}section[hidden],.visual svg[hidden]{display:none!important}.panel{background:var(--paper);border:1.5px solid var(--edge);border-radius:var(--radius);padding:clamp(21px,4vw,34px);box-shadow:0 6px 26px #23382a0a}.panel+.panel{margin-top:16px}.eyebrow{color:var(--deep);font-weight:850;font-size:14px;letter-spacing:.075em;text-transform:uppercase;margin-bottom:12px}.progress{display:flex;gap:8px;margin:0 0 23px}.progress>span{height:7px;border-radius:99px;background:#d8e0d7;flex:1}.progress>span.done{background:var(--deep)}.primary,.secondary,.quiet{min-height:58px;border-radius:15px;padding:12px 20px;font-weight:800;font-size:18px;width:100%;margin-top:12px}.primary{background:var(--deep);border:2px solid var(--deep);color:white}.primary:hover{background:#123824}.secondary{background:var(--paper);border:2px solid var(--deep);color:var(--deep)}.secondary:hover{background:var(--soft)}.quiet{background:none;border:2px solid transparent;color:var(--deep);font-size:17px}.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.back{width:auto;padding:10px 18px;min-height:48px}.ppl{display:grid;gap:13px;margin:17px 0}.person{display:flex;align-items:center;gap:14px;border:1.5px solid var(--edge);border-radius:15px;padding:15px;background:white}.avatar{border-radius:50%;display:grid;place-items:center;font-weight:850;background:#d7e9d8;color:#1c513a;width:51px;height:51px;flex:0 0 51px;font-size:18px}.person strong{font-size:19px}.person small{display:block}.pill{display:inline-block;padding:5px 10px;border-radius:30px;background:#e8f1e8;color:var(--deep);font-size:13px;font-weight:800}.note{background:var(--soft);padding:17px;border-radius:15px;border-left:4px solid var(--deep);font-size:16px;margin:17px 0}.notice{max-width:780px;margin:0 auto;padding:0 18px}.notice>div{background:var(--cream);color:#554016;padding:12px 15px;border-radius:12px;font-size:14px;border:1px solid #e4cfa8}.invite{background:#eef5eb;border-radius:15px;padding:20px;margin:15px 0}.invite strong{display:block;font-size:23px}.mockline{display:block;border:2px dashed #a8bfad;padding:16px;border-radius:13px;font-size:16px;word-break:break-word;background:white;margin-top:12px}.visual{min-height:245px;display:grid;place-items:center;border-radius:17px;background:linear-gradient(155deg,#d2e9db 0%,#b8d6bb 53%,#eae0be 53%,#f4e2c8 100%);position:relative;overflow:hidden;margin:17px 0}.visual svg{width:min(100%,400px);height:230px;display:block}.visual.alt{background:linear-gradient(155deg,#e9d8c5,#d6e8ed 60%,#accdbd 60%)}.memory-name{font-size:clamp(24px,5vw,29px);font-weight:850;margin-bottom:7px}.story{border:1.5px solid var(--edge);background:#f6f8f3;border-radius:14px;padding:17px;margin-top:14px}.story strong{font-size:18px}.story p{font-size:19px;margin:9px 0 0}.status{min-height:26px;font-size:16px;color:var(--deep);font-weight:750;margin-top:14px}footer{margin-top:22px;color:var(--muted);font-size:14px;text-align:center}.label{display:block;font-weight:750;font-size:18px;margin-bottom:8px}.field{width:100%;border:2px solid var(--edge);border-radius:13px;padding:13px 14px;min-height:55px;background:white;color:var(--ink);font-size:18px}details{margin-top:16px;border-top:1px solid var(--edge);padding-top:17px}summary{font-weight:800;cursor:pointer;font-size:17px}details p{font-size:16px;margin-top:10px}#demo-status{scroll-margin-top:16px} @media(max-width:390px){header{padding-top:16px}main{padding:12px}nav button{font-size:13px;padding:4px}.panel{padding:20px}.notice{padding:0 12px}.person{gap:9px;padding:12px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a href="#main" class="skip">Skip to experience</a>
+<header><div class="brand"><span class="brand-mark" aria-hidden="true">♥</span> Being There</div><span class="pill">Offline prototype</span></header>
+<div class="notice"><div><strong>Fictional walkthrough.</strong> No sign-in, invites, recording, uploads, storage, or network access. Please don't enter real names or private information.</div></div>
+<main id="main">
+<nav aria-label="Try different perspectives">
+<button type="button" data-view="organizer" aria-current="page">Set up family</button>
+<button type="button" data-view="contributor">Share a memory</button>
+<button type="button" data-view="person">Enjoy memories</button>
+</nav>
+<section id="organizer" aria-label="Set up family">
+<div class="panel">
+<div class="eyebrow">Family organizer · Step <span id="step-number">1</span> of 4</div>
+<div class="progress" aria-hidden="true"><span class="done"></span><span></span><span></span><span></span></div>
+<div data-step="0">
+<h1 id="organizer-title" tabindex="-1">A home for the stories you love.</h1>
+<p>Bring the family together with photos, familiar moments and stories told in their own voices.</p>
+<p>Someone can simply enjoy a memory. They never have to answer a question or remember anything.</p>
+<div class="note">Your family's space should be private, easy to invite people into, and yours to export. This preview doesn't create one.</div>
+<button type="button" class="primary" data-next="1">Create my family's space</button>
+</div>
+<div data-step="1" hidden>
+<h2 tabindex="-1">Who would you like to share memories with?</h2>
+<p>People can have a profile without an account. Let's start with two fictional people.</p>
+<div class="ppl"><div class="person"><span class="avatar" aria-hidden="true">A</span><span><strong>Avery</strong><small>Simple view · no account required for a profile</small></span></div><div class="person"><span class="avatar" aria-hidden="true">R</span><span><strong>Riley</strong><small>Standard view · may also contribute</small></span></div></div>
+<p class="help">Families decide what to call people. No medical labels or family roles are required.</p>
+<button type="button" class="primary" data-next="2">Continue with Avery and Riley</button>
+<button type="button" class="quiet" data-back="0">Back</button>
+</div>
+<div data-step="2" hidden>
+<h2 tabindex="-1">Bring someone into the story.</h2>
+<p>Invite a relative to share a photo, a voice message, or simply enjoy what's here.</p>
+<div class="invite"><span class="pill">Example only</span><strong>Invite Casey</strong><p style="margin:7px 0">Casey can contribute memories, but cannot manage family settings.</p><span class="mockline">Example invitation — not a real link</span></div>
+<button type="button" class="primary" data-next="3">Preview my family's space</button>
+<button type="button" class="quiet" data-back="1">Back</button>
+</div>
+<div data-step="3" hidden>
+<h2 tabindex="-1">You're ready to enjoy a moment.</h2>
+<p>Your example family now has two people and one pretend memory. In the finished product, this is where you would see private sharing and verified backup status.</p>
+<div class="ppl"><div class="person"><span class="avatar" aria-hidden="true">✓</span><span><strong>2 people</strong><small>Avery and Riley</small></span></div><div class="person"><span class="avatar" aria-hidden="true">♡</span><span><strong>1 sample memory</strong><small>No real files were added</small></span></div></div>
+<button type="button" class="primary" data-go="person">See Avery's experience</button>
+<button type="button" class="secondary" data-go="contributor">See Casey's experience</button>
+<button type="button" class="quiet" data-back="2">Back</button>
+</div>
+</div>
+</section>
+<section id="contributor" aria-labelledby="contributor-title" hidden>
+<div class="panel"><div class="eyebrow">Family contributor · Casey's perspective</div><h1 id="contributor-title" tabindex="-1">A small moment can mean so much.</h1>
+<p>You don't have to write a perfect story. You can share a familiar memory, an audio message or a photograph.</p>
+<div class="person"><span class="avatar" aria-hidden="true">A</span><span><strong>Share with Avery</strong><small>Also connected to Riley's memories</small></span></div>
+<div class="visual" role="img" aria-label="Illustration of a quiet garden with two trees, flowers and a bench"><svg viewBox="0 0 400 230" aria-hidden="true"><circle cx="308" cy="56" r="33" fill="#f8edb8"/><path d="M30 190Q110 118 220 191Q330 133 395 189V231H0V194Z" fill="#7eae86"/><path d="M91 176V92" stroke="#735638" stroke-width="13" stroke-linecap="round"/><circle cx="90" cy="79" r="45" fill="#4b8663"/><circle cx="62" cy="85" r="28" fill="#5d9e76"/><path d="M287 178V90" stroke="#735638" stroke-width="11" stroke-linecap="round"/><circle cx="289" cy="79" r="38" fill="#528d69"/><circle cx="312" cy="85" r="24" fill="#649d70"/><path d="M150 164h94m-85 0v35m78-35v35m-91-18h102" stroke="#704c36" stroke-width="10" stroke-linecap="round"/><circle cx="42" cy="202" r="8" fill="#f5f0dc"/><circle cx="348" cy="201" r="8" fill="#f5f0dc"/></svg></div>
+<div class="memory-name">A garden afternoon</div><p class="help">Invented illustration and title; no photo is uploaded.</p>
+<button type="button" class="primary" id="share-sample">Preview sharing this memory</button><p id="share-status" class="status" aria-live="polite"></p>
+<button type="button" class="secondary" data-go="person">See how Avery enjoys it</button>
+<details><summary>What about recordings and privacy?</summary><p>In the real app, each person's story should stay attributed to them, with original audio protected and exportable. This offline prototype intentionally cannot use a microphone or send an invitation.</p></details>
+</div></section>
+<section id="person" aria-labelledby="person-title" hidden>
+<div class="panel"><div class="eyebrow">Simple experience · Avery's perspective</div><h1 id="person-title" tabindex="-1">Avery's memories</h1><p>Something familiar to enjoy, whenever you like.</p>
+<div class="visual" id="person-visual" role="img" aria-label="Illustration of a quiet garden with two trees, flowers and a bench"><svg viewBox="0 0 400 230" aria-hidden="true"><circle cx="308" cy="56" r="33" fill="#f8edb8"/><path d="M30 190Q110 118 220 191Q330 133 395 189V231H0V194Z" fill="#7eae86"/><path d="M91 176V92" stroke="#735638" stroke-width="13" stroke-linecap="round"/><circle cx="90" cy="79" r="45" fill="#4b8663"/><circle cx="62" cy="85" r="28" fill="#5d9e76"/><path d="M287 178V90" stroke="#735638" stroke-width="11" stroke-linecap="round"/><circle cx="289" cy="79" r="38" fill="#528d69"/><circle cx="312" cy="85" r="24" fill="#649d70"/><path d="M150 164h94m-85 0v35m78-35v35m-91-18h102" stroke="#704c36" stroke-width="10" stroke-linecap="round"/></svg><svg id="park-art" viewBox="0 0 400 230" aria-hidden="true" hidden><rect width="400" height="230" fill="#d5e9e7"/><circle cx="320" cy="45" r="29" fill="#f6e1aa"/><path d="M0 165Q120 102 235 163Q340 126 400 164V230H0Z" fill="#9bbd95"/><path d="M0 187Q120 150 232 187Q330 145 400 187V230H0Z" fill="#70a783"/><path d="M145 230Q173 199 195 189Q233 174 219 153" stroke="#f3dec1" stroke-width="38" fill="none" stroke-linecap="round"/><path d="M67 172V89M332 169V85" stroke="#735939" stroke-width="12" stroke-linecap="round"/><circle cx="67" cy="85" r="38" fill="#408365"/><circle cx="332" cy="77" r="43" fill="#478c69"/><path d="M178 52q14 -14 27 0m24 5q14 -14 27 0" stroke="#668e97" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="42" cy="207" r="7" fill="#fff3c4"/><circle cx="366" cy="198" r="7" fill="#fff3c4"/></svg></div>
+<div class="memory-name" id="person-memory-name">A garden afternoon</div>
+<div class="help" id="person-memory-from">A memory shared by Casey</div>
+<button type="button" class="primary" id="listen">Read a sample story</button>
+<div id="story-content" class="story" hidden><strong>Example story · on-screen text only</strong><p id="story-text"></p><p class="help">No audio exists in this prototype. Real stories will keep their original recordings.</p></div>
+<button type="button" class="secondary" id="next-memory">Another memory</button>
+<button type="button" class="quiet" id="enjoy">Just enjoy this one</button>
+<p id="person-status" class="status" aria-live="polite"></p>
+<details><summary>Can Avery share a story?</summary><p>Yes, when safely authorized. Sharing is always optional. A future recording flow must be obvious, forgiving of interruptions, and must not require Avery to remember anything.</p></details>
+</div></section>
+<footer><button type="button" class="quiet" id="restart">Reset fictional walkthrough</button><p class="help">Design prototype only. No accounts, photos, stories, audio, or data are sent or stored. Never use this for real family memories.</p></footer>
+</main>
+<script>
+(()=>{'use strict';
+const views=['organizer','contributor','person'];let current='organizer',step=0,memory=0,shared=false;
+const data=[{name:'A garden afternoon',from:'Casey',story:'We sat beside the flowers and watched the light change. It was a beautiful afternoon.',alt:'Illustration of a quiet garden with two trees, flowers and a bench'},{name:'A day at the park',from:'Riley',story:'We walked slowly, watched the clouds, and stopped whenever something made us smile.',alt:'Illustration of a park with a winding path, hills, trees, and birds'}];
+function showView(name){if(!views.includes(name))return;current=name;for(const view of views){document.getElementById(view).hidden=view!==name;const button=document.querySelector('[data-view="'+view+'"]');if(view===name)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');}if(name==='organizer')updateStep();if(name==='person')updateMemory();(name==='organizer'?document.querySelector('#organizer [data-step]:not([hidden]) h1,#organizer [data-step]:not([hidden]) h2'):document.querySelector('#'+name+' h1'))?.focus();}
+function updateStep(){for(const el of document.querySelectorAll('#organizer [data-step]'))el.hidden=Number(el.dataset.step)!==step;document.getElementById('step-number').textContent=String(step+1);for(const [i,el]of [...document.querySelectorAll('.progress span')].entries())el.classList.toggle('done',i<=step)}
+function updateMemory(){const d=data[memory];document.getElementById('person-memory-name').textContent=d.name;document.getElementById('person-memory-from').textContent='A memory shared by '+d.from;const img=document.getElementById('person-visual');img.classList.toggle('alt',memory===1);img.querySelector('svg:first-child').toggleAttribute('hidden',memory===1);document.getElementById('park-art').toggleAttribute('hidden',memory!==1);img.setAttribute('aria-label',d.alt);document.getElementById('story-content').hidden=true;document.getElementById('person-status').textContent='';}
+for(const b of document.querySelectorAll('[data-view],[data-go]'))b.addEventListener('click',()=>showView(b.dataset.view||b.dataset.go));
+for(const b of document.querySelectorAll('[data-next]'))b.addEventListener('click',()=>{step=Number(b.dataset.next);updateStep();document.querySelector('#organizer [data-step]:not([hidden]) h1,#organizer [data-step]:not([hidden]) h2')?.focus()});
+for(const b of document.querySelectorAll('[data-back]'))b.addEventListener('click',()=>{step=Number(b.dataset.back);updateStep();document.querySelector('#organizer [data-step]:not([hidden]) h1,#organizer [data-step]:not([hidden]) h2')?.focus()});
+document.getElementById('share-sample').addEventListener('click',()=>{shared=true;document.getElementById('share-status').textContent='Preview: Casey shared the example memory with the family. Nothing was actually sent.'});
+document.getElementById('listen').addEventListener('click',()=>{document.getElementById('story-text').textContent=data[memory].story;document.getElementById('story-content').hidden=false;document.getElementById('person-status').textContent='Example story is shown as text. There is no audio to play.'});
+document.getElementById('next-memory').addEventListener('click',()=>{memory=(memory+1)%data.length;updateMemory();document.getElementById('person-status').textContent=data[memory].name+'. A memory shared by '+data[memory].from+'.'});
+document.getElementById('enjoy').addEventListener('click',()=>{document.getElementById('person-status').textContent='That is enough. Just enjoying a moment is wonderful.'});
+document.getElementById('restart').addEventListener('click',()=>{step=0;memory=0;shared=false;document.getElementById('share-status').textContent='';showView('organizer');document.getElementById('organizer').scrollIntoView({behavior:'auto',block:'start'})});
+updateStep();})();
+</script>
+</body>
+</html>
