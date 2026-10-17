@@ -2,6 +2,8 @@
 
 **Today:** Being There is a public, self-hosted **technical preview**. There is no hosted family web service, native Google Drive storage integration or one-click family installer yet. The separate private family application and real family media are not included.
 
+**Our privacy requirement:** Only family members and their approved devices get the keys to decrypt memories; the Being There service doesn't hold them. See the [zero-access security promise and current implementation gap](SECURITY_PROMISE.md). This is **not yet true** of the existing Community technical preview. The plan to sign in and connect Google Drive must include encryption **on the device, before upload** and easy family-held key recovery.
+
 ## What we're working toward
 
 1. **Open a website** on a phone, computer or tablet. No software installation, GitHub or cloud-console account.
