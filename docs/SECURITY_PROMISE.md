@@ -17,7 +17,7 @@ Encrypt **before upload**, on an authorized family device:
 - Photo, video and audio originals; generated thumbnails, preview renditions and voice clips.
 - Story text, transcripts, notes, titles, captions, reactions, people/location tags, associations, family/person profiles, comments and personalized prompts.
 - Full export/archive manifests, indexes and private filenames/labels (encrypt or replace with opaque IDs; no confidential information in URLs/logs).
-- Any extracted/AI-derived outputs. AI/transcription should run on-device, or only with a deliberately separate per-use disclosure and client-enforced opt-in. No silent plaintext sent to a vendor.
+- Any extracted/AI-derived outputs. AI/transcription must run on the authorized family device for the core product; do not silently upload plaintext to an external model or operator. A family-controlled, out-of-app export is a separate conscious action, not a lower-security Being There mode.
 
 Server may need minimal routing metadata: opaque family/item IDs, encrypted object lengths, encrypted blob version, access-grant routing, ciphertext hashes, limited timestamps, account identifiers and consent/audit events. **This metadata can reveal relationships, activity, file sizes, IP addresses and who logs in**; we cannot honestly claim complete anonymity, no data collection, or that Google/host providers see nothing. Minimize retention, document logs and never include plaintext in operational telemetry.
 
