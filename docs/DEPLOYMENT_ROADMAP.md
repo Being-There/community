@@ -1,6 +1,6 @@
 # Community Edition: family-owned onboarding and deployment plan
 
-**Status:** Proposed delivery plan, not an available one-click installer. Dad's private installation is out of scope. The public Community Edition currently runs Node.js + SQLite + private filesystem originals, currently requires a real Google OAuth web client and HTTPS; a family-owned Cognito/OIDC adapter is proposed to remove this requirement on AWS, and has only synthetic deployment tests. Nothing in this document claims a real cloud installation, security audit or independent-family pilot.
+**Status:** Proposed delivery plan, not an available one-click installer. Dad's private installation is out of scope. The public Community Edition runs Node.js + SQLite + private filesystem originals and currently requires a real Google OAuth web client and HTTPS. A family-owned Cognito/OIDC adapter is proposed to remove Google setup on AWS. Existing verification is synthetic, not a real cloud/pilot deployment. Nothing in this document claims a real cloud installation, security audit or independent-family pilot.
 
 ## Goal
 
@@ -48,7 +48,7 @@ A **family account** is the authenticated contributor, distinct from the person 
 - **Least privilege:** no long-lived AWS access keys in app or repository; instance role for precise bucket prefix, Secrets Manager secret and KMS operations; no open SSH, SSM for operator work; no blanket cross-account trusted principal or project backdoor. Avoid inserting OAuth secrets into EC2 UserData, CloudFormation outputs, or logs.
 - **Archive:** immutable originals and validated manifest metadata preserved independently of SQLite; versioned private S3 backups, optional bounded retention/Object Lock only when lifecycle/offboarding and cost effects are explained. No false promises from a copied folder on the same disk. Never delete original S3/EBS stores on routine stack teardown.
 - **Recoverability:** backup includes SQLite-consistent state or complete validated independent original+snapshot material, with hashes. Prove restore with the original compute unavailable, in a **new** installation, and re-verify access grants. Deny imported logins/sessions/tokens.
-- **No lock-in:** export and restore must work outside AWS using the public format and standard filesystem tools. A family's AWS account, Google configuration and data remain independently controlled.
+- **No lock-in:** export and restore must work outside AWS using the public format and standard filesystem tools. A family's AWS account, optional Google configuration, identity provider and data remain independently controlled.
 
 ## Release gates (must have before calling it 'one click')
 
@@ -67,7 +67,7 @@ A **family account** is the authenticated contributor, distinct from the person 
 ### Success measures
 
 - Zero Being There-held secrets, AWS credentials, family originals or required vendor-hosted account.
-- One reviewed release link plus necessary AWS/domain/Google steps, **not** a hidden operator script run by project maintainers.
+- One reviewed release link plus necessary AWS/domain and optional Google steps, **not** a hidden operator script run by project maintainers.
 - No use of real family data until identity, access, backup and restoration pass live checks.
 - Fresh owner can restore all photos/video/audio with attribution on a second host after losing the original server.
 - Understandable monthly bill preview, operator-free everyday interaction, documented updates and offboarding.
