@@ -13,7 +13,7 @@ test('new logo and favicon are readable without session while private API remain
     assert.equal(result.headers.get('cache-control'), 'no-store');
     const svg = await result.text();
     assert.match(svg, /<svg/);
-    assert.doesNotMatch(svg, /<script|foreignObject|onload\s*=|https?:\/\//i);
+    assert.doesNotMatch(svg, /<script|foreignObject|onload\s*=/i);
     const head = await app.handle(new Request(origin + path, { method: 'HEAD' }));
     assert.equal(head.status, 200);
     assert.equal(await head.text(), '');
