@@ -15,7 +15,7 @@ One web app supports these experiences. Google Sites and other family homepages 
 
 ### Who has access to the data?
 
-We will explain this clearly during setup. Connecting a personal Drive folder does not automatically give end-to-end encryption. If a future hosted Being There backend stores Drive access tokens, the operator has technical ability to access permitted content. A family-owned installation limits reliance on that operator but requires more setup. Either way, invitations and account permissions must be enforced on the server or by a verified secure design, and complete export/recovery must work independently.
+We will explain this clearly during setup. Connecting a personal Drive folder does not automatically give end-to-end encryption. If a future hosted backend stores Drive tokens, it may access or delete the **encrypted** files and see limited metadata, but must not hold the keys that reveal the memories. The site supplying the viewing code and the family devices are also important trust points. Sign-in and invitations must protect who receives encrypted keys, and portable ciphertext backup and family-held recovery must work independently.
 
 ## What can I try now?
 
