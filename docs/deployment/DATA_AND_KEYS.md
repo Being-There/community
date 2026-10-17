@@ -1,45 +1,49 @@
-# Family ownership, credentials and disaster recovery
+# Family-held keys, blind storage and independent recovery
 
-**Guidance for future installers and operators.** These are intended guarantees and verified implementation requirements, not a claim the cloud workflow is already operating.
+**MANDATORY:** [End-to-end encryption with family-held keys only](../SECURITY_PROMISE.md). This is the product's security bar for every hosting/storage option. The existing public technical preview is **NOT E2EE**, and its database, archive and JSON exports can contain **plaintext**. It is not suitable for real sensitive family stories and must not be marketed as zero-access.
 
-## What the family controls
+## The simple promise
 
-| Asset | Owner | Important limitation |
+**Only an approved family device can unlock the family album.** Google Drive, Amazon S3, a NAS and Being There's hosted server can store, copy and restore the locked album, but none of them has the combination. Even a system administrator with the entire database, every stored backup and OAuth storage credentials should not be able to decrypt it. Someone controlling a family device, browser code or an invited person's copies remains a separate risk.
+
+## What a family controls
+
+| Asset | Where it belongs | Who can read it |
 | --- | --- | --- |
-| Photos, videos, original audio and transcripts | Family, in their instance/archive | Application runtime can read content to serve it to authorized people |
-| SQLite family metadata and account permissions | Family's EBS/local filesystem | Do not treat copied WAL files as a backup without consistency checks |
-| AWS S3 backup bucket, KMS key policy and IAM | Family's AWS account | AWS and identities granted KMS/use privileges are within the trust model |
-| Optional Google Drive originals/archive folder (planned) | Family's Google account or authorized Workspace drive | Drive OAuth grants and the family-hosted runtime can access allowed files; Google can process the data under its service terms; Drive does not make the data end-to-end encrypted |
-| OIDC identity directory/client | Family's AWS Cognito User Pool by default on planned AWS installer; optional Google client in family's Google project | Authentication identifies accounts; it does **not** encrypt memories. Current runtime only supports Google. |
-| HTTPS domain and DNS | Family | Renewal/DNS outage can make the app unavailable |
-| Family invite URLs | Only intended invite recipients | Invite tokens are credentials; don't put in logs or publicly indexed documents |
-| Archive export | Family, only authorized organizer with recent sign-in | Downloaded JSON archive is not app-encrypted: store and transfer privately |
-| Code and deployment manifest | Public open-source project | No family secrets or private material in the repo/release artifacts |
+| Photos, video, original audio, thumbnails, transcripts, captions, people/relationship/location tags and full private archive | **Encrypted before upload** on a family-approved device; ciphertext in family-selected Drive/S3/local storage | Only authorized family devices holding cryptographic keys |
+| Family encryption keys | Generated on member device(s), protected with member/device keys and **family-held recovery material** | Authorized family members/devices; never Being There, host administrators or cloud KMS |
+| Encrypted key envelopes | May be relayed and stored by backend with verified membership | Backend can route envelopes but cannot decrypt them; server must not silently replace trusted device keys |
+| Identity, invitations and minimal routing metadata | Private application service | Backend sees a limited set of identities, token identifiers, opaque album/object IDs, ciphertext sizes and request times; **not zero metadata** |
+| Google Drive/S3 OAuth or access token | Prefer authorized client; if server-held, protected and narrowly scoped | May permit ciphertext access, movement or deletion, but **not content decryption** |
+| Recovery kit | With the family, outside Being There | Whoever receives recovery material may obtain album keys. No project/admin key escrow |
+| Portable encrypted archive | Family-selected storage/offline backup | Restorable and independently integrity-verifiable; decryptable only with family-held keys |
 
-**Storage choice does not change app authorization.** Google Sites, Drive folder permissions and sign-in accounts are separate layers: only server-enforced invite/membership checks may authorize private memories. The family should be able to revoke a storage token, rotate it and export everything without giving the project access. See [Google option](GOOGLE.md).
+Standard TLS, full-disk encryption, AWS KMS, Google OAuth, private buckets and HTTPS are helpful *additional* controls. **None is a substitute for E2EE**, and cloud-provider KMS must not be entrusted with the only key that unlocks family content.
 
-**Customer-managed AWS KMS keys are not equivalent to end-to-end encryption.** They provide account-level encryption control, IAM governance and audit paths. If an operator or service has decrypt rights, it may read data. Losing/disabled keys can make recovery impossible. Do not require families to invent or manually carry raw keys for the basic flow. An optional app/client-side zero-knowledge mode would need independent design, recovery and accessibility review.
+## Plain-language onboarding
 
-## Before first real upload
+1. Organizer signs in and creates a private album: family key material is generated **on that device**.
+2. Show a simple, explicit **Save your recovery key** step with practical options (encrypted recovery kit and a second trusted device); make the risk clear: *if all devices and recovery material are lost, we cannot get the memories back*.
+3. Organizer invites another person/device and approves its key. The invitation and authenticated family membership alone are **not** a magic server-side decryption grant; only a trusted device sends an encrypted family key envelope.
+4. Dad/Mom/tablet is provisioned securely by a caregiver. After that, they can just see/play stories. A displayed **person profile is not a login or a key**.
+5. The app encrypts originals and private metadata locally. Storage provider receives only encrypted data; a Drive user sees files but cannot preview them as ordinary photos without a Being There-capable family device.
 
-- Understand who owns and is authorized to access AWS, DNS and Google credentials. Use multi-factor authentication for administrator accounts.
-- See exact recurring cost categories, storage limits, backup retention and contact for billing incidents.
-- Confirm family-only access and test with a real uninvited identity (must be denied).
-- Verify first off-device backup includes every original and metadata snapshot, with hashes and restore instructions.
-- Locate at least one offline or separately controlled archive and the family recovery instructions. Account lockout or key loss should not be the single point of failure.
+## Revoking an invitation and rotating family keys
 
-## Recovery test: the bar for a real deployment
+A family organizer can stop future server access, revoke a lost device and rotate keys for **future content** or re-encrypt content if appropriate. It is **not** possible to make an invited recipient forget an older key or erase already saved copies merely by revoking login. Be explicit about this limit.
 
-1. Use fictional sample content with a photo, video, audio story, two contributors, optional named storyteller and a shared memory with no named person.
-2. Record checksums and attribution, take independent backup, then assume the original app server/database is **gone**.
-3. Create a clean instance on another host (non-AWS is preferred for portability), import the private verified archive, confirm exact-byte matches, family/person/story relationships and that **no previous login session/invite** is trusted.
-4. Re-verify intended organizer ownership and issue a **new one-use invite**. Verify uninvolved users cannot open the restored content.
-5. Record duration, missing originals, backup failure alerts, and how to recover if cloud access or key permission fails. Repeat after any backup/migration change.
+## Recovery test before hosting real content
 
-### Key rotation and exit
+Use fictional data: shared memory without person tag, two contributors, one limited tablet, a photo, short video, audio and transcript.
 
-Provide explicit instructions for rotating OAuth secrets and KMS key configuration, revoking users, and disabling retired app instances. Before deletion, export a portable archive to a separately controlled device, test restore, confirm retention/lifecycle costs and only then opt in to permanent destruction. **Deleting a CloudFormation stack must never be used as an undocumented data-deletion button.** Keep deletion of retained EBS/S3 originals as a separate, clearly destructive action.
+- Encrypt on each family device. Inspect backend database/logs, remote storage, exports and tokens; no plaintext or decrypting family keys are present.
+- Destroy the original server and reinstall on a different provider. Restore **ciphertext** and prove only a family-held recovery kit or enrolled device can decrypt the exact originals and metadata.
+- Attempt to restore using backend master/admin credentials, storage OAuth token, KMS access or a removed user. No device key → no plaintext.
+- Exercise corrupt data, missing files, key envelope substitution, key-loss, stale backups, revoked storage permissions and incomplete re-encryption.
+- Test and document a compromised browser/app update and how our code-release process resists supply-chain tampering.
 
-### No hidden project access
+## Hard truth about privacy and liability
 
-The Being There maintainers do not need customer IAM roles, AWS access keys, Google OAuth secrets, DNS credentials, or read access to family archives. A volunteered helper should receive revocable, least-privilege permissions and a handoff checklist. Logs may contain operational error codes but must never include media bytes, transcripts, invite links, OAuth secrets or other family content.
+End-to-end encryption protects **stored data** from the service operator. It does not make operating a website risk-free: malicious web code, device malware, social engineering, metadata and formerly authorized family copies remain in scope. No project can guarantee zero legal liability. Promise only what a reviewed and deployed implementation proves.
+
+Reference: [E2EE policy](../SECURITY_PROMISE.md), [OWASP key management](https://cheatsheetseries.owasp.org/cheatsheets/Key_Management_Cheat_Sheet), [browser cryptography warnings](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API).
