@@ -34,6 +34,15 @@ test("one memory can reference two people; contributor remains separate", () => 
   assert.ok(Object.isFrozen(memory.personIds));
 });
 
+test("shared memories need no named person and story speaker is independent of contributor", () => {
+  const memory = createMemory({ id: "shared", familyId: "family1", personIds: [], title: "Sunset", contributorId: "member1" });
+  assert.equal(validateMemoryReferences(memory, []), true);
+  const story = createStory({ id: "s", familyId: "family1", memoryId: "shared", contributorId: "member1", speakerPersonId: "avery", text: "I remember that." });
+  assert.equal(story.speakerPersonId, "avery");
+  assert.equal(story.contributorId, "member1");
+  assert.throws(() => createStory({ id: "s", familyId: "family1", memoryId: "shared", contributorId: "member1", speakerPersonId: "../bad" }), TypeError);
+});
+
 test("a person from another family cannot satisfy a memory reference", () => {
   const memory = createMemory({
     id: "memory1", familyId: "f1", personIds: ["avery", "riley"],
@@ -53,7 +62,8 @@ test("reject invalid, missing, duplicate and unsafe identifiers", () => {
   assert.throws(() => createFamily({ id: "../outside" }), TypeError);
   assert.throws(() => createPerson({ id: "", familyId: "f1" }), TypeError);
   assert.throws(() => createPerson({ id: "person", familyId: "f1", displayName: 123 }), TypeError);
-  assert.throws(() => createMemory({ id: "m", familyId: "f1", contributorId: "c", personIds: [] }), TypeError);
+  assert.deepEqual(createMemory({ id: "m", familyId: "f1", contributorId: "c", personIds: [] }).personIds, []);
+  assert.throws(() => createMemory({ id: "m", familyId: "f1", contributorId: "c" }), TypeError);
   assert.throws(() => createMemory({ id: "m", familyId: "f1", contributorId: "c", personIds: ["a", "a"] }), TypeError);
   assert.throws(() => createMemory({ id: "m", familyId: "f1", contributorId: "c", personIds: ["a", "../b"] }), TypeError);
   assert.throws(() => createMemory({ id: "m", familyId: "f1", contributorId: "c", personIds: ["a"], title: "x".repeat(241) }), TypeError);
