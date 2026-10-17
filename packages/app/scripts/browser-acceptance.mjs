@@ -51,10 +51,12 @@ try {
   assert.equal(people.length, 2); await page.locator('#upload-people').selectOption(people);
   await page.getByRole('button', { name: 'Share media', exact: true }).click();
   await page.waitForFunction(() => document.getElementById('photo').complete && document.getElementById('photo').naturalWidth > 0);
+  await page.locator('#speaker').selectOption(people[0]);
   await page.locator('#story-text').fill('A separate fictional perspective. <img src=x onerror=alert(1)>');
   await page.getByRole('button', { name: 'Share these words', exact: true }).click();
   await page.locator('#stories').getByText('A separate fictional perspective.', { exact: false }).waitFor();
   assert.equal(await page.locator('#stories img').count(), 0);
+  await page.locator('#stories').getByText('Avery (fictional) · shared by Fictional owner', { exact: false }).waitFor();
   await page.getByRole('button', { name: 'Record a story', exact: true }).click();
   await page.locator('#stop').waitFor({ state: 'visible' });
   await page.waitForTimeout(5500);
@@ -100,9 +102,12 @@ try {
   if (process.env.BROWSER_QA_SCREENSHOTS) await page.screenshot({ path: '/tmp/being-there-family-desktop.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-  await page.getByRole('button', { name: 'Enjoy memories', exact: true }).click();
+  await page.getByRole('button', { name: /Tablet view · Enjoy and tell stories/ }).click();
   assert.equal(await page.locator('#enjoy-view').getAttribute('aria-pressed'), 'true');
   assert.equal(await page.locator('#organizer').isVisible(), false);
+  assert.equal(await page.locator('#contribute').isVisible(), false);
+  assert.equal(await page.locator('#speaker').isVisible(), true);
+  assert.equal(await page.locator('#view-description').textContent().then(x=>x.includes('any shared memory')), true);
   assert.equal(await page.locator('#photo').isVisible(), true);
   await page.getByRole('button', { name: 'Next memory', exact: false }).click();
   await page.waitForFunction(() => document.activeElement.id === 'memory-title');
