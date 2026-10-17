@@ -20,11 +20,13 @@ Open **https://localhost:3000** (a temporary self-signed certificate may require
 
 For real accounts and persistent independent hosting, follow the separate production setup below.
 
-## Planning a family-owned installation
+## Making it easy for families
 
-We are planning a **portable Docker/OCI package** first, using it for a reviewed **AWS guided launch** (CDK-authored, published CloudFormation quick-create button), home server/NAS deployments and possibly paid managed-volume hosting. Storage and access are independent: Google Drive or S3-compatible backup options and direct web, tablet/PWA or family-site links. Neither installer is available yet. Both must preserve family-owned data, encryption keys/credential controls, verified off-device backups and the ability to migrate elsewhere.
+The intended Community Edition experience is **open a private web app, sign in, choose your family's storage, invite relatives and enjoy memories**. Google Drive is the first owner-controlled storage option to evaluate; other destinations and self-hosted deployment remain choices. The central decisions are **family authorization** and **who can access/store the originals**—not which cloud service has a deployment button.
 
-See [deployment/access choices](docs/deployment/OPTIONS.md) and delivery cards [portable Compose #19](https://github.com/Being-There/community/issues/19), [managed hosting #20](https://github.com/Being-There/community/issues/20) and [tablet/PWA access #21](https://github.com/Being-There/community/issues/21). Start with [family-friendly getting started](docs/GETTING_STARTED.md), [deployment milestones](docs/DEPLOYMENT_ROADMAP.md), [AWS design](docs/deployment/AWS.md), [Google Sites/Drive option](docs/deployment/GOOGLE.md) or [keys/ownership/recovery](docs/deployment/DATA_AND_KEYS.md). Existing advanced operators can install the Node app manually below.
+**That experience is a design goal, not released functionality.** The current community app is a technical preview for advanced operators; native Drive storage and a hosted service are not yet available. We will be transparent about who can access data and credentials if families choose a future hosted backend.
+
+Read the [simple family experience/roadmap](docs/DEPLOYMENT_ROADMAP.md) and [family getting-started guide](docs/GETTING_STARTED.md). The community can work out [optional hosting and platform implementations](docs/deployment/OPTIONS.md) without making them prerequisites for product design.
 
 ## Technical-preview installation
 
