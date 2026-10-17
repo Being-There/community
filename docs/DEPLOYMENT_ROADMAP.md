@@ -8,11 +8,13 @@ See [the deployment and access options matrix](deployment/OPTIONS.md). We favor 
 
 ## Execution milestones
 
-- **P0 — Portable OCI container and Compose baseline** (work item linked below), shared by cloud VM, NAS and managed-host paths.
+- [**P0 — Portable OCI container and Compose baseline #19**](https://github.com/Being-There/community/issues/19), shared by cloud VM, NAS and managed-host paths.
 - [M1 — AWS CDK/CloudFormation launch](https://github.com/Being-There/community/issues/13)
 - [M2 — Cognito-first OIDC and first invitation](https://github.com/Being-There/community/issues/14) (integrates existing [real OAuth pilot](https://github.com/Being-There/community/issues/8))
 - [M3 — independent S3 backup and verified non-AWS restore](https://github.com/Being-There/community/issues/15)
 - [M4 — novice pilot, maintenance and portable home-host path](https://github.com/Being-There/community/issues/16)
+- [P1 — Managed persistent-volume hosting #20](https://github.com/Being-There/community/issues/20)
+- [P1 — Installable private tablet/PWA + invitations #21](https://github.com/Being-There/community/issues/21)
 - **Google option:** [Google Sites + Drive design](deployment/GOOGLE.md) and [Drive/optional Sites delivery #17](https://github.com/Being-There/community/issues/17). This is an optional provider route that must not displace the AWS release gates.
 
 **Sequence:** portable package + verified independent recovery form the common technical foundation; AWS M1/M2 may progress in parallel and cannot be called ready for real data until M3 and the live family pilot pass. Other providers add thin templates/adapters only after passing the same contract; M4 supplies independent family-ready evidence. Do not grow a parallel feature backlog while these gates remain open.
