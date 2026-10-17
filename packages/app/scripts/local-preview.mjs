@@ -74,7 +74,9 @@ try {
       }
       const html = (await response.text()).replace('</header>',
         '</header><aside id="preview-notice" role="note"><strong>Local example family.</strong> ' +
-        'This runs the real family UI with a synthetic test identity. All content is discarded when the server stops. ' +
+        'You are signed in as the fictional family organizer. Avery and Riley are example people, not accounts. ' +
+        'Family space adds photos and stories. Tablet view shows every shared memory and allows optional storytelling. ' +
+        'All content is discarded when the server stops. ' +
         'Do not use real family data here.</aside>');
       return new Response(html, { status: response.status, headers });
     }
