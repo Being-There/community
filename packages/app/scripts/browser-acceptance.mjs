@@ -78,13 +78,15 @@ try {
   await page.locator('#upload-people').selectOption(people);
   await page.getByRole('button', { name: 'Share media', exact: true }).click();
   await page.waitForFunction(() => document.getElementById('status').textContent.includes('Video shared'));
-  await page.getByRole('button', { name: 'Next memory', exact: false }).click();
-  await page.locator('#video').waitFor({ state: 'visible' });
+  for (let n = 0; n < 2 && !(await page.locator('#video').isVisible()); n++)
+    await page.getByRole('button', { name: 'Next memory', exact: false }).click();
+  assert.equal(await page.locator('#video').isVisible(), true, 'Short video must be in family rotation');
   await page.locator('#video').evaluate(video => { video.preload = 'metadata'; video.load(); });
   await page.waitForFunction(() => document.querySelector('#video')?.readyState >= 1, null, { timeout: 10000 });
   assert.equal(await page.locator('#video').evaluate(video => video.videoWidth > 0 && video.duration > 0), true);
-  await page.getByRole('button', { name: 'Next memory', exact: false }).click();
-  await page.locator('#photo').waitFor({ state: 'visible' });
+  for (let n = 0; n < 2 && !(await page.locator('#photo').isVisible()); n++)
+    await page.getByRole('button', { name: 'Next memory', exact: false }).click();
+  assert.equal(await page.locator('#photo').isVisible(), true);
   await page.locator('#organizer > summary').click();
   const downloadWait = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Download a verified family archive', exact: true }).click();
