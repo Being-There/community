@@ -56,7 +56,9 @@ try {
   await page.getByRole('button', { name: 'Share these words', exact: true }).click();
   await page.locator('#stories').getByText('A separate fictional perspective.', { exact: false }).waitFor();
   assert.equal(await page.locator('#stories img').count(), 0);
-  await page.locator('#stories').getByText('Avery (fictional) · shared by Fictional owner', { exact: false }).waitFor();
+  const speakerLabel = await page.locator('#speaker option:checked').textContent();
+  await page.waitForFunction(name => [...document.querySelectorAll('#stories strong')].some(el =>
+    el.textContent?.includes(name) && el.textContent?.includes('shared by')), speakerLabel);
   await page.getByRole('button', { name: 'Record a story', exact: true }).click();
   await page.locator('#stop').waitFor({ state: 'visible' });
   await page.waitForTimeout(5500);
