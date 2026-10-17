@@ -1,5 +1,16 @@
 # Frequently asked questions
 
+### Can Being There staff or servers read my family's memories?
+**Our mandatory design goal is no.** The final Community Edition will encrypt family memory content on family devices using only family-held keys, so the hosted service and storage provider cannot decrypt it. **This is not yet implemented**: the current technical preview privately stores plaintext originals and family metadata and should not be represented as zero-knowledge. We will not launch a hosted family service under the stronger promise until independently reviewed E2EE, device invitations, family recovery and blind backups work. See [security promise](docs/SECURITY_PROMISE.md).
+
+### What happens if my family loses its encryption keys?
+The project cannot recover memories without a family-held device/recovery kit. We will design simple caregiver-assisted device enrollment and a secure recovery kit, and explain this before storing real memories. Family-owned Drive/S3 storage alone does not restore the ability to decrypt.
+
+### Is this a zero-risk or zero-liability guarantee?
+No. Even E2EE cannot stop compromised devices, malicious browser code, previously saved family copies, metadata exposure or every security failure. We can design the backend to be unable to decrypt the content it stores and make transparent product commitments. Legal responsibility cannot simply be declared nonexistent.
+
+# Frequently asked questions
+
 ### Can my family use Being There now?
 The [Community Edition application](packages/app/) is public as a **self-hosted technical preview** for technically experienced operators. A disposable fictional full-UI local demo exists. There is no one-click AWS installer, verified nontechnical-family setup, operated central family-hosting service or completed independent production security review. Please do not upload real private family content to a demo or an unreviewed host.
 

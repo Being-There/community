@@ -2,6 +2,8 @@
 
 **Principle:** one private web application, several ownership choices. Technical provider-specific details are welcome as community contributions, but families should not be asked to understand them.
 
+**Security gate for every option:** [Level 3, family-held E2EE only](../SECURITY_PROMISE.md). All sensitive originals, transcripts, tags, thumbnails and archive content must be encrypted on family devices before leaving them. Neither hosted backend, provider OAuth token nor self-hosted server holds plaintext or decrypting keys. **No unencrypted / server-readable edition is permitted.** Current technical preview is not E2EE.
+
 ## Primary family-facing options
 
 | Family need | Experience | Current status |

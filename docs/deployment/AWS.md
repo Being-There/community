@@ -1,6 +1,6 @@
 # AWS self-owned deployment — proposed guide and implementation specification
 
-**Not deployable yet.** There is currently no CloudFormation template, CDK stack or "Deploy to AWS" button in this repository. This page defines the first supported provider-specific installer and the steps a future family-facing guide must automate. The existing application is a Node.js/SQLite/localhost service; do not run real family data on an unreviewed deployment.
+**Not deployable yet, and blocked by [mandatory client-side E2EE](../SECURITY_PROMISE.md).** No CloudFormation template, CDK stack or "Deploy to AWS" button exists in this repository. AWS EBS/S3 KMS encryption alone cannot meet Being There's zero-backend-access promise; the deployed backend must only receive ciphertext and encrypted private manifests. This page defines the first supported provider-specific installer and the steps a future family-facing guide must automate. The existing application is a Node.js/SQLite/localhost service; do not run real family data on an unreviewed deployment.
 
 ## What an AWS owner should expect
 
@@ -17,7 +17,7 @@
 3. Approve stack launch in their account. CloudFormation provisions one EC2 server, separate encrypted EBS data volume, private encrypted/versioned S3 backup bucket, customer-managed KMS policies, narrowly scoped instance role, SSM access, DNS and an HTTPS reverse proxy. It outputs **nonsensitive** status, public HTTPS app URL and the exact sign-in callback URL for the family's provider.
 4. **Default after adapter is built:** use the automatically provisioned family-owned Amazon Cognito user pool and managed login (passwordless email OTP/passkeys on supported paid feature plans); CDK configures an OIDC callback into the private app. No Google Cloud Console required. The **current Google-only backend must be extended and independently tested** to support this securely. Optional Google route stores the family's client ID/secret in their own Secrets Manager (never CloudFormation parameters or plaintext boot scripts). Verify the HTTPS callback, provider issuer/audience, nonce/PKCE, and account isolation.
 5. Run a limited, authenticated **first-organizer invitation** action, bound to a verified recipient. Do not auto-assign the first visitor or print invitation tokens to centralized logs.
-6. Sign in as organizer; invite contributor and optionally a person to use Tablet view; upload a **fictional** test memory, verify contributor/tablet segregation and check the first off-volume backup.
+6. Sign in as organizer; securely create and share **family-held encryption keys** with invited family devices, enroll a tablet with a limited key grant, and upload a **fictional** encrypted test memory. Inspect server/database/S3 for ciphertext only, verify contributor/tablet segregation and first verified encrypted off-volume backup.
 7. Only after valid live backup and restore evidence, start adding private memories. Export a private archive to another owned device, and rehearse recovery/offboarding.
 
 ### Proposed infrastructure implementation

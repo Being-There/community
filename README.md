@@ -20,9 +20,15 @@ Open **https://localhost:3000** (a temporary self-signed certificate may require
 
 For real accounts and persistent independent hosting, follow the separate production setup below.
 
+## Non-negotiable privacy requirement
+
+**Being There will be designed for family-held end-to-end encryption only.** The eventual app must encrypt *all private family content and recovery archives on authorized devices before upload*, with no server-side decryption capability or operator-held recovery key. **The currently released technical preview does not meet this standard**: its private backend stores unencrypted originals and metadata; do **not** upload real family data to an unreviewed deployment. See [our security promise and blocking requirements](docs/SECURITY_PROMISE.md).
+
 ## Making it easy for families
 
 The intended Community Edition experience is **open a private web app, sign in, choose your family's storage, invite relatives and enjoy memories**. Google Drive is the first owner-controlled storage option to evaluate; other destinations and self-hosted deployment remain choices. The central decisions are **family authorization** and **who can access/store the originals**—not which cloud service has a deployment button.
+
+**Family-held encryption is mandatory regardless of hosting and storage.** Google Drive/S3 should contain ciphertext only, while family-authorized devices hold the keys. Server-managed cloud encryption is not sufficient. Our backend must not be able to read family photos, recordings, stories, transcripts or tags.
 
 **That experience is a design goal, not released functionality.** The current community app is a technical preview for advanced operators; native Drive storage and a hosted service are not yet available. We will be transparent about who can access data and credentials if families choose a future hosted backend.
 
