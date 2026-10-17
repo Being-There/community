@@ -28,6 +28,8 @@ For real accounts and persistent independent hosting, follow the separate produc
 
 The intended Community Edition experience is **open a private web app, sign in, choose your family's storage, invite relatives and enjoy memories**. Google Drive is the first owner-controlled storage option to evaluate; other destinations and self-hosted deployment remain choices. The central decisions are **family authorization** and **who can access/store the originals**—not which cloud service has a deployment button.
 
+**Family-held encryption is mandatory regardless of hosting and storage.** Google Drive/S3 should contain ciphertext only, while family-authorized devices hold the keys. Server-managed cloud encryption is not sufficient. Our backend must not be able to read family photos, recordings, stories, transcripts or tags.
+
 **That experience is a design goal, not released functionality.** The current community app is a technical preview for advanced operators; native Drive storage and a hosted service are not yet available. We will be transparent about who can access data and credentials if families choose a future hosted backend.
 
 Read the [simple family experience/roadmap](docs/DEPLOYMENT_ROADMAP.md) and [family getting-started guide](docs/GETTING_STARTED.md). The community can work out [optional hosting and platform implementations](docs/deployment/OPTIONS.md) without making them prerequisites for product design.
