@@ -8,6 +8,8 @@ One private collection of photographs, short videos, recordings and stories. Fam
 
 ## Choose the right first step
 
+Families should choose **where the app runs**, **where originals/archives are backed up**, and **how to open the app** separately. Our [deployment and access options comparison](deployment/OPTIONS.md) covers home servers, NAS, VPS/cloud, managed hosting and tablet/PWA/family-site choices; none of the proposed new installers are shipping yet.
+
 **I just want to see it.** A technically comfortable person can run the temporary example at [the local preview instructions](../README.md#try-the-actual-interface-locally). No Google OAuth required; all sample records are deleted when the local process stops. **Do not put real family content here.**
 
 **We want our own private version.** Today this requires someone comfortable with Linux, domain/HTTPS, Google OAuth configuration and backups. They can use the [advanced host guide](../packages/app/README.md). The family controls the host, access and archives. This has not yet passed a full real-family production pilot.

@@ -22,9 +22,9 @@ For real accounts and persistent independent hosting, follow the separate produc
 
 ## Planning a family-owned installation
 
-We are designing an **AWS guided launch** (CDK-authored, published CloudFormation quick-create button), a later home server/NAS option, and **an optional Google Drive archive/storage connector with Google Sites as a family landing page**. Neither installer is available yet. Both must preserve family-owned data, encryption keys/credential controls, verified off-device backups and the ability to migrate elsewhere.
+We are planning a **portable Docker/OCI package** first, using it for a reviewed **AWS guided launch** (CDK-authored, published CloudFormation quick-create button), home server/NAS deployments and possibly paid managed-volume hosting. Storage and access are independent: Google Drive or S3-compatible backup options and direct web, tablet/PWA or family-site links. Neither installer is available yet. Both must preserve family-owned data, encryption keys/credential controls, verified off-device backups and the ability to migrate elsewhere.
 
-Start with [family-friendly getting started](docs/GETTING_STARTED.md), [deployment milestones](docs/DEPLOYMENT_ROADMAP.md), [AWS design](docs/deployment/AWS.md), [Google Sites/Drive option](docs/deployment/GOOGLE.md) or [keys/ownership/recovery](docs/deployment/DATA_AND_KEYS.md). Existing advanced operators can install the Node app manually below.
+See [deployment/access choices](docs/deployment/OPTIONS.md) and delivery cards [portable Compose #19](https://github.com/Being-There/community/issues/19), [managed hosting #20](https://github.com/Being-There/community/issues/20) and [tablet/PWA access #21](https://github.com/Being-There/community/issues/21). Start with [family-friendly getting started](docs/GETTING_STARTED.md), [deployment milestones](docs/DEPLOYMENT_ROADMAP.md), [AWS design](docs/deployment/AWS.md), [Google Sites/Drive option](docs/deployment/GOOGLE.md) or [keys/ownership/recovery](docs/deployment/DATA_AND_KEYS.md). Existing advanced operators can install the Node app manually below.
 
 ## Technical-preview installation
 
