@@ -1,6 +1,6 @@
 # Being There security and privacy commitment
 
-**Approved product requirement: Level 3 only.** The intended Community Edition shall be **end-to-end encrypted (E2EE) by default for all family memory content**. No hosted or self-hosted route is allowed to weaken this to storage encryption alone. **This is a release requirement, not a currently verified capability.** The existing public technical preview stores recoverable plaintext originals, family metadata and archive data in its private server storage. It must **not** be represented as having end-to-end encryption or zero operator access. No real family content should be introduced to an unreviewed Community deployment.
+**[P0 release blocker #25](https://github.com/Being-There/community/issues/25). Approved product requirement: Level 3 only.** The intended Community Edition shall be **end-to-end encrypted (E2EE) by default for all family memory content**. No hosted or self-hosted route is allowed to weaken this to storage encryption alone. **This is a release requirement, not a currently verified capability.** The existing public technical preview stores recoverable plaintext originals, family metadata and archive data in its private server storage. It must **not** be represented as having end-to-end encryption or zero operator access. No real family content should be introduced to an unreviewed Community deployment.
 
 ## What we want Mom to be able to rely on
 
