@@ -1,5 +1,7 @@
 # Getting started with Being There
 
+**Our family trust commitment:** [No ads, no tracking, no project access to memories, and recovery independent of Being There](TRUST_COMMITMENT.md). These protections are mandatory release goals; the current technical preview has not yet passed verification.
+
 **Our direction:** Being There will give families software for **their own private web app**. Being There itself will **not** host, relay, store or handle anyone's memories—even encrypted files—and will not receive family access tokens or recovery keys. Read [what no custody means](NO_CUSTODY.md).
 
 **Today:** The public Community app is an **advanced technical preview**, not a novice-ready installation or an end-to-end encrypted release. Do not upload real family photos or stories to the Community preview.
