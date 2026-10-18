@@ -1,51 +1,41 @@
 # Frequently asked questions
 
-### Can Being There staff or servers read my family's memories?
-**Our mandatory design goal is no.** The final Community Edition will encrypt family memory content on family devices using only family-held keys, so the hosted service and storage provider cannot decrypt it. **This is not yet implemented**: the current technical preview privately stores plaintext originals and family metadata and should not be represented as zero-knowledge. We will not launch a hosted family service under the stronger promise until independently reviewed E2EE, device invitations, family recovery and blind backups work. See [security promise](docs/SECURITY_PROMISE.md).
+### Does Being There host my family's memories?
 
-### What happens if my family loses its encryption keys?
-The project cannot recover memories without a family-held device/recovery kit. We will design simple caregiver-assisted device enrollment and a secure recovery kit, and explain this before storing real memories. Family-owned Drive/S3 storage alone does not restore the ability to decrypt.
+**No—that is the permanent product direction.** We will publish open-source software and guided installers, not operate a central family service. Your installed instance, login identity provider, encrypted vault and backups live in systems **your family owns or chooses**. We will not receive ciphertext, plaintext, OAuth storage credentials or decryption keys. This is a **target for family-ready releases**, not a claim that the current technical preview has finished E2EE review. [No custody design](docs/NO_CUSTODY.md).
 
-### Is this a zero-risk or zero-liability guarantee?
-No. Even E2EE cannot stop compromised devices, malicious browser code, previously saved family copies, metadata exposure or every security failure. We can design the backend to be unable to decrypt the content it stores and make transparent product commitments. Legal responsibility cannot simply be declared nonexistent.
+### Can Being There administrators read our photos or stories?
 
-# Frequently asked questions
+The design explicitly forbids any project-operated storage, proxies, keys or account system for family content. The installed app will also enforce family-held end-to-end encryption before upload. However, an authorized family device or malicious app update can expose plaintext; families need to approve software updates. Independent review is required before this becomes a verified security claim.
 
-### Can my family use Being There now?
-The [Community Edition application](packages/app/) is public as a **self-hosted technical preview** for technically experienced operators. A disposable fictional full-UI local demo exists. There is no one-click AWS installer, verified nontechnical-family setup, operated central family-hosting service or completed independent production security review. Please do not upload real private family content to a demo or an unreviewed host.
+### Do I need a Google developer account or API key?
 
-### Can I try the interface without creating an account?
-A technical user can run `cd packages/app && npm ci --ignore-scripts && npm run dev` locally, then open https://localhost:3000. It uses synthetic login and data, listens only on the local machine, and deletes local sample files at shutdown. Do not use real content.
+**Not an API key** for private Drive access; OAuth permissions are needed. For this no-custody design, the Google callback/tokens **must stay with your installation or device**, not with Being There. We'll explore a guided setup/owned identity tenant so a regular family isn't forced through a developer console. **That frictionless path has not been built or verified.** Existing advanced installs require a family-owned Google OAuth client.
 
-### Will I be able to deploy it in my own AWS account?
-**Planned, not yet available.** We intend to publish a reviewed and immutable CloudFormation template authored in AWS CDK, with a **Deploy to AWS** console link, backed by the family's own EC2, encrypted EBS and private S3 backup storage. It will still need a family-owned AWS account and DNS/domain; planned Cognito sign-in should be provisioned in the account without extra Google OAuth setup. The current app is still Google-only and requires a new, audited OIDC adapter before this flow ships. Optional Google sign-in would require owner-configured credentials. No shared Being There AWS credential or secret is required. See [the milestone plan](docs/DEPLOYMENT_ROADMAP.md) and [AWS guide](docs/deployment/AWS.md).
+### What if we use Google Drive?
 
-### Can I use Google Sites or Google Drive?
-A family can put a **link to its private hosted Being There app** on a Google Site right now. Google Sites cannot run the existing Node/SQLite backend or automatically replace its login/security boundary. The app currently imports photos from a mounted/synced folder, but **does not yet connect directly to the Drive API or persist new originals to Drive**. We plan an owner-selected, visible Drive folder for verified archives and eventually a native storage option alongside S3/NAS. A private Drive folder is not an invitation or an authenticated Being There account. See [Google integration design](docs/deployment/GOOGLE.md).
+The software creates a separate encrypted vault in your own Drive. It must never encrypt/overwrite/move/delete your existing photos in place. Old source photos keep their ordinary Google permissions; your Being There vault contains new encrypted copies, stories and archives.
 
-### Could we host it on a home server or NAS?
-This is planned as a separate portable installer. The currently shipped Node app can be operated manually by someone comfortable with Linux and HTTPS; a validated Docker Compose quickstart is not yet delivered. All routes must use the same family-owned export/recovery format.
+### If we lose a tablet or stop using Being There, will the memories survive?
 
-### Is this open source?
-Yes. The public Community Edition code is under Apache-2.0, with documented third-party dependencies. The original private family's app, archives and credentials are **not** part of the release. Automated testing of a technical preview is not an independent security audit.
+Planned family-ready installs must support a second approved recovery device, offline recovery kit, independent encrypted backups and a portable offline decryption/restore tool. If **all** keys are lost, vault-only encrypted stories cannot be recovered, so safeguarding keys is essential.
 
-### Who controls family data and encryption keys?
-The family's host/account owns the data, login provider (planned AWS Cognito default or independently configured Google OAuth) and backups. In the proposed AWS route, the family would manage KMS key policy and IAM in its own AWS account. **AWS KMS encryption is not zero-knowledge**: an authorized runtime can decrypt data to serve it to users. The project does not need administrator privileges or a private archive copy. See [data/keys/restore](docs/deployment/DATA_AND_KEYS.md).
+### Can I use a phone, tablet or web browser without knowing anything technical?
 
-### Can someone using Tablet view enjoy photos even if they're not pictured?
-Yes. Memories belong to the shared family collection; a person tag isn't required and isn't a login or permission. Tablet view simplifies browsing and allows optional independent stories. Family space is for adding memories and managing them. Private access still requires an invitation and verified account in a real deployment.
+That's the goal. Open the private web link belonging to **your family installation**, sign in and enjoy shared memories. The software may be installed by a cloud guided flow or trusted technical helper. The public project site is not a family login portal or photo-upload service.
 
-### How do families back up and leave?
-The app has a verified portable archive model and synthetic restore tests, but automatic independent backups and real offsite disaster drills are still gates before marketing a turnkey installer. On their own host, the family is responsible for backup/recovery. Destroying a cloud stack must not silently delete original memories.
+### Is the Community Edition ready for real family data?
 
-### Do I need a GitHub account?
-To interact through public Issues or PRs, yes. Reading source and docs does not require one. The planned AWS console deployment should not require GitHub or local developer tools.
+**No.** The v0.1.0 public app is a technical preview, **not yet end-to-end encrypted**, and has not passed full real-provider, independent security, recovery or novice onboarding gates. Please use only fictional content in tests.
 
-### Do I need to share family stories to help?
-No. Never post real family photos, recordings, contact information or medical information to public GitHub. Synthetic bug reports and general feedback are welcome.
+### Can the project guarantee no legal liability or zero possible security incidents?
 
-### Is Being There a nonprofit? Can I donate?
-We are exploring fiscal sponsorship or a nonprofit structure but are not currently soliciting donations or claiming tax-exempt status.
+No. This project can make a strict verifiable **no project custody** design commitment, but software risk, third-party hosting, law, and compromise of an authorized client remain real.
 
-### Does this diagnose, treat or measure dementia?
-No. Being There supports connection and enjoyment and does not substitute for care or clinical advice.
+### Does Being There diagnose dementia or require medical information?
+
+No. It's for enjoying family memories and sharing stories, not clinical testing. No diagnosis is necessary.
+
+### Can I contribute to the public code?
+
+Yes. [GitHub participation](CONTRIBUTING.md) is public. Do not put personal memories, recordings, account details, diagnoses, credentials or family URLs in issues or PRs. Use fictional examples.

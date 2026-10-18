@@ -1,5 +1,7 @@
 # Family-held keys, blind storage and independent recovery
 
+**No custody:** [Being There project maintainers never receive ciphertext, plaintext, login/storage tokens, support logs, or family keys](../NO_CUSTODY.md). References below to a “backend” always mean the **family's separately operated private backend**, not project infrastructure.
+
 **MANDATORY:** [End-to-end encryption with family-held keys only](../SECURITY_PROMISE.md). This is the product's security bar for every hosting/storage option. The existing public technical preview is **NOT E2EE**, and its database, archive and JSON exports can contain **plaintext**. It is not suitable for real sensitive family stories and must not be marketed as zero-access.
 
 ## Preserve memories, not just their secrecy
@@ -12,7 +14,7 @@ The vault uses a portable encrypted archive with versioned restore points and ex
 
 ## The simple promise
 
-**Only an approved family device can unlock the family album.** Google Drive, Amazon S3, a NAS and Being There's hosted server can store, copy and restore the locked album, but none of them has the combination. Even a system administrator with the entire database, every stored backup and OAuth storage credentials should not be able to decrypt it. Someone controlling a family device, browser code or an invited person's copies remains a separate risk.
+**Only an approved family device can unlock the family album.** Google Drive, Amazon S3, a NAS and the family's privately operated server can store, copy and restore the locked album, but none of them has the combination. Even a system administrator with the entire database, every stored backup and OAuth storage credentials should not be able to decrypt it. Someone controlling a family device, browser code or an invited person's copies remains a separate risk.
 
 ## What a family controls
 

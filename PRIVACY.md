@@ -1,23 +1,17 @@
 # Privacy and public participation
 
-## Family privacy standard — unimplemented release requirement
+## Product boundary: zero project custody (not yet shipped)
 
-[**Level 3 end-to-end encryption with family-held keys is mandatory**](docs/SECURITY_PROMISE.md) for the future Community Edition. Photos, video, audio, stories, transcripts, people and relationship tags, private captions and archive manifests must be encrypted on family devices before storage. **Being There operators must not receive decryption keys or plaintext.** Storage-provider encryption, OAuth scope restrictions and server-held encrypted disks are not substitutes for genuine end-to-end encryption.
+**[Being There will distribute software, not handle family data](docs/NO_CUSTODY.md).** No Being There-operated family app/backend, centralized user directory, data relay, private file storage, encrypted backup, family OAuth token broker, key escrow, monitoring or real-family support uploads. Families operate the software in their own accounts/hardware and authorize their own relatives. [Family-held E2EE](docs/SECURITY_PROMISE.md) is mandatory for all content and privately meaningful metadata on approved devices before storage.
 
-**The currently published technical-preview server stores recoverable plaintext family data in its private storage and is NOT zero-access or E2EE.** Do not make a zero-knowledge security claim about that implementation or use it with real family information before the architecture is verified and independently reviewed. Our policy target is not a guarantee of absolute breach prevention or zero legal liability. Privacy of metadata, device/browser compromise and authorized family copies have separate limitations, documented in the security promise.
+**The current public technical-preview app is not E2EE.** Its *locally operated* reference server can store readable family media and metadata, and family-ready onboarding has not passed independent review. Do not present it as verified zero-custody/E2EE or ask nontechnical families to upload real content. The project does not host the private reference server; it publishes the source.
 
-# Privacy and public participation
+An independently chosen cloud provider may still hold the family's encrypted archive/metadata under its own terms. Pre-existing originals kept in a normal Drive folder may remain readable to whoever has the family's existing permissions. A family-controlled app's code and updates must be verifiable to reduce the risk of malicious client-side code. **No legal liability waiver or absolute immunity from compromise is implied.**
 
-This repository is **public**. GitHub issue titles, bodies, comments, usernames, commit history, and pull requests may be publicly visible, indexed, or retained.
+## Public project participation
 
-**Do not submit:** personal medical information, diagnoses, real family memories, photographs, audio/video, home addresses, email addresses, phone numbers, credentials, or information about someone else.
+This GitHub repository, its issues, comments, usernames and commits are **public**, may be indexed and retained, and are intended only for synthetic examples and general feedback.
 
-You can help by discussing fictional examples, product requirements, accessibility needs in general terms, or technical contributions.
+**Do not post:** real family photos, recordings, names, contact details, private stories, diagnoses, health data, credentials, access tokens or private account URLs in project Issues, PRs or discussions. We do not offer a private family support inbox or data-upload channel. If the project needs bug reproductions, generate fictional fixtures or redact locally before sharing.
 
-We do not operate a private volunteer signup form or claim to provide confidential intake through GitHub Issues or Discussions. Participation uses GitHub's platform and its applicable terms and privacy practices.
-
-If you accidentally post sensitive information, avoid repeating it; contact repository maintainers through an appropriate private channel once one is established. Deleting a public post may not remove copies, notifications, or archives.
-
-Security vulnerabilities should not be disclosed in public issues. Use GitHub's private vulnerability reporting if it is enabled.
-
-The original family's application, accounts, media, and data remain separate and private.
+Security vulnerabilities should be reported through GitHub private vulnerability reporting if available, not disclosed in public issues. The original private family app/accounts/archive remain separate from this public project.

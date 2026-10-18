@@ -2,6 +2,8 @@
 
 More meaningful moments together. No pressure to remember.
 
+**Important: No Being There-operated backend will handle real family data, even ciphertext.** All private app/API, tokens, logs, storage and client code must run in the family's own controlled installation; see [no-custody policy](../../docs/NO_CUSTODY.md). This existing reference is only a locally run technical preview.
+
 **Important: This technical preview is NOT end-to-end encrypted and does not meet the new [family-held zero-access security requirement](../../docs/SECURITY_PROMISE.md).** The server stores readable originals, family metadata and archive exports. **Do not put real family photos or stories into this preview.** No hosted or community family-ready launch may ship until full client-side encryption, client-held key sharing and recovery, and independent security review are complete.
 
 This **pre-release advanced-host reference** connects invite-only family access, multiple people, original photos, separate text/audio stories, recording recovery, responsive image variants and verified portable recovery. It has automated synthetic integration/browser evidence. It has **not** completed a real Google-account pilot, independent security/accessibility review or a nontechnical installation trial. Do not upload family data to an unreviewed deployment.

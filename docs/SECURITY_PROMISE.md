@@ -2,11 +2,19 @@
 
 **[P0 release blocker #25](https://github.com/Being-There/community/issues/25). Approved product requirement: Level 3 only.** The intended Community Edition shall be **end-to-end encrypted (E2EE) by default for all family memory content**. No hosted or self-hosted route is allowed to weaken this to storage encryption alone. **This is a release requirement, not a currently verified capability.** The existing public technical preview stores recoverable plaintext originals, family metadata and archive data in its private server storage. It must **not** be represented as having end-to-end encryption or zero operator access. No real family content should be introduced to an unreviewed Community deployment.
 
+## Hard product boundary: the project never handles family data
+
+**This policy is subordinate to the stronger [no-project-custody rule](NO_CUSTODY.md).** The project cannot accept even *encrypted* user media, user metadata, session information, provider credentials, archives or support logs. All private application logic, OAuth callbacks, uploads and backups belong to the independently family-run installation. The project only publishes source/releases, documentation and synthetic demos.
+
+A family-controlled backend may hold encrypted data and minimal routing information. **A Being There maintainer-operated backend is never permitted.** An operator-controlled live web-client origin is also unsafe for the promise because it could deliver modified JavaScript capable of reading plaintext at viewing time. Families must run version-pinned, verifiable app code from an origin they control; no silent code updates, remote add-ons or project-controlled telemetry.
+
+No centrally hosted family app or shared authentication gateway is a supported future option.
+
 ## What we want Mom to be able to rely on
 
-> Your memories are encrypted on your device before we store them. Only people your family authorizes receive the keys to read them. Being There's backend does not have those keys and cannot open or recover your memories for you. Your family can keep its encrypted originals and archive in storage it controls. If you lose all your recovery methods, we cannot restore your memories.
+> Your memories are encrypted on your device before they are stored in your family's own account. Only people your family authorizes receive the keys to read them. The Being There project never receives your memories or keys and cannot open or recover your memories for you. Your family can keep its encrypted originals and archive in storage it controls. If you lose all your recovery methods, we cannot restore your memories.
 
-This statement becomes a **publishable capability claim only after independently reviewed, adversarially tested E2EE implementation and verified deployed client artifacts**. Say **"designed so our servers cannot read your memories"** until proof exists; don't say "impossible under any circumstances" or "zero risk."
+This statement becomes a **publishable capability claim only after independently reviewed, adversarially tested E2EE implementation and verified deployed client artifacts**. Until verified, say **"designed so the project never handles your memories and your family's private server cannot decrypt them"**; don't say "impossible under any circumstances" or "zero risk."
 
 **Non-negotiable:** No vendor/operator/developer, analytics service, transcription vendor, backend role, shared OAuth app, cloud KMS key or service-held recovery secret may decrypt a family's memory contents. Zero-knowledge excludes server-managed copies of the user encryption key. Avoid "zero liability": the project can minimize access/risk but cannot promise that legal/security responsibilities vanish. Consult counsel before shipping Terms/Privacy policies.
 
@@ -14,7 +22,7 @@ This statement becomes a **publishable capability claim only after independently
 
 **Never encrypt, rename, move, modify, replace, or delete a family's existing Google Drive, phone, NAS or other source photos/videos.** Existing files are outside the Being There encrypted vault and must stay exactly where the family put them. For an import, the authorized **family device** reads explicitly selected source bytes directly, makes a separate encrypted copy for Being There, verifies the copy and leaves the source untouched. No plaintext import proxy through Being There's server; no project-held broad Drive read token. Use least-privilege selected-file access and show which sources are available.
 
-**Two different things, different privacy claims:** (a) external unencrypted sources a family chose to keep, which remain subject to that source provider's own permissions; (b) Being There-managed originals, stories and archive, which must be E2EE ciphertext everywhere outside authorized devices. We can promise the Being There backend cannot decrypt (b), but **cannot claim** Google or anyone authorized to read the family's pre-existing unencrypted Drive originals is unable to view (a).
+**Two different things, different privacy claims:** (a) external unencrypted sources a family chose to keep, which remain subject to that source provider's own permissions; (b) Being There-managed originals, stories and archive, which must be E2EE ciphertext everywhere outside authorized devices. The family-owned Being There backend must not be able to decrypt (b), but **cannot claim** Google or anyone authorized to read the family's pre-existing unencrypted Drive originals is unable to view (a).
 
 **Never lose the only new story.** A newly recorded voice, transcript, caption or contribution might have **no pre-existing source file**. It must be durably encrypted and independently backed up, with tested family-held key recovery, before the app reports it protected. Source preservation by itself does not protect these additions.
 
@@ -38,7 +46,7 @@ Encrypt **before upload**, on an authorized family device:
 - Full export/archive manifests, indexes and private filenames/labels (encrypt or replace with opaque IDs; no confidential information in URLs/logs).
 - Any extracted/AI-derived outputs. AI/transcription must run on the authorized family device for the core product; do not silently upload plaintext to an external model or operator. A family-controlled, out-of-app export is a separate conscious action, not a lower-security Being There mode.
 
-Server may need minimal routing metadata: opaque family/item IDs, encrypted object lengths, encrypted blob version, access-grant routing, ciphertext hashes, limited timestamps, account identifiers and consent/audit events. **This metadata can reveal relationships, activity, file sizes, IP addresses and who logs in**; we cannot honestly claim complete anonymity, no data collection, or that Google/host providers see nothing. Minimize retention, document logs and never include plaintext in operational telemetry.
+The **family-controlled** server may need minimal routing metadata: opaque family/item IDs, encrypted object lengths, encrypted blob version, access-grant routing, ciphertext hashes, limited timestamps, account identifiers and consent/audit events. **This metadata can reveal relationships, activity, file sizes, IP addresses and who logs in**; we cannot honestly claim complete anonymity, no data collection, or that Google/host providers see nothing. Minimize retention, document logs and never include plaintext in operational telemetry.
 
 ## Simple family flow
 
@@ -53,15 +61,15 @@ Server may need minimal routing metadata: opaque family/item IDs, encrypted obje
 
 - **Device encryption:** Browser-side Web Crypto or an independently audited E2EE library on HTTPS, with standard authenticated encryption, distinct random encryption nonces, random per-object keys, strict authentication of ciphertext and versioned formats. Specify key lifecycle, rollback/replay defense, tamper detection, rotation and recovery before implementation. Do not invent homegrown cryptography or assume a password/passkey *alone* is a family encryption key.
 - **Family key sharing:** Device/member public keys and wrapped family/content keys; invitations with verified fingerprints/trust binding, protection against server swapping public keys, account recovery and device revocation. Do not silently let an organizer, service or project operator recover plaintext from encrypted blobs.
-- **Backend is blind to content:** Backend validates family membership, routes opaque ciphertext and envelopes, enforces quotas, and never logs content, passwords, plaintext images, decrypted keys or unencrypted archive manifests. A malicious backend must not be able to impersonate a recipient without detection. Cloud IAM/KMS/SSE and HTTPS remain useful defense-in-depth **but not the E2EE mechanism**.
-- **Same policy on every deployment:** central hosted service, AWS, local/NAS, Google Drive and S3 all use the same client-side encryption format and keys. No "unencrypted fast mode", server-side legacy compatibility mode or downgrade allowed for sensitive family data.
-- **Client-code trust:** A web app can decrypt in a browser, so a compromised website/update, malicious extension or infected device can steal plaintext while it is displayed. Use reproducible/versioned/signed client releases where feasible, restrictive CSP, no unnecessary third-party scripts, dependency pinning, audited deployment and code review. Provide a verifiable standalone client path for families requiring stronger assurance than just trusting a live website. **Never claim the hosted operator is physically incapable of pushing malicious code**—the promise is a verified architecture and an operational commitment, not a mathematical proof of trustworthy future JavaScript.
+- **Family-owned backend is blind to content:** The family's backend validates family membership, routes opaque ciphertext and envelopes, enforces quotas, and never logs content, passwords, plaintext images, decrypted keys or unencrypted archive manifests. A malicious backend must not be able to impersonate a recipient without detection. Cloud IAM/KMS/SSE and HTTPS remain useful defense-in-depth **but not the E2EE mechanism**.
+- **Same policy on every deployment:** family-owned cloud app, local/NAS, Google Drive and S3 all use the same client-side encryption format and keys. No "unencrypted fast mode", server-side legacy compatibility mode or downgrade allowed for sensitive family data.
+- **Client-code trust:** A web app can decrypt in a browser, so a compromised website/update, malicious extension or infected device can steal plaintext while it is displayed. Use reproducible/versioned/signed client releases where feasible, restrictive CSP, no unnecessary third-party scripts, dependency pinning, audited deployment and code review. Provide a verifiable standalone client path for families requiring stronger assurance than just trusting a live website. **Never claim that a family's chosen hosting provider or anyone with control over its client delivery can never push malicious code**—the promise is a verified architecture and an operational commitment, not a mathematical proof of trustworthy future JavaScript.
 - **Storage:** Google Drive authorization `drive.file` should grant narrow access to selected/created *ciphertext* files. Drive tokens still grant ability to read/change/delete ciphertext and metadata, so least privilege, token lifecycle, integrity verification and independent backups remain required. Server-side OAuth token storage should be avoided where practical; if needed, explain it does not confer decryption ability but can disrupt or remove encrypted files.
 - **Recovery, removal and deletion:** Revoke server grants and rotate keys on removal where appropriate; recognize a removed contributor may keep earlier content/keys. Encrypted backups need verified integrity and robust user-held recovery. Differentiate stop displaying, archive retention, and permanent deletion including provider version history and backups.
 
 ## Hard release blockers
 
-No real-family hosted deployment, public one-click button or stronger privacy claim until all these are true:
+No family-ready installer, public one-click button or stronger privacy claim until all these are true:
 
 1. Real encrypted upload **and** encrypted download of photo, video, audio, story text, derived previews and metadata. Backend/database/archive/media responses are ciphertext only; inspected with synthetic secrets and traffic capture.
 2. Negative tests: an attacker with **complete backend database, admin/storage permissions, OAuth refresh tokens, encrypted exports and server logs** cannot recover plaintext or a usable decryption key. Server cannot mint a fake trusted member/device without a detectable verification failure.
@@ -72,7 +80,7 @@ No real-family hosted deployment, public one-click button or stronger privacy cl
 
 ## Commitment versus guarantee
 
-**Can commit:** We won't request or retain plaintext or the keys to decrypt family memories on our servers; we won't sell or train AI on family content; we'll give families encryption and independent recovery controls; we'll be transparent about data/metadata, incidents, limitations and updates.
+**Can commit:** We will not operate a service that receives family data—even ciphertext—or request or retain decryption keys; we won't sell or train AI on family content; we'll give families encryption and independent recovery controls; we'll be transparent about data/metadata, incidents, limitations and updates.
 
 **Cannot promise:** No vulnerability, no legal liability, zero observable metadata, no compromise of family devices, that approved relatives won't save copies, or that code delivered from our website could never be modified or compromised. A third-party hosting/storage operator also has separate legal and operational responsibilities.
 
@@ -83,4 +91,4 @@ No real-family hosted deployment, public one-click button or stronger privacy cl
 - [OWASP key lifecycle and recoverability](https://cheatsheetseries.owasp.org/cheatsheets/Key_Management_Cheat_Sheet)
 - [Google's browser-code threat model](https://github.com/google/end-to-end/wiki/Threat-model)
 
-**Implementation priorities:** replace all existing plaintext upload, archive, derived media and metadata paths, then validate E2EE key sharing/recovery and blind hosted storage. Keep the project-family's private installation out of scope unless separately approved.
+**Implementation priorities:** replace all existing plaintext upload, archive, derived media and metadata paths, then validate E2EE key sharing/recovery and blind family-owned storage. Keep the project-family's private installation out of scope unless separately approved.

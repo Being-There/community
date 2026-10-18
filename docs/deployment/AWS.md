@@ -1,6 +1,6 @@
 # AWS self-owned deployment — proposed guide and implementation specification
 
-**Not deployable yet, and blocked by [mandatory client-side E2EE](../SECURITY_PROMISE.md).** No CloudFormation template, CDK stack or "Deploy to AWS" button exists in this repository. AWS EBS/S3 KMS encryption alone cannot meet Being There's zero-backend-access promise; the deployed backend must only receive ciphertext and encrypted private manifests. This page defines the first supported provider-specific installer and the steps a future family-facing guide must automate. The existing application is a Node.js/SQLite/localhost service; do not run real family data on an unreviewed deployment.
+**Not deployable yet, and blocked by [mandatory client-side E2EE](../SECURITY_PROMISE.md).** No CloudFormation template, CDK stack or "Deploy to AWS" button exists in this repository. AWS EBS/S3 KMS encryption alone cannot meet Being There's zero-backend-access promise; the deployed backend must only receive ciphertext and encrypted private manifests. This page proposes one **family-owned AWS account** installer: no project principals, telemetry, data proxies or access grants. See the [no-custody boundary](../NO_CUSTODY.md). It defines a future provider-specific installer and the steps a future family-facing guide must automate. The existing application is a Node.js/SQLite/localhost service; do not run real family data on an unreviewed deployment.
 
 ## What an AWS owner should expect
 

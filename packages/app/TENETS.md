@@ -16,6 +16,8 @@ Technology supports relationships rather than replacing them. Preserve different
 > **Security requirement update:** Family-held end-to-end encryption is the only acceptable final architecture, not a premium tier. All sensitive content including originals, derived previews, story text and tags must be encrypted client-side, with no operator/server recovery keys. The current backend is a technical preview and not compliant; see [the zero-access security promise](../../docs/SECURITY_PROMISE.md). Never weaken this to TLS-only, at-rest provider encryption, shared server keys or an optional "privacy mode".
 
 ## 4. Privacy is a promise, not a setting
+**No project custody is absolute:** The open-source project may distribute software and fictional demonstrations but must not operate live family services or receive **even encrypted** family media, storage tokens, log dumps, backups or keys. Every real installation runs in its family's own controlled provider account/home server, from versioned reviewable code, without project-controlled runtime updates. See [no-custody contract](../../docs/NO_CUSTODY.md).
+
 Deny access by default. Sharing requires explicit family-controlled permission, enforced server-side for every private operation. No advertising, sale of personal information, or undisclosed use of private memories for AI training. Avoid collecting unnecessary data.
 
 ## 5. Memories should outlive the software
