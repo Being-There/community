@@ -1,5 +1,7 @@
 # Privacy and public participation
 
+**Family trust commitment:** [No ads, no data business, no project custody, and portable recovery](docs/TRUST_COMMITMENT.md). We do not promise that any software can prevent every security incident or preserve data forever.
+
 ## Product boundary: zero project custody (not yet shipped)
 
 **[Being There will distribute software, not handle family data](docs/NO_CUSTODY.md).** No Being There-operated family app/backend, centralized user directory, data relay, private file storage, encrypted backup, family OAuth token broker, key escrow, monitoring or real-family support uploads. Families operate the software in their own accounts/hardware and authorize their own relatives. [Family-held E2EE](docs/SECURITY_PROMISE.md) is mandatory for all content and privately meaningful metadata on approved devices before storage.
