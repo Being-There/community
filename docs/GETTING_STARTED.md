@@ -1,36 +1,27 @@
 # Getting started with Being There
 
-**Today:** Being There is a public, self-hosted **technical preview**. There is no hosted family web service, native Google Drive storage integration or one-click family installer yet. The separate private family application and real family media are not included.
+**Our direction:** Being There will give families software for **their own private web app**. Being There itself will **not** host, relay, store or handle anyone's memories—even encrypted files—and will not receive family access tokens or recovery keys. Read [what no custody means](NO_CUSTODY.md).
 
-**Our privacy requirement:** Only family members and their approved devices get the keys to decrypt memories; the Being There service doesn't hold them. See the [zero-access security promise and current implementation gap](SECURITY_PROMISE.md). This is **not yet true** of the existing Community technical preview. The plan to sign in and connect Google Drive must include encryption **on the device, before upload** and easy family-held key recovery.
+**Today:** The public Community app is an **advanced technical preview**, not a novice-ready installation or an end-to-end encrypted release. Do not upload real family photos or stories to the Community preview.
 
-## What we're working toward
+## How it should work
 
-1. **Open a website** on a phone, computer or tablet. No software installation, GitHub or cloud-console account.
-2. **Sign in and invite family.** Google sign-in is the initial technical foundation; future choices can include other common identities. Organizers approve who contributes. Tablet view lets someone simply enjoy photos and stories, without questions or pressure.
-3. **Choose where memories live.** Start by evaluating a private folder in **your own Google Drive**, then add other storage choices. Families can browse, export and back up their originals. No need for every invited person to access the underlying Drive folder.
-4. **Use it.** Share photos, videos and audio stories. A memory is part of the family collection—it doesn't have to feature or belong to the tablet user.
+1. **Choose a family-owned installation.** A guided cloud installer in an account you own, or a trusted helper using your home/NAS. The public Being There site provides instructions and software, **not** accounts or storage.
+2. **Open your family's private web link.** The application you use runs in **your account**, not ours.
+3. **Sign in and invite family.** Your own installation uses Google or a supported login provider and keeps all permissions and keys separate from the open-source project. Authorized relatives can contribute; Tablet view helps someone simply enjoy memories.
+4. **Choose where your vault lives.** Google Drive or another supported private destination in your account. On-device encryption creates *new encrypted Being There copies*; imported originals in your existing folders are not moved, overwritten or encrypted in place.
+5. **Save family recovery.** A second trusted device plus an offline recovery kit, and independent encrypted backups, keep new stories recoverable without us.
 
-One web app supports these experiences. Google Sites and other family homepages can provide a link; they do not need to run the app.
+No clinical questions, quizzes or need to remember names. Enjoying a photo is enough.
 
-### Who has access to the data?
+### Can Being There staff see my memories?
 
-We will explain this clearly during setup. Connecting a personal Drive folder does not automatically give end-to-end encryption. If a future hosted backend stores Drive tokens, it may access or delete the **encrypted** files and see limited metadata, but must not hold the keys that reveal the memories. The site supplying the viewing code and the family devices are also important trust points. Sign-in and invitations must protect who receives encrypted keys, and portable ciphertext backup and family-held recovery must work independently.
+The **goal of this new architecture is that our project never handles family media, even encrypted data**, and never has your login/storage tokens or decryption keys. Your own chosen cloud/storage provider still stores data under its own terms. A pre-existing unencrypted Google Drive photo remains readable to the people who already have access. The Being There encrypted copies can only be opened on approved family devices.
 
-## Will encryption endanger our family photos?
+Even with encryption, losing **all** family-held keys would make new protected stories unrecoverable. We must make recovery easy and test it before declaring this ready.
 
-**No existing photo will be encrypted or changed in place.** When you select a picture from your Google Drive, Being There is designed to leave the source exactly where it is and create a **second, encrypted copy** in a private Being There vault.
+### Can I try it right now?
 
-The existing picture remains a normal Drive photo, with the same permissions it already had. The encrypted copy will only be viewable through an authorized Being There device, not through Google's normal image preview. The originals' existing Drive access is a **separate privacy decision**—Being There cannot make those outside copies end-to-end encrypted.
+A technically comfortable helper may run the [synthetic local interface preview](../README.md#try-the-actual-interface-locally). It is **fictional and disposable**, and its server-readable storage is **not yet Level 3 E2EE**. Do not enter real memories.
 
-For new voice stories, which might have no other original, Being There must create a **second independent encrypted backup** and help your family save its recovery key on more than one trusted device or offline. Losing every key would still mean losing access to encrypted stories; that is why the recovery process must be tested **before** we call this family-ready.
-
-## What can I try now?
-
-**See the interface:** A technical helper can launch a **fictional, temporary** preview using [the local run instructions](../README.md#try-the-actual-interface-locally). Never upload real family media to this sandbox.
-
-**Run your own private instance:** An experienced Linux operator can follow the [advanced technical-preview guide](../packages/app/README.md). Google OAuth, HTTPS, private storage, backup and verification are currently the operator's responsibility. A real independent-family installation has not been fully verified.
-
-**Want simpler installation?** The guided AWS setup, Docker/NAS packaging and other platforms are for the community to implement. [High-level direction](DEPLOYMENT_ROADMAP.md) · [Optional implementations](deployment/OPTIONS.md) · [Google/Drive approach](deployment/GOOGLE.md).
-
-Being There supports connection and enjoyment; it is not a diagnostic test or medical device. Please never post family photos, recordings, credentials or medical information on public GitHub.
+For advanced private testing, see [operator reference](../packages/app/README.md). The [roadmap](DEPLOYMENT_ROADMAP.md) and [installer options](deployment/OPTIONS.md) describe future family-ready choices. We will not host another family's live installation on the project site.
