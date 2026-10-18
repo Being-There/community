@@ -1,62 +1,36 @@
-# Being There — simple family onboarding
+# Being There — family-owned web app roadmap
 
-**Product direction (not a shipped service):** A family opens a website, signs in, chooses where memories are stored, and starts enjoying them. We want this to work for someone with no knowledge of hosting, GitHub, DNS, databases, Docker or cloud consoles.
+**Decision: [No project custody ever](NO_CUSTODY.md).** Being There distributes open-source software, install guides and synthetic demos. **We do not run family instances, store encrypted or unencrypted memories, receive storage tokens, manage encryption keys, relay private uploads, or collect family usage data.** One personal web app, installed in the family's own account, remains the ideal user experience.
 
-**Current reality:** The public Community Edition is a self-hosted technical preview using Node.js, SQLite, a private filesystem archive and manually configured Google OAuth/HTTPS. There is no hosted family service, native Drive storage, single-click installer or completed independent-family privacy review yet. Keep the original private family installation separate.
+**Current status:** The public Community app is a **technical preview** requiring a Linux host and manually configured Google OAuth, private SQLite/filesystem storage and HTTPS. **It is not end-to-end encrypted**, does not satisfy this new policy, and is not validated for nontechnical family installation. Do not use real family data in the Community preview.
 
-## Non-negotiable release gate: family-held E2EE only
+## What should Mom do?
 
-**[P0 mandatory E2EE implementation blocker #25](https://github.com/Being-There/community/issues/25).** [Zero-access privacy and security commitment](SECURITY_PROMISE.md) is now the top architectural requirement. All sensitive family photos, videos, voice recordings, stories, profiles, tags, derivatives and metadata must be encrypted on an authorized device *before* upload. Only family-authorized devices hold decryption keys. No hosted Being There backend or cloud storage service receives those keys or plaintext. The current public app DOES NOT do this; no hosted launch or real family rollout until full E2EE, shared-device invitations, family-held recovery, exact-byte restore and independent review pass. An AWS KMS key, HTTPS connection or a family-owned Google Drive account is **not sufficient** by itself.
+1. Visit the public project website **to choose an installer**. No family sign-in, Google Drive connection or real uploads happen on that site.
+2. Choose a family-owned deployment: **guided one-click in an account the family owns** (Google or AWS as supported), or a home/NAS install from a trusted helper. Installer clearly shows where it will run and what it costs.
+3. Open **her family's own Being There web address**. Sign in with a Google/OIDC provider configured for **that family's instance**, enroll family-held keys/recovery and invite relatives. She never handles developer APIs or passwords beyond her existing login.
+4. Enjoy photos and stories on a simple browser/tablet interface. The family-controlled app is responsible for encrypted, separately backed-up copies and recoverable archives. Existing Google Drive originals stay untouched.
 
-The launch question is therefore **not** "where do we host plaintext?" but "can people enjoy and share E2EE family stories through a simple web app without the operator holding keys?" Existing technical deployment cards are supporting work and may not authorize a lower-security edition.
+This is **not a Being There-operated hosted web app**. The user sees a web app, but every private API, storage upload, OAuth callback and private log belongs to the family.
 
-## Availability and originals are equally non-negotiable
+## Only three high-level decisions
 
-**The project must never encrypt, modify, relocate or delete a family's existing Drive/phone/NAS originals.** User-selected files are read on an authorized client and copied into a separate Being There **encrypted vault**; the existing originals remain untouched and readable under their existing provider permissions. This does **not** mean that pre-existing plaintext files in the user's own Drive become E2EE. The project's no-plaintext/no-keys promise applies to all **Being There-managed** data, not the owner's separate source files.
+**Authentication:** A family-controlled identity/authorization system, with no project-run account directory or OAuth token proxy. The family can use Google sign-in where supported, but any OAuth callback must terminate at its own installation/device. No project-managed Drive refresh tokens or family login database. The developer may need to provide a per-family OAuth setup wizard or preconfigured family-owned identity tenant; do not promise zero configuration until tested.
 
-Every newly created recording, transcript, comment and enriched story must have **verified encrypted backups in another independent location** plus **at least two family-held recovery paths** (e.g. trusted second device and offline recovery kit). If every key is lost, Being There can't recover vault-only stories. No "protected" status without tested recovery readiness, remote hash verification, versioned restore points, and an offline open-source recovery path. Never silently propagate delete/hide to every copy. See the [preservation/security contract](SECURITY_PROMISE.md).
+**Storage:** A separate private, family-owned archive: Google Drive, S3 or NAS as validated options. All Being There-managed content is **E2EE on authorized family devices before upload**. Neither Being There nor cloud operators receive decryption keys. Imported originals stay unchanged; new stories need verified independent backups and multiple family-held recovery paths. Export and offline recovery must not depend on project infrastructure.
 
-## The family journey
+**Distribution/code:** Families control their app's **origin and version-pinned client code**. A live project-operated website capable of delivering altered JavaScript to family browsers cannot support an unconditional “we can never read it” claim. Releases should be verifiable/signed, updates owner-approved, with no mandatory central telemetry or support access.
 
-1. **Open Being There.** A regular web link on a phone, computer or tablet; eventually an installable home-screen shortcut.
-2. **Sign in.** Start with Google, with additional identity providers later. One family organizer invites other contributors. A person using Tablet view can enjoy the family collection without technology prompts; device access still requires an appropriately authorized session.
-3. **Choose storage.** The organizer connects a private family-owned location. **Google Drive first to evaluate**, then other provider choices such as S3, OneDrive and a local/NAS folder. No one needs to grant individual relatives direct storage-provider access just to use the app.
-4. **Enjoy memories.** Add photographs, short videos and recorded stories; invite family; verify that originals and a portable backup belong to the family. A shared memory does not have to feature the tablet user.
+## Work priorities
 
-Everyday family members should only see **Family space** (contribute/organize) or **Tablet view** (enjoy/listen/optionally tell stories). Technical details belong in advanced help or community documentation.
+**P0 — [Absolute no-project custody](NO_CUSTODY.md) and [mandatory family-held E2EE](SECURITY_PROMISE.md)**: gate every real-family distribution. Prove project domains receive no family traffic/files/tokens, full server/backup compromise cannot decrypt content, and malicious JS update/supply-chain threats are addressed. [Implementation blocker #25](https://github.com/Being-There/community/issues/25).
 
-## Three high-level product options
+**P1 — Nontechnical independent installer**: prototype one provider-first guided install (family-owned app, identity, storage, HTTPS, backup). A family can use the resulting web interface with no hosting expertise; no central sign-in or Being There backend. [AWS #13](https://github.com/Being-There/community/issues/13) is an existing candidate; [other install options](deployment/OPTIONS.md) can follow.
 
-| Experience | How the family starts | Tradeoff | Recommendation |
-| --- | --- | --- | --- |
-| **Hosted web app + connected family Drive** | Open site → Google sign-in → authorize private Drive folder → invite family | Easiest onboarding, but only with proven end-to-end encrypted content. A backend holding Drive tokens may read/corrupt **ciphertext** and metadata, not decrypt content. Browser client integrity and recovery remain critical. | **Evaluate first** |
-| **Same hosted web app + another family-controlled store** | Open site → sign in → connect supported bucket/folder | More choice and portable archives; requires provider-specific permissions, backup and recovery tests | Next, reuse same app |
-| **Family-owned deployment** | Use a guided installer or ask a technical helper to deploy into the family's account/home server | More direct infrastructure and key custody, more setup/maintenance | Always an option, community-enabled |
+**P2 — Family privacy and preservation pilot**: real-provider OAuth in an isolated owned instance, new encrypted voice stories and photos, two authorized users and tablet, negative access tests, loss-of-server restoration and family-held recovery **using synthetic fixtures**. No real family data to project maintainers. Drive connector [#17](https://github.com/Being-There/community/issues/17), auth [#14](https://github.com/Being-There/community/issues/14), recovery [#15](https://github.com/Being-There/community/issues/15), usability [#16](https://github.com/Being-There/community/issues/16) and tablet [#21](https://github.com/Being-There/community/issues/21).
 
-This is **one web app with choices**, not separate Google/AWS/NAS applications. Google Sites may link to the private app but does not host its Node/SQLite API.
+**Community implementation:** portable containers [#19](https://github.com/Being-There/community/issues/19), host-specific deployment guides and storage adapters. They should help families, not create another centralized service.
 
-## Only two architecture decisions should gate the experience
+## Go/no-go
 
-### 1. Authentication and family authorization
-
-- **Sign-in** identifies a real person: existing implementation supports Google OAuth, with configurable family-owned credentials. Evaluate Microsoft or email/passwordless after the basic web flow works.
-- **Invitation** controls family access; only authorized people can see media or contribute. Verified roles, expiry, revocation and account recovery still matter.
-- **Tablet use** is a simplified interface, *not* a public URL or permission bypass. A caregiver can set up an approved device or session; patient/storyteller/person profiles remain separate from login identities.
-
-### 2. Storage and data custody
-
-- The organizer selects a family-owned destination. Store **only encrypted originals, recordings, history and private metadata archives** outside an authorized device; the family can export and decrypt them locally using its own keys without any subscription.
-- **Drive as a first option**, not a mandatory dependency. Add other stores through adapters once there is demand.
-- The existing app has **local SQLite runtime state and filesystem originals**. Moving primary storage to Drive/S3 isn't implemented and cannot be implied by connecting a folder. A web service may still need a secure database for accounts/indexing and a secret store for provider refresh tokens.
-- Be explicit about the trust model: a backend holding Drive OAuth tokens can access, alter or delete **encrypted files and exposed metadata**, but must never receive plaintext or decryption keys. Independent family-held recovery is mandatory; the provider and our service cannot recover lost keys. Browser code integrity and device compromise remain meaningful risks.
-- **Nonnegotiable:** no cross-family leakage, private-by-default access, a verified independent backup/export, and successful restore on another host without restoring old invitations/sessions.
-
-## Next product validation, not more infrastructure design
-
-- **Proof of the simplest flow:** use *fictional* test content to prototype a hosted web sign-in, invited second person, connected test Drive folder, photo/video/audio contributions and private tablet view. Decide whether a browser-direct Drive model or a small trusted backend is actually maintainable. Record who handles OAuth tokens, who sees ciphertext and metadata, and prove only family devices can decrypt. This is **not** a choice between operator-readable models.
-- **Proof of family ownership:** verify original-byte export and clean restore with credentials revoked; show the owner where their data lives and how to leave.
-- **Usability trial:** someone unfamiliar with servers gets to a first private memory without an operator explaining cloud services. If not, simplify the product rather than add another provider.
-
-Existing work to reuse: [Google Drive option #17](https://github.com/Being-There/community/issues/17), [identity/onboarding #14](https://github.com/Being-There/community/issues/14), [backup/recovery #15](https://github.com/Being-There/community/issues/15), [family usability pilot #16](https://github.com/Being-There/community/issues/16) and [private tablet/PWA access #21](https://github.com/Being-There/community/issues/21).
-
-**Community-led implementation details (not blocking the design decision):** [portable container #19](https://github.com/Being-There/community/issues/19), [AWS guide/deployment #13](https://github.com/Being-There/community/issues/13), [managed hosting evaluation #20](https://github.com/Being-There/community/issues/20), [other deployment choices](deployment/OPTIONS.md), [AWS spec](deployment/AWS.md) and [home server spec](deployment/HOME_SERVER.md). Their existence should not turn a family-facing product into an infrastructure project.
+A release is **not** family-ready until the software demonstrably has **no project-controlled data paths** and independent security verification. The family's provider necessarily handles its own infrastructure and ciphertext, subject to its terms; this is not a promise that no third party anywhere can ever process bytes. The project can promise no *maintainer* custody, not “zero liability” under law.
