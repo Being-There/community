@@ -24,15 +24,13 @@ For real accounts and persistent independent hosting, follow the separate produc
 
 **Being There will be designed for family-held end-to-end encryption only.** The eventual app must encrypt *all private family content and recovery archives on authorized devices before upload*, with no server-side decryption capability or operator-held recovery key. **The currently released technical preview does not meet this standard**: its private backend stores unencrypted originals and metadata; do **not** upload real family data to an unreviewed deployment. See [our security promise and blocking requirements](docs/SECURITY_PROMISE.md).
 
-## Making it easy for families
+## No custody of family data — only family-owned installations
 
-The intended Community Edition experience is **open a private web app, sign in, choose your family's storage, invite relatives and enjoy memories**. Google Drive is the first owner-controlled storage option to evaluate; other destinations and self-hosted deployment remain choices. The central decisions are **family authorization** and **who can access/store the originals**—not which cloud service has a deployment button.
+**Being There distributes the software; families control their own private web app.** We never operate a family backend, shared account service, file relay, encrypted backup, OAuth token callback, monitoring or support upload endpoint that handles other people's content. The installer must deploy to an account or home server the family controls, with its own OAuth configuration, storage and private app address. Read [no project custody](docs/NO_CUSTODY.md), [family-held E2EE](docs/SECURITY_PROMISE.md) and [the simple roadmap](docs/DEPLOYMENT_ROADMAP.md).
 
-**Family-held encryption is mandatory regardless of hosting and storage.** Google Drive/S3 should contain ciphertext only, while family-authorized devices hold the keys. Server-managed cloud encryption is not sufficient. Our backend must not be able to read family photos, recordings, stories, transcripts or tags.
+**Not currently ready for real family data:** v0.1.0 is a locally operated technical preview whose server persists readable originals/records and is not E2EE. The project website is for documentation and entirely fictional demos only, **never** live family login/upload. Private access requires a verified, pinned family-installed client and independently audited encryption/recovery.
 
-**That experience is a design goal, not released functionality.** The current community app is a technical preview for advanced operators; native Drive storage and a hosted service are not yet available. We will be transparent about who can access data and credentials if families choose a future hosted backend.
-
-Read the [simple family experience/roadmap](docs/DEPLOYMENT_ROADMAP.md) and [family getting-started guide](docs/GETTING_STARTED.md). The community can work out [optional hosting and platform implementations](docs/deployment/OPTIONS.md) without making them prerequisites for product design.
+For implementation alternatives, see [family-owned installers](docs/deployment/OPTIONS.md), [Google/Drive](docs/deployment/GOOGLE.md) and [getting started](docs/GETTING_STARTED.md).
 
 ## Technical-preview installation
 
