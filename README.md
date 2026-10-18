@@ -1,5 +1,7 @@
 # Being There
 
+**Our commitment:** [No ads, no data business, no project custody, and independently recoverable family archives](docs/TRUST_COMMITMENT.md). These are non-negotiable release standards, not yet verified capabilities of the technical preview.
+
 **Keep the stories. Share the moments. Stay connected.**
 
 Being There is a family-centered, volunteer-driven project exploring how familiar photographs, voices, and stories can help people connect and enjoy meaningful moments together.
