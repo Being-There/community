@@ -1,94 +1,38 @@
-# Being There security and privacy commitment
+# Being There — security and privacy contract
 
-**[P0 release blocker #25](https://github.com/Being-There/community/issues/25). Approved product requirement: Level 3 only.** The intended Community Edition shall be **end-to-end encrypted (E2EE) by default for all family memory content**. No hosted or self-hosted route is allowed to weaken this to storage encryption alone. **This is a release requirement, not a currently verified capability.** The existing public technical preview stores recoverable plaintext originals, family metadata and archive data in its private server storage. It must **not** be represented as having end-to-end encryption or zero operator access. No real family content should be introduced to an unreviewed Community deployment.
+**Product direction updated 2026-10-19:** Google-first family identity; family-controlled installation and Google Drive; mandatory HTTPS/TLS and provider-managed encryption at rest; **no Being There application-managed end-to-end encryption, content keys or recovery kits**. This supersedes the former Level 3 E2EE release requirement. No claim of verified security, privacy or production-readiness is made for the technical preview.
 
-## Hard product boundary: the project never handles family data
+## Our boundary: Being There never handles another family's data
 
-**This policy is subordinate to the stronger [no-project-custody rule](NO_CUSTODY.md).** The project cannot accept even *encrypted* user media, user metadata, session information, provider credentials, archives or support logs. All private application logic, OAuth callbacks, uploads and backups belong to the independently family-run installation. The project only publishes source/releases, documentation and synthetic demos.
+We publish open-source code, documentation and fictional demonstrations. We **never** operate a real-family login service, OAuth callback, backend, media relay, Drive proxy, diagnostics collector, backup service or identity/token store. Even encrypted family media must never pass through project-operated systems. A family owns and operates its own instance, OAuth clients/tokens, media, logs, backups and provider account. No ads or commercial use of memory data.
 
-A family-controlled backend may hold encrypted data and minimal routing information. **A Being There maintainer-operated backend is never permitted.** An operator-controlled live web-client origin is also unsafe for the promise because it could deliver modified JavaScript capable of reading plaintext at viewing time. Families must run version-pinned, verifiable app code from an origin they control; no silent code updates, remote add-ons or project-controlled telemetry.
+**Be precise about visibility.** Encryption in transit prevents passive interception along correctly configured TLS connections. Provider-managed encryption at rest protects stored data against some storage threats, **but is not end-to-end encryption**. Google, the selected hosting provider, sufficiently privileged family-instance administrators, authorized invitees or compromised devices/software may be capable of viewing content. Do not claim 'only your family can technically read it', 'zero knowledge', 'no leaks' or 'zero liability'.
 
-No centrally hosted family app or shared authentication gateway is a supported future option.
+## Authentication is necessary; invitation authorization is separately mandatory
 
-## What we want Mom to be able to rely on
+1. **Verified Google identity.** Validate provider-issued ID tokens using Google's supported SDK with issuer, client audience, expiry, nonce, state, PKCE and recent-authentication requirements. Never trust unverified user-supplied email, profile ID, URL family ID, proxy claims or browser-supplied role headers as an authorization grant. Use provider subject identifiers rather than changeable email as the durable identity key.
+2. **Active signed-in session.** Every private family read and write, including metadata, image renditions, original media, story audio, video, HEAD, Range, exports and admin APIs, requires a valid server-side session. Do not expose raw Google access/refresh tokens or Drive URLs to the client.
+3. **Invitation-derived family membership.** Being logged in with a Google account **does not authorize any family's data**. Require a consumed, recipient-bound, unexpired, single-use invitation and an **active** membership for the exact family on every request. Revoked members must immediately fail even with a previously issued session. Deny by default and prevent cross-family object access, even when an ID is guessed.
+4. **Least-privilege roles.** Only organizers may invite/revoke members and export. Contributors receive only their assigned family/scope rights. A person profile, tablet mode, Google identity, Drive folder link or familiarity with a secret URL is not an access grant.
+5. **Private API invariants.** Anonymous data requests return 401; authenticated nonmembers/cross-family requests return a non-revealing 404. Never leak media bytes, filenames, person identities, existence checks, private JSON or thumbnails. All mutation routes enforce session, membership, HTTP Origin and CSRF protection; sensitive exports also require recent authentication. Access is rechecked before releasing data and during durable writes.
+6. **No Drive calls for unauthorized requests.** Google Drive authorization is a *separate, explicit* grant from the family organizer. Store refresh tokens only in family-owned server secrets, not source, browser code or project infrastructure. Authenticate the caller, verify current membership and per-operation role/scope **before** acquiring credentials, making Google Drive API calls, creating jobs, prefetching, listing, downloading, streaming, deleting or generating shareable links. Background jobs must use explicitly authorized, bounded owner-created grants; public triggers may never access Drive.
+7. **Drive sharing is not app authorization.** Keep the family archive private; never set 'anyone with the link', make direct public file URLs or rely on obscurity. Default to least-privilege scopes such as `drive.file` with user-selected files/folders, validate actual Google picker and API behavior, and document precisely which Google account can access content. Revoke stored tokens when the owner disconnects. A signed-in outsider may complete normal Google sign-in but must receive no private content or ability to invoke Google Drive operations.
+8. **Secure transport and secrets.** Require HTTPS/TLS for all browser/backend/provider flows; reject mixed content and insecure redirects. Use host/origin validation, HttpOnly/Secure/SameSite cookies, restrictive CORS/CSP, no-store private responses, bounded requests and safe error messages. No public or shared cache for family data. Family-owned hosting must use supported encryption at rest, restrictive runtime/service roles, audit review and secret rotation.
 
-> Your memories are encrypted on your device before they are stored in your family's own account. Only people your family authorizes receive the keys to read them. The Being There project never receives your memories or keys and cannot open or recover your memories for you. Your family can keep its encrypted originals and archive in storage it controls. If you lose all your recovery methods, we cannot restore your memories.
+**Authentication exceptions:** public landing assets and the Google sign-in start/callback must remain reachable to let someone authenticate; an authenticated invite recipient must be able to preview/accept their own invitation *before* membership exists. Those surfaces must never touch private media or Drive content. Do not describe this as 'no APIs callable at all when logged out'.
 
-This statement becomes a **publishable capability claim only after independently reviewed, adversarially tested E2EE implementation and verified deployed client artifacts**. Until verified, say **"designed so the project never handles your memories and your family's private server cannot decrypt them"**; don't say "impossible under any circumstances" or "zero risk."
+## Preservation and recovery, with no separate app cryptography
 
-**Non-negotiable:** No vendor/operator/developer, analytics service, transcription vendor, backend role, shared OAuth app, cloud KMS key or service-held recovery secret may decrypt a family's memory contents. Zero-knowledge excludes server-managed copies of the user encryption key. Avoid "zero liability": the project can minimize access/risk but cannot promise that legal/security responsibilities vanish. Consult counsel before shipping Terms/Privacy policies.
+- Never encrypt, delete, rename, overwrite or move the user's existing Drive, phone or NAS originals in place.
+- Keep readable, portable copies and human-usable export formats for photos, recordings, stories and metadata. The family must not need a Being There-specific decryption key if the app or its maintainers disappear.
+- Protect **new** recordings and story metadata with versioned, verified backups in a separate failure domain. Deletion/hiding in the UI must not silently destroy all copies. Test recovery on a clean machine and against token revocation, storage faults, corrupted backups and loss of the original host.
+- Any Google account recovery, data retention and at-rest encryption keys are governed by that family's selected providers; describe their limitations without misrepresenting them as project-owned or family-held E2EE keys.
 
-## Preservation without touching existing originals
+## Blocking verification before real family use
 
-**Never encrypt, rename, move, modify, replace, or delete a family's existing Google Drive, phone, NAS or other source photos/videos.** Existing files are outside the Being There encrypted vault and must stay exactly where the family put them. For an import, the authorized **family device** reads explicitly selected source bytes directly, makes a separate encrypted copy for Being There, verifies the copy and leaves the source untouched. No plaintext import proxy through Being There's server; no project-held broad Drive read token. Use least-privilege selected-file access and show which sources are available.
+- Synthetic, automated API regression covering no session; Google-signed-in but never invited; wrong invitation recipient; expired/replayed invitation; active member; revoked member; cross-family; wrong role; GET/HEAD/Range; thumbnail/original/audio/video; exports; mutation/CSRF; and post-revocation races.
+- Native Drive connector **must** prove with spies/recorded calls that unauthorized requests cause **zero Drive API calls**, no token acquisition, no jobs and zero media disclosure. Test independent owner consent, least-privilege scope, revocation, public link prevention and quota failures.
+- Independent security and permissions review, real Google-login pilot using fictional media, hosted deployment acceptance, backup/restore drill, nontechnical family trial and no-project-traffic audit.
+- **Current v0.1.0 technical preview is not approved for real family data.** It has no native Google Drive adapter, has not passed those external/provider review gates, and is not a turnkey Cloudflare deployment.
 
-**Two different things, different privacy claims:** (a) external unencrypted sources a family chose to keep, which remain subject to that source provider's own permissions; (b) Being There-managed originals, stories and archive, which must be E2EE ciphertext everywhere outside authorized devices. The family-owned Being There backend must not be able to decrypt (b), but **cannot claim** Google or anyone authorized to read the family's pre-existing unencrypted Drive originals is unable to view (a).
-
-**Never lose the only new story.** A newly recorded voice, transcript, caption or contribution might have **no pre-existing source file**. It must be durably encrypted and independently backed up, with tested family-held key recovery, before the app reports it protected. Source preservation by itself does not protect these additions.
-
-### Availability is a release requirement, not an optional convenience
-
-- The owner gets an **unambiguous recovery kit** and at least one independently enrolled family device / trusted family-held backup of key material. Neither the Being There service nor a hosting operator gets the keys. Test total phone loss and recovery **without** any project staff intervention.
-- Keep at least **two independently controlled copies of each verified encrypted archive** in separate failure domains (e.g., encrypted vault in Drive plus encrypted offline/second-provider backup). Do not count the original only, another folder on the same disk, or a synced deletion as an independent backup.
-- The app confirms **source unchanged**, successful encrypted write, remote readback/hash and recovery-key readiness independently. Never acknowledge “safe” because a background upload was merely queued. Show backup freshness/failure plainly.
-- Use immutable/versioned object history and explicit restore points for originals and story versions, with separate policies for hiding from rotation, archiving, and owner-authorized permanent deletion. Avoid silently propagating deletions to every backup.
-- Publish a stable, documented ciphertext/archive format and **offline open-source restoration/decryption tool** that works on a family-authorized machine without Being There servers. Prove full photo/video/audio/story restore in a second environment, including migrations and corrupted-backup scenarios.
-- Clarify irreducible limitations: if every family device and recovery key is lost, app-created encrypted stories are unrecoverable; external original photos may still survive if their owners kept them. Someone with access to an unencrypted external original can still view it independent of Being There.
-
-**No in-place encryption of an owner's Drive, ever.** This is both a data-loss prevention and informed-consent boundary.
-
-## What is encrypted
-
-Encrypt **before upload**, on an authorized family device:
-
-- Photo, video and audio originals; generated thumbnails, preview renditions and voice clips.
-- Story text, transcripts, notes, titles, captions, reactions, people/location tags, associations, family/person profiles, comments and personalized prompts.
-- Full export/archive manifests, indexes and private filenames/labels (encrypt or replace with opaque IDs; no confidential information in URLs/logs).
-- Any extracted/AI-derived outputs. AI/transcription must run on the authorized family device for the core product; do not silently upload plaintext to an external model or operator. A family-controlled, out-of-app export is a separate conscious action, not a lower-security Being There mode.
-
-The **family-controlled** server may need minimal routing metadata: opaque family/item IDs, encrypted object lengths, encrypted blob version, access-grant routing, ciphertext hashes, limited timestamps, account identifiers and consent/audit events. **This metadata can reveal relationships, activity, file sizes, IP addresses and who logs in**; we cannot honestly claim complete anonymity, no data collection, or that Google/host providers see nothing. Minimize retention, document logs and never include plaintext in operational telemetry.
-
-## Simple family flow
-
-1. **Sign in** with Google or another identity provider. Identity proves *who is requesting access*, not who holds encryption keys. Google OAuth/Drive permissions cannot decrypt content by themselves.
-2. **Create family album.** A strong family encryption key is generated locally on an approved device. Encrypt the album key for each approved contributor/device using audited key-wrapping primitives; the backend stores **encrypted key envelopes only**, never the underlying private keys.
-3. **Invite family.** Authorized member verifies a new recipient/device and shares the family key through an E2EE device-to-device invitation, with the private key remaining on that recipient's device. Never email the master secret or place it in a QR/link that can be publicly copied. The application enforces invitation/membership *and* E2EE key possession.
-4. **Enjoy memories on tablet.** An organizer securely provisions the tablet with a limited device grant and encrypted key envelope. The person using the simplified view does not need to manage secrets. A lost tablet can be denied future access; previously downloaded or viewed copies can't magically be taken back.
-5. **Save/recover.** The family receives a clearly labeled **offline recovery key or securely encrypted recovery kit** and is encouraged to have a second trusted device/guardian. A lost device can be re-enrolled with a valid recovery method; **lost all devices and recovery material = no Being There recovery**.
-6. **Move storage.** Store only Being There-managed ciphertext and encrypted manifests in a **separate Being There vault folder** in the family's selected Drive, S3 or another destination. Never transform unrelated files in a source folder. A family can export encrypted files independently. Local decryption/export is possible **only on a family-authorized device**. Drive itself should not be expected to preview arbitrary encrypted app files as normal photos.
-
-## Architecture constraints
-
-- **Device encryption:** Browser-side Web Crypto or an independently audited E2EE library on HTTPS, with standard authenticated encryption, distinct random encryption nonces, random per-object keys, strict authentication of ciphertext and versioned formats. Specify key lifecycle, rollback/replay defense, tamper detection, rotation and recovery before implementation. Do not invent homegrown cryptography or assume a password/passkey *alone* is a family encryption key.
-- **Family key sharing:** Device/member public keys and wrapped family/content keys; invitations with verified fingerprints/trust binding, protection against server swapping public keys, account recovery and device revocation. Do not silently let an organizer, service or project operator recover plaintext from encrypted blobs.
-- **Family-owned backend is blind to content:** The family's backend validates family membership, routes opaque ciphertext and envelopes, enforces quotas, and never logs content, passwords, plaintext images, decrypted keys or unencrypted archive manifests. A malicious backend must not be able to impersonate a recipient without detection. Cloud IAM/KMS/SSE and HTTPS remain useful defense-in-depth **but not the E2EE mechanism**.
-- **Same policy on every deployment:** family-owned cloud app, local/NAS, Google Drive and S3 all use the same client-side encryption format and keys. No "unencrypted fast mode", server-side legacy compatibility mode or downgrade allowed for sensitive family data.
-- **Client-code trust:** A web app can decrypt in a browser, so a compromised website/update, malicious extension or infected device can steal plaintext while it is displayed. Use reproducible/versioned/signed client releases where feasible, restrictive CSP, no unnecessary third-party scripts, dependency pinning, audited deployment and code review. Provide a verifiable standalone client path for families requiring stronger assurance than just trusting a live website. **Never claim that a family's chosen hosting provider or anyone with control over its client delivery can never push malicious code**—the promise is a verified architecture and an operational commitment, not a mathematical proof of trustworthy future JavaScript.
-- **Storage:** Google Drive authorization `drive.file` should grant narrow access to selected/created *ciphertext* files. Drive tokens still grant ability to read/change/delete ciphertext and metadata, so least privilege, token lifecycle, integrity verification and independent backups remain required. Server-side OAuth token storage should be avoided where practical; if needed, explain it does not confer decryption ability but can disrupt or remove encrypted files.
-- **Recovery, removal and deletion:** Revoke server grants and rotate keys on removal where appropriate; recognize a removed contributor may keep earlier content/keys. Encrypted backups need verified integrity and robust user-held recovery. Differentiate stop displaying, archive retention, and permanent deletion including provider version history and backups.
-
-## Hard release blockers
-
-No family-ready installer, public one-click button or stronger privacy claim until all these are true:
-
-1. Real encrypted upload **and** encrypted download of photo, video, audio, story text, derived previews and metadata. Backend/database/archive/media responses are ciphertext only; inspected with synthetic secrets and traffic capture.
-2. Negative tests: an attacker with **complete backend database, admin/storage permissions, OAuth refresh tokens, encrypted exports and server logs** cannot recover plaintext or a usable decryption key. Server cannot mint a fake trusted member/device without a detectable verification failure.
-3. Invite, multi-person contributor, limited tablet device enrollment, lost-device revocation and per-recipient key delivery all work. New family account isn't assigned keys because of a display profile name.
-4. Lose server, restore ciphertext from an independent family-selected provider, recover using **only family-held** keys, verify exact original bytes and story attribution. Confirm operator cannot perform recovery alone.
-5. Recovery-kit loss scenario explained honestly; repeated recovery and member removal/rotation tests; real mobile-browser accessibility. Metadata exposure described in accessible language.
-6. Independent cryptographic architecture review and app/browser client release-supply-chain security review. Passing test CI is not enough.
-
-## Commitment versus guarantee
-
-**Can commit:** We will not operate a service that receives family data—even ciphertext—or request or retain decryption keys; we won't sell or train AI on family content; we'll give families encryption and independent recovery controls; we'll be transparent about data/metadata, incidents, limitations and updates.
-
-**Cannot promise:** No vulnerability, no legal liability, zero observable metadata, no compromise of family devices, that approved relatives won't save copies, or that code delivered from our website could never be modified or compromised. A third-party hosting/storage operator also has separate legal and operational responsibilities.
-
-### Reference material
-
-- [MDN Web Crypto API and cryptographic implementation risks](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API)
-- [Google Drive narrow-per-file access](https://developers.google.com/workspace/drive/api/guides/api-specific-auth)
-- [OWASP key lifecycle and recoverability](https://cheatsheetseries.owasp.org/cheatsheets/Key_Management_Cheat_Sheet)
-- [Google's browser-code threat model](https://github.com/google/end-to-end/wiki/Threat-model)
-
-**Implementation priorities:** replace all existing plaintext upload, archive, derived media and metadata paths, then validate E2EE key sharing/recovery and blind family-owned storage. Keep the project-family's private installation out of scope unless separately approved.
+See [no custody](NO_CUSTODY.md), [trust commitment](TRUST_COMMITMENT.md), [deployment roadmap](DEPLOYMENT_ROADMAP.md) and [authorization test](../packages/app/tests/authorization-gates.test.mjs).
