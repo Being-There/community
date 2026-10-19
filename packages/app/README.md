@@ -4,7 +4,7 @@ More meaningful moments together. No pressure to remember.
 
 **Important: No Being There-operated backend will handle real family data, even ciphertext.** All private app/API, tokens, logs, storage and client code must run in the family's own controlled installation; see [no-custody policy](../../docs/NO_CUSTODY.md). This existing reference is only a locally run technical preview.
 
-**Important: This technical preview is NOT end-to-end encrypted and does not meet the new [family-held zero-access security requirement](../../docs/SECURITY_PROMISE.md).** The server stores readable originals, family metadata and archive exports. **Do not put real family photos or stories into this preview.** No hosted or community family-ready launch may ship until full client-side encryption, client-held key sharing and recovery, and independent security review are complete.
+**Important: This technical preview stores readable originals, family metadata and archives in its family-controlled backend, and is NOT verified for real-family use.** The current product policy requires [Google identity plus active family membership for every private API and Drive operation, HTTPS/TLS, provider-managed encryption at rest and no project custody](../../docs/SECURITY_PROMISE.md) — not additional application-managed E2EE keys. **Do not put real family photos or stories into this preview** until independent review, hosted provider tests, least-privilege Drive consent and backups have passed.
 
 This **pre-release advanced-host reference** connects invite-only family access, multiple people, original photos, separate text/audio stories, recording recovery, responsive image variants and verified portable recovery. It has automated synthetic integration/browser evidence. It has **not** completed a real Google-account pilot, independent security/accessibility review or a nontechnical installation trial. Do not upload family data to an unreviewed deployment.
 
@@ -109,6 +109,6 @@ npx playwright install chromium --only-shell
 npm run test:browser
 ```
 
-Browser acceptance uses synthetic, locally signed test tokens, a temporary local HTTPS certificate and Chromium's fake audio device. It exercises the actual maintained Google JWT verifier against test keys, not a real Google-account sign-in. The fake verifier/certificate wiring exists in test code only; no test sign-in endpoint ships in the app. No real family content or microphone is used.
+Browser acceptance and API authorization tests use synthetic, locally signed test tokens, a temporary local HTTPS certificate and Chromium's fake audio device. It exercises the actual maintained Google JWT verifier against test keys, not a real Google-account sign-in. The fake verifier/certificate wiring exists in test code only; no test sign-in endpoint ships in the app. No real family content or microphone is used.
 
 Read [TENETS.md](TENETS.md) and [AGENTS.md](AGENTS.md). Licensed under [Apache License 2.0](LICENSE); native/third-party dependencies carry their own licenses. Community Edition v0.1.0 was released as a technical preview; subsequent improvements must be validated and released separately.
