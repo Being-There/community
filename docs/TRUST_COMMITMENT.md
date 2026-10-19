@@ -1,34 +1,24 @@
 # The Being There Trust Commitment
 
-**Your memories. Your home. Your future.**
+**Your memories. Your family. Your control.**
 
-Being There is free, open-source software to help families preserve and enjoy their stories. We publish the software. **You operate your family space, control its storage and keys, and decide who can participate.** We will never run a service that receives, relays, stores, analyzes or backs up your family content—not even encrypted copies.
+Being There publishes free, open-source software; every family runs its own private installation and stores its own memories. The project never receives or operates a real-family login, API, Google Drive connector, media relay, backup, support upload or data service — even for encrypted content.
 
-## What we commit to
+## Our commitments
 
-- **No ads, ever in the software.** No sponsored placements, ad networks, advertising identifiers or advertising SDKs.
-- **No data business.** No selling, licensing, profiling or training AI on family memories. No project-operated analytics or mandatory telemetry of family use.
-- **No custody.** No project-controlled accounts, private APIs, OAuth callbacks, content relays, key escrow, support uploads or backups. Private installations and approved code versions belong to families.
-- **No hidden access.** Family-held encryption keys; family-approved invitations and devices. Do not ship backdoors or undisclosed remote-control features. No automatic remote scripts that allow project maintainers to read content.
-- **Built to outlive the app.** Documented portable encrypted archives, unmodified imported originals, independently verified backup copies, family-held recovery methods and a standalone open-source offline restore/decrypt tool.
-- **Honest communication.** Public code, documented permissions, transparent limitations, clear security reporting and no claims ahead of independent verification.
+- **No ads or data business.** No advertising, tracking, selling, profiling or training on family data; no project-hosted family analytics or telemetry.
+- **No project custody or hidden project access.** The family owns its Google OAuth project/client, Drive or other archive, hosting and secrets. No shared project-managed authentication callback, proxy, token vault or backdoor.
+- **Google identity plus invitation.** Only active, invited family members may access private app data. A Google account alone never grants membership. A revoked member immediately loses future server access. Organizers explicitly control roles.
+- **Protected connections.** HTTPS/TLS is mandatory across every browser, app and provider connection. Family-owned storage uses its provider's built-in encryption at rest. **No extra Being There content encryption keys or recovery kits.**
+- **Preservation first.** Existing originals are never modified in place; new stories and metadata get independent, versioned, verified backups. Families must be able to recover readable content without the Being There project.
+- **Transparent limitations.** We publish source, permissions, security caveats, current release readiness and provider responsibilities. We do not claim zero risk or zero legal liability.
 
-## What this does not mean
+## Important privacy distinction
 
-**We cannot promise “no data leaks.”** A vulnerable family device, compromised hosting provider, stolen recovery key, malicious software update or an authorized recipient copying content could expose memories. Encryption cannot erase copies already seen. Third-party providers selected by families have their own terms and may observe metadata. An unencrypted original in a family's pre-existing Drive remains under its existing permissions. If all family-held keys and recovery methods are lost, encrypted-only stories may become unrecoverable.
+**This is not end-to-end encryption or a zero-knowledge service.** Google and the family's hosting provider may have technical or legal access under their own policies; authorized family members, sufficiently privileged family administrators or compromised devices can expose data. TLS protects transit, not a malicious endpoint. We can promise no project-operated custody only after review and verification of installed releases; we cannot promise that nobody else could ever access data.
 
-**We cannot promise forever.** Storage providers can fail, accounts can close, backup copies can be corrupted and formats can age. We can design for independent preservation and test restoration, but the family must maintain backups and recovery material. We cannot guarantee zero legal liability or absolute protection.
+## Family-ready release gate
 
-## Proof before any family-ready release
+Test that anonymous users and Google users without an accepted invitation receive no private family metadata or media and can trigger **no Google Drive data operation**. Verify read/write, image, video, audio, Range/HEAD, invitation replay and revocation paths; require provider-consent scoping, backups and independent review. The current technical preview has not passed every release gate; use fictional data only.
 
-1. No real-family content, ciphertext, identity/token, logs or telemetry ever routes to project-controlled infrastructure. Audit network calls and build artifacts.
-2. End-to-end encryption on approved devices for photos, recordings, transcripts, tags, thumbnails and archives. No project or family-hosting server holds decrypting keys.
-3. No ads, tracking libraries, analytics beacons, remote executable scripts or undisclosed support access.
-4. Import leaves pre-existing originals unchanged. New stories are verified in at least two independent encrypted backup locations with versioned restore points.
-5. A family can restore exact media bytes, story attribution and private metadata **offline**, using only its own keys, without Being There or the original hosting provider.
-6. Independent security review, reproducible/version-pinned software delivery, key recovery/loss drills and a novice-friendly family installation trial with fictional data.
-7. A plain-language privacy notice states what the family-selected cloud provider can see, what we cannot see, costs, retention/deletion behavior, and the limits above.
-
-**Current status: NOT YET VERIFIED.** The public Community v0.1.0 technical preview is not end-to-end encrypted and lacks the completed family-owned beginner installer and independently tested offline recovery path. Use fictional data only. This document is a binding **project design and release standard**, not a certification that the existing software already meets it.
-
-See [No Custody](NO_CUSTODY.md), [Security Promise](SECURITY_PROMISE.md), and [Deployment Roadmap](DEPLOYMENT_ROADMAP.md).
+See [security contract](SECURITY_PROMISE.md), [no custody](NO_CUSTODY.md) and [deployment roadmap](DEPLOYMENT_ROADMAP.md).
