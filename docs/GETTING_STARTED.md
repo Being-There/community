@@ -2,7 +2,7 @@
 
 **Our family trust commitment:** [No ads, no tracking, no project access to memories, and recovery independent of Being There](TRUST_COMMITMENT.md). These protections are mandatory release goals; the current technical preview has not yet passed verification.
 
-**Our direction:** Being There will give families software for **their own private web app**. Being There itself will **not** host, relay, store or handle anyone's memories—even encrypted files—and will not receive family access tokens or recovery keys. Read [what no custody means](NO_CUSTODY.md).
+**Our direction:** Being There will give families software for **their own private web app**. Being There itself will **not** host, relay, store or handle anyone's memories—even encrypted files—and will not receive family access tokens. Read [what no custody means](NO_CUSTODY.md).
 
 **Today:** The public Community app is an **advanced technical preview**, not a novice-ready or independently security-verified installation. Do not upload real family photos or stories to the Community preview.
 
@@ -24,6 +24,6 @@ New recordings and stories may have no previous copies. Make and test independen
 
 ### Can I try it right now?
 
-A technically comfortable helper may run the [synthetic local interface preview](../README.md#try-the-actual-interface-locally). It is **fictional and disposable**, and its server-readable storage is **not yet Level 3 E2EE**. Do not enter real memories.
+A technically comfortable helper may run the [synthetic local interface preview](../README.md#try-the-actual-interface-locally). It is **fictional and disposable**, and its family-owned server stores readable data and has not passed independent security review. Do not enter real memories.
 
 For advanced private testing, see [operator reference](../packages/app/README.md). The [roadmap](DEPLOYMENT_ROADMAP.md) and [installer options](deployment/OPTIONS.md) describe future family-ready choices. We will not host another family's live installation on the project site.
