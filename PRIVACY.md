@@ -1,19 +1,18 @@
 # Privacy and public participation
 
-**Family trust commitment:** [No ads, no data business, no project custody, and portable recovery](docs/TRUST_COMMITMENT.md). We do not promise that any software can prevent every security incident or preserve data forever.
+Our commitments: **no ads, no family-data business, and no Being There project custody**. Families control their own private app, Google OAuth client, invited members, storage and backup systems. The project never receives family media, metadata, account tokens, logs or backups, **even ciphertext**. See [trust](docs/TRUST_COMMITMENT.md), [security](docs/SECURITY_PROMISE.md) and [no custody](docs/NO_CUSTODY.md).
 
-## Product boundary: zero project custody (not yet shipped)
+## Family privacy design (release requirements, not verified technical-preview claims)
 
-**[Being There will distribute software, not handle family data](docs/NO_CUSTODY.md).** No Being There-operated family app/backend, centralized user directory, data relay, private file storage, encrypted backup, family OAuth token broker, key escrow, monitoring or real-family support uploads. Families operate the software in their own accounts/hardware and authorize their own relatives. [Family-held E2EE](docs/SECURITY_PROMISE.md) is mandatory for all content and privately meaningful metadata on approved devices before storage.
+- Mandatory HTTPS/TLS for every app/provider connection and provider-managed encryption at rest; **no extra Being There client-side encryption or family decryption keys**.
+- Google identity authentication **plus** explicit active family membership and role/scope checks on every private API call. Google sign-in alone never authorizes a family's private data.
+- Google Drive requires independent organizer OAuth consent. No outsider, logged-out or revoked user may invoke Drive file operations. Tokens remain in the privately operated family installation.
+- Content and archives remain in ordinary, exportable formats; existing originals stay unchanged; new recordings and metadata require separately verified backups.
+- Third-party providers (including Google and a family's host), authorized relatives and sufficiently privileged family administrators may have access under their own policies. This is **not E2EE or zero knowledge**. No guarantee against compromise, indefinite provider retention or legal risk is implied.
+- No project-controlled family app, shared token vault, analytics beacon, content relay, background script or private support upload.
 
-**The current public technical-preview app is not E2EE.** Its *locally operated* reference server can store readable family media and metadata, and family-ready onboarding has not passed independent review. Do not present it as verified zero-custody/E2EE or ask nontechnical families to upload real content. The project does not host the private reference server; it publishes the source.
-
-An independently chosen cloud provider may still hold the family's encrypted archive/metadata under its own terms. Pre-existing originals kept in a normal Drive folder may remain readable to whoever has the family's existing permissions. A family-controlled app's code and updates must be verifiable to reduce the risk of malicious client-side code. **No legal liability waiver or absolute immunity from compromise is implied.**
+**Current Community technical preview:** stores readable content in the operator's locally controlled Node/SQLite backend and has not passed native Drive, hosted deployment, independent privacy/security, real OAuth and nontechnical-family release gates. Do not supply real family data to unreviewed deployments.
 
 ## Public project participation
 
-This GitHub repository, its issues, comments, usernames and commits are **public**, may be indexed and retained, and are intended only for synthetic examples and general feedback.
-
-**Do not post:** real family photos, recordings, names, contact details, private stories, diagnoses, health data, credentials, access tokens or private account URLs in project Issues, PRs or discussions. We do not offer a private family support inbox or data-upload channel. If the project needs bug reproductions, generate fictional fixtures or redact locally before sharing.
-
-Security vulnerabilities should be reported through GitHub private vulnerability reporting if available, not disclosed in public issues. The original private family app/accounts/archive remain separate from this public project.
+Issues, commits, usernames, comments and PRs in this GitHub repository are **public** and may be indexed or retained. Use only fictional or safely redacted reproductions. **Never post** real media, names, contact details, stories, diagnoses, access tokens, credentials or private app URLs. The project does not offer a private real-family support-upload channel. Security vulnerabilities should use GitHub's private vulnerability reporting where available.
