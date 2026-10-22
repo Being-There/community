@@ -1,19 +1,16 @@
 # Ways families can run Being There
 
-**One private web app, operated by each family.** [No project custody](../NO_CUSTODY.md) means the open-source project never hosts or relays anybody else's media, ciphertext, identities, OAuth tokens, backups or keys. [Client-side E2EE](../SECURITY_PROMISE.md) is mandatory for family-ready installers.
+All real family installations must be operated inside family-owned infrastructure and accounts. The project never hosts family logins or processes family data, even ciphertext. Security means invite-gated private APIs, mandatory TLS, provider-managed encryption at rest, safe secrets and independently recoverable readable archives — **not Being There-managed E2EE or recovery keys**.
 
-| Family's choice | What it feels like | Who runs the private app |
+| Option | Family experience | Reality today |
 | --- | --- | --- |
-| Guided cloud install | Follow a few steps, open your new family web address | Family's Google/AWS/other provider account |
-| Home or NAS | A technical relative/helper sets it up, then family uses a web link | Family-controlled computer/NAS |
-| Advanced own hosting | Developer deploys same open-source package | Family-controlled VM/provider |
+| Guided cloud deployment, Google-first | Organizer installs to their own provider account and authorizes Google sign-in/Drive; relatives use invitations | Planned, not yet verified |
+| Home server or NAS | Technical relative installs on family equipment; Google identity is still possible | Advanced self-hosting only |
+| Cloudflare deployment | Family uses its own Cloudflare account with Google OAuth callback and separately authorized Drive | Requires a supported runtime/storage adapter; current Node/SQLite app is not directly a Pages application |
+| Linux with private disk | Operator configures HTTPS Node/SQLite, Google OAuth and backups | Technical preview available, **synthetic test data only** |
 
-**No centrally hosted Being There account or backend.** A familiar Google Sites page may *link to the family's app URL*, but does not host the Node/SQLite private API. The project's public site hosts only source, guides and fictional demos.
+The family organizer controls its own OAuth client, private application origin, sessions, roles, tokens, storage and backups. **Google sign-in does not grant any Drive permission or family membership.** Drive authorization is explicit, separate, least-privilege consent. An invited relative does not configure a developer account; no Google user without an accepted invitation sees private content or triggers Drive data operations.
 
-**Sign-in:** Google/OIDC can authenticate relatives when the account/client and callback belong to the family's installed instance, never project-operated OAuth. API keys do not authorize private Drive contents. We must automate legitimate provider setup as far as possible without central token custody.
+Existing originals remain normally readable. New memories and records must be independently backed up and exportable without Being There or application-specific decryption keys. Google and selected hosting providers may retain privileged access under their own policies; no end-to-end-encryption or zero-knowledge claim.
 
-**Storage:** Family selects separate E2EE vault on its own Drive, S3 or NAS. Imported source files remain untouched; new family stories need independent backups and family-held recovery. Device-side encryption keeps the hosting/storage provider from learning private contents, though identity/access metadata and the owner's pre-existing plaintext sources have separate exposure.
-
-**Software-delivery boundary:** Family owns its installed app origin and verifiable pinned client release, with updates it approves. If the project serves alterable JavaScript to approved devices, it could read plaintext during viewing; that is **not an acceptable route** for an unconditional no-access promise.
-
-**Community:** Provider guides and packaged templates can vary. Security, no-project-custody and full offline restore cannot vary by tier. This list is a design comparison, **not yet a set of delivered beginner installers**.
+See [deployment roadmap](../DEPLOYMENT_ROADMAP.md), [Google integration](GOOGLE.md) and [security contract](../SECURITY_PROMISE.md).

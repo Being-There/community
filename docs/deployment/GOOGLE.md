@@ -1,85 +1,39 @@
-# Google Sites and Google Drive: optional, family-owned integration
+# Google identity and family-owned Google Drive
 
-**Status: design, not implemented.** [Tracking issue #17](https://github.com/Being-There/community/issues/17). The current Community application is a Node.js/SQLite server with a private filesystem archive. Neither a native Google Drive write-through storage adapter nor a Google Sites-hosted version is shipped. Current import works from a host-mounted/synced folder, not by connecting directly to the Drive API.
+**Design, not a completed native integration.** Being There Community's current Node/SQLite technical preview has Google OAuth sign-in and a host-folder photo importer, but no native Google Drive API writer/reader and no supported Cloudflare Pages/Workers runtime adapter. [Google integration issue #17](https://github.com/Being-There/community/issues/17).
 
-**Architecture requirement change:** [family-held end-to-end encryption only](../SECURITY_PROMISE.md). Google Drive must receive encrypted files and encrypted indexes/snapshots, not readable family originals or stories. A family still controls where their archive is stored, but Drive's native photo previews cannot display Being There's ciphertext. Decryption and memory viewing happen only in a family-authorized app/device. Native E2EE connector is **not** currently implemented, and the existing plaintext archive must not be represented as compliant.
+## Default family design
 
-## No project-owned Google data path
+- **Identity:** Google sign-in using the organizer's family-owned OAuth client and callback in their private Being There installation. Verify Google's subject and authenticated ID token; never treat an email string or Google account alone as a family membership.
+- **Family authorization:** Only verified invitation recipients may accept a single-use invite. Every private read/write checks active membership for the exact family and relevant role/scope; anonymous or uninvited users are denied. A revoked member loses future access even while signed in.
+- **Storage:** Organizer independently consents to the relevant Google Drive API scopes and chooses a visible, private family archive folder. Use least privilege, ideally `drive.file` with Google Picker and provider-tested folder/file selection. Google sign-in does **not** automatically grant Drive access. An API key alone cannot authorize private Drive content.
+- **Private calls only:** Google Drive access/refresh tokens never leave the family's server-side secret storage; never expose them to browser JavaScript, media links, logs, Being There project infrastructure or source control. Verify a requester is authenticated **and currently authorized for that family and specific operation before any Drive credential access, download, list, upload, delete, job or API call**.
+- **Google sharing:** Do not create public or 'anyone with link' permissions or render direct sharable Drive media URLs. Serve authorized reads through the family's own API with no-store/private cache behavior and checked permissions. Protect all media formats, previews, thumbnails, HEAD and Range requests.
+- **No custom encryption keys:** Require HTTPS/TLS and Google's built-in encryption at rest, but do not add Being There content encryption, recovery secrets or opaque ciphertext vaults. Backed-up photos/audio must remain viewable/exportable in normal formats outside Being There. **This is not end-to-end encryption**; Google and sufficiently privileged family administrators may access content.
+- **Do not alter sources:** Never modify, delete, rename or encrypt pre-existing originals in place. Owners should be able to inspect, download and move the app-created archive independently. New stories and database metadata need versioned, independently verified backups too.
 
-The [no-project-custody policy](../NO_CUSTODY.md) supersedes any proposed shared Being There OAuth token service. **OAuth redirects, Drive API traffic, file and encrypted-object transfers must go only through the family's own instance/device and its selected Google account**, never a Being There-operated callback or proxy. The public project website is documentation/fictional demos only. We must guide families through ownership of OAuth credentials or prove a safe client-only provider flow; an API key alone cannot read private Drive files.
+## Permission model
 
-**A project's centrally hosted web client that can silently change its JavaScript is not acceptable as the real family app.** The installed family must control its private origin and updates.
+**Unauthenticated visitor:** may view only explicitly public introductory pages and begin Google sign-in, but cannot read any family record or cause a Drive operation.
 
-## Separate the three choices
+**Google-signed-in account, not invited:** may finish authentication and see an empty personal family list, but cannot enumerate family names or objects, fetch private media or call Drive. It cannot accept another person's invite.
 
-- **Open the app:** direct HTTPS app URL (recommended, especially on tablets), a Google Sites page linking to the app (supported by Google Sites without an app change), or an optional *tested* full-page embedded app (not yet supported/approved by this project).
-- **Run the app:** AWS-owned server, future family-owned home server/NAS, or another supported host. Google Sites does **not** run the existing Node/SQLite API, securely persist sessions, process recordings or replace hosting.
-- **Store family data:** private local/NAS, Amazon S3, Google Drive, or other tested connectors, through a portable data interface. These are choices, not constraints on the hosting or identity provider. A family should not need AWS just to choose Drive, or Google Drive to use Google sign-in.
+**Invited recipient before acceptance:** may preview only a recipient-bound invitation; family data remains forbidden until acceptance.
 
-**Core privacy rule:** The Being There server authorizes every private read/write; Sites visibility and Drive sharing links are *never* an alternative to family invitations. Google Sites pages may be public or shared beyond the family, so never embed or publish raw private Drive photo/audio/video URLs.
+**Active contributor:** may read/add within granted family scope, but cannot issue/revoke invitations or export/administer the family.
 
-## Google Sites: start simple
+**Active organizer:** may manage invitations, roles, export and configure Drive with fresh verification for sensitive actions. Revocation immediately blocks further API and Drive activity on that membership.
 
-Google Sites can embed external URLs as pages or sections, but the destination must permit framing. Our app currently uses its own HTTPS session cookies and anti-clickjacking protection; blindly permitting all iframes would be a privacy regression. Third-party-cookie restrictions and OAuth redirects can also break login in embedded frames.
+## OAuth and API design acceptance
 
-**Recommended default:** Family adds a clear **Open Being There** link to an existing Google Site. It opens the app directly with the full-screen Family/Tablet UI, working login, upload and microphone permissions. No extra API credentials or project-owned publishing access. This is already possible once the family has its own private hosted app URL.
+1. Family-created OAuth app/client, exact HTTPS callback, browser PKCE/state/nonce and verified Google ID tokens. Provider approval and consent-screen requirements must be tested and documented. Don't claim setup is zero-click without verified automation.
+2. Separate Google Drive OAuth grant issued only after explicit organizer action; disclose requested scope and account. Refresh tokens are family-owned server secrets, not a Being There shared token broker.
+3. Authenticate and authorize every Google Drive operation **before** loading any credential, contacting Google or queuing delegated work. Treat background job authority as an expiring, owner-initiated, narrowly scoped capability. Never authorize an untrusted client simply because the family account previously consented.
+4. Automated negative tests must assert **zero Drive API calls** and no content/token disclosure for logged-out, Google-only nonmembers, expired/incorrect/replayed invite, revoked user, cross-family IDs, wrong role, CSRF failure, content HEAD/Range, cache and public-link attempts.
+5. Validate source preservation, readback/checksums, permissions, quota/rate limits, token revocation, empty/lost folders and clean-host restoration with synthetic media.
 
-**Optional later:** A verified full-page iframe mode *only* for owner-approved, exact site origins, with CSP `frame-ancestors` allowlist, secure cookie/OAuth and accessibility/mobile/microphone acceptance tests. Test Safari and Chromium, third-party-cookie blocking, domain changes, and Sites access changes. Fail closed and offer the direct link. No general `frame-ancestors *` or public iframe endpoint.
+## Hosting choices
 
-## Protect sources: read selected files, create a new encrypted vault
+Cloudflare can provide family-owned hosting after an independently validated compatible application/runtime and durable storage design; it does **not** eliminate Google OAuth configuration. Google Sites may link to the app; it does not run the private backend. Home servers and other cloud hosts must enforce the same privacy and authorization rules. No Being There-operated OAuth callback, app server, Drive data relay or support upload is allowed.
 
-**Do not encrypt existing files in place.** A person's normal Drive photos, albums and other files must remain untouched, readable in Drive and under their existing permissions. Being There must only import an explicitly selected item by reading it **on the authorized browser/device**, then encrypting a *new* Being There-managed copy. The Being There backend must never receive plaintext originals or have a broad credential capable of reading all of the family's Drive content.
-
-Create or select a **separate Being There vault folder**, with app-managed opaque filenames and encrypted media, story records and manifests. Those vault files will **not** show normal photo previews in Drive—view them from an authorized Being There device. Existing source originals are outside the app's E2EE guarantee; disclose that Google and anyone who has separate access to the source can still read them. Never advertise external plaintext Drive originals as “only the family has the key.”
-
-**Durability:** Do not treat originals outside the vault as the backup for new audio/stories/tags. The vault needs independently verified backups in another failure domain plus multiple family-controlled ways to recover keys. Cloud-sync mirroring alone can propagate accidental deletion, so preserve explicit versioned restore points and test independent recovery.
-
-## Google Drive: make storage owner-visible and portable
-
-The family selects a **separate regular, visible Drive vault folder** for encrypted Being There copies/backups, not Google's hidden `appDataFolder`: it is not suitable as the principal family-visible archive and is not designed for shared family folders. Organize originals by family, contributor and immutable ID, and store checksummed manifest/snapshot files that can be copied out of Drive without the app. Meaningful readable folder hierarchy is fine, but avoid putting a diagnosis, family identity or confidential story text into public link names/URLs.
-
-Suggested layout (illustrative, not a shipped writer):
-
-```text
-Being There (private folder chosen by owner)/
-  family-export-manifest.json
-  families/<opaque-family-id>/
-    contributors/<opaque-contributor-id>/
-      originals/<opaque-original-id>
-    snapshots/<sequence>-<opaque-snapshot-id>.json
-```
-
-The family can browse/download ciphertext and recovery manifests in the dedicated vault folder; only the Being There app running on an authorized family device can preview/decrypt them. Access should be granted only to the owner-selected Google identity or an owner-administered Workspace shared drive. **Do not make media shareable to anyone with a link.** Family contributors upload/play through the *authorized app API*, not by requiring every contributor to have direct Google Drive permissions.
-
-### Connection and credentials
-
-1. Organizer opens **Storage settings → Google Drive → Connect** in their **private Being There instance**.
-2. Grant limited access, ideally `drive.file` plus Google Picker selection of an owner-chosen folder, to a Google OAuth client that the family understands and controls. Google API app verification/consent rules and file-selection restrictions are design gates; no claim of zero-setup OAuth yet. For a self-hosted installation, a family-owned OAuth client is always an option; a centrally brokered project OAuth client/token callback is **not an option**. Any OAuth application/client and callback must terminate within family-controlled software, with no project-operated relay.
-3. Store **refresh tokens only in the family-owned app secret store** with restricted access/rotation. Tokens are never placed in the public repo, browser local storage, Stack outputs, logging, Sites or a Being There cloud service.
-4. Display the folder, account identifier, quota warnings, last remote checksum verification, permission/reauthorization errors and clear **Disconnect**/export behavior. Disconnecting integration must not erase family originals without a separate explicit destruction workflow.
-5. Keep sign-in/identity separate from Drive storage authorization: a Cognito-authenticated family can still connect the organizer's Drive storage; Google login does not grant the app all Drive access automatically.
-
-**Scope limitations:** `drive.file` gives app-created/selected-file access; use official file picker and test real folder selection, descendants, app-created files, readback, export and shared-drive behavior. Avoid requesting broad restricted `drive` scope. Google may require verification of an OAuth app. Do not use a headless service account as a magical shortcut to access an arbitrary personal Drive.
-
-### Safe incremental delivery
-
-**Phase G1 — E2EE Drive archive (after encrypted client uploads):** First replace plaintext storage and exports with device-side E2EE (see security gate). Then add verified remote backup of **ciphertext originals and encrypted manifests** to the owner-selected Drive folder. **Do not mirror existing readable server originals or snapshots as an acceptable first rollout.** Verify bytes/hashes and recording/story metadata before reporting the backup as verified. Durable export includes replayable copy of originals and an archive snapshot. The initial copy is a **ciphertext backup**, not an always-live storage replacement. Retries are idempotent; handle intermittent quota, revoked token, deleted folder, network and permission errors. Ensure the family can export the Drive folder and restore on a clean non-Google instance.
-
-**Phase G2 — Native Drive as selected originals/archive destination (later):** Introduce a small, provider-neutral **OriginalArchiveStore** contract (`writeImmutable`, `readExact`, `listSnapshots`, `verify`, `recover`) and adapters for local filesystem, Drive, and S3. Keep SQLite as runtime metadata/index initially; use a recovery manifest that restores a fresh SQLite database without the old host. If Drive is the authoritative off-host originals store, do not report a new original as durably archived until Drive readback/hash and manifest commit succeed. Document offline behavior and recovery of pending uploads. Google Drive API consistency/permission semantics are not SQLite transactions; explicit two-phase/idempotent write and failure injection are required. No claim of exactly-once distributed transactions.
-
-**Phase G3 — Beginner install surface:** A Google-first guided setup installs the app and private backend directly into the family's own provider account/device and pairs it with the selected family Drive folder. Evaluate concrete, low-maintenance hosting (such as an explicitly priced VM or family-administered service) against secure SQLite persistence; **do not** claim Google Sites, Apps Script, or ephemeral Cloud Run alone runs the existing app without a rewrite. Separate this from the AWS quick-create milestone so users can mix host and storage providers.
-
-## Acceptance tests
-
-- Shared memory with no person tag, several contributors and a named storyteller uploads; Drive archive exports exact original media bytes and metadata snapshots; restore onto a **different** host reproduces content without restoring access tokens or session grants.
-- Outside/invited-not-in-family identities denied through the app API; anonymous Google Sites visitors see **no** private content.
-- Revoke Drive OAuth credentials while app runs; verify blocked/offline backup status without data destruction or false success.
-- Tamper with/delete a Drive original; verify checksums fail and restore never silently substitutes the wrong file.
-- Upload interruption, retry, quota exhaustion, duplicate content, token expiry, folder deleted/moved/re-shared, Google Drive rate limiting and incomplete snapshots must be handled explicitly.
-- A family may migrate Drive → local/NAS or S3 → Drive with complete manifest and original-byte checks, without dependence on Being There servers.
-
-### Authoritative product references
-
-- [Google Sites: embed external pages or links](https://support.google.com/sites/answer/90569)
-- [Drive API scopes, Google Picker and `drive.file`](https://developers.google.com/workspace/drive/api/guides/api-specific-auth)
-- [Why Drive `appDataFolder` is not a visible family archive](https://developers.google.com/workspace/drive/api/guides/appdata)
+See [no custody](../NO_CUSTODY.md), [security](../SECURITY_PROMISE.md) and [roadmap](../DEPLOYMENT_ROADMAP.md).

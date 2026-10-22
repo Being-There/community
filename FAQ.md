@@ -2,40 +2,48 @@
 
 ### Does Being There host my family's memories?
 
-**No—that is the permanent product direction.** We will publish open-source software and guided installers, not operate a central family service. Your installed instance, login identity provider, encrypted vault and backups live in systems **your family owns or chooses**. We will not receive ciphertext, plaintext, OAuth storage credentials or decryption keys. This is a **target for family-ready releases**, not a claim that the current technical preview has finished E2EE review. [No custody design](docs/NO_CUSTODY.md).
+**No.** We publish open-source software and installer guidance. Your private Being There app, identity, Google Drive archive and backups are operated in systems your family controls. The Being There project never receives your content, tokens or backups, even if encrypted. This is a release design commitment, **not a verified claim that the technical preview is family-ready**. [No custody](docs/NO_CUSTODY.md).
 
 ### Can Being There administrators read our photos or stories?
 
-The design explicitly forbids any project-operated storage, proxies, keys or account system for family content. The installed app will also enforce family-held end-to-end encryption before upload. However, an authorized family device or malicious app update can expose plaintext; families need to approve software updates. Independent review is required before this becomes a verified security claim.
+Project administrators should have **no route to your independently installed family app or Drive files**. Family administrators and the selected cloud/Google providers may have technical access under their own policies, because we do **not** add application-managed end-to-end encryption. We require TLS, provider-managed encryption at rest, private invited-only APIs and strong separation from project infrastructure. This cannot promise zero possible incidents. [Security](docs/SECURITY_PROMISE.md).
 
-### Do I need a Google developer account or API key?
+### Is having a Google account enough to open our family's memories?
 
-**Not an API key** for private Drive access; OAuth permissions are needed. For this no-custody design, the Google callback/tokens **must stay with your installation or device**, not with Being There. We'll explore a guided setup/owned identity tenant so a regular family isn't forced through a developer console. **That frictionless path has not been built or verified.** Existing advanced installs require a family-owned Google OAuth client.
+**No.** Each person must sign in with Google **and** accept a verified, organizer-issued invitation to that specific family. Every private API call checks an active membership and appropriate role. Signed-in strangers cannot view photos, stories, thumbnails or metadata or trigger Drive file operations. Revoking a relative blocks subsequent access; it cannot erase copies they previously downloaded.
 
-### What if we use Google Drive?
+### Does every relative need a Google OAuth developer project?
 
-The software creates a separate encrypted vault in your own Drive. It must never encrypt/overwrite/move/delete your existing photos in place. Old source photos keep their ordinary Google permissions; your Being There vault contains new encrypted copies, stories and archives.
+No. The **organizer** must currently configure their family's OAuth client once for the advanced reference. Relatives just use their own Google sign-in and invitation. A guided setup to reduce organizer configuration is a planned feature, not yet completed.
 
-### If we lose a tablet or stop using Being There, will the memories survive?
+### Is a Google API key enough for private Drive access?
 
-Planned family-ready installs must support a second approved recovery device, offline recovery kit, independent encrypted backups and a portable offline decryption/restore tool. If **all** keys are lost, vault-only encrypted stories cannot be recovered, so safeguarding keys is essential.
+**No.** The family organizer must explicitly grant the appropriate Google Drive OAuth permissions separately from sign-in. Those credentials stay in the family's deployment. There is no Being There-operated shared OAuth relay.
 
-### Can I use a phone, tablet or web browser without knowing anything technical?
+### What happens with Google Drive?
 
-That's the goal. Open the private web link belonging to **your family installation**, sign in and enjoy shared memories. The software may be installed by a cloud guided flow or trusted technical helper. The public project site is not a family login portal or photo-upload service.
+We aim to store normal, readable family files in a private folder the organizer chooses, using narrowly scoped access. Existing Drive photos must never be modified, encrypted or deleted in place. The current preview does **not** have a native Drive API adapter yet. No file is publicly shareable just because someone knows the URL.
 
-### Is the Community Edition ready for real family data?
+### If we lose our tablet or Being There goes away, can we recover?
 
-**No.** The v0.1.0 public app is a technical preview, **not yet end-to-end encrypted**, and has not passed full real-provider, independent security, recovery or novice onboarding gates. Please use only fictional content in tests.
+We will preserve standard-format originals and metadata with independent, verified backups and portable exports. There is **no special Being There recovery key** to lose. A family's ability to recover its Google/provider account and actual backups remains important.
 
-### Can the project guarantee no legal liability or zero possible security incidents?
+### Can nontechnical people use it?
 
-No. This project can make a strict verifiable **no project custody** design commitment, but software risk, third-party hosting, law, and compromise of an authorized client remain real.
+That's the objective: organizer-guided setup, then a family link, Google sign-in and a verified invitation. A caregiver may enroll a loved one's tablet. The released technical preview still requires a technical operator.
 
-### Does Being There diagnose dementia or require medical information?
+### Is the Community Edition safe for real family data today?
 
-No. It's for enjoying family memories and sharing stories, not clinical testing. No diagnosis is necessary.
+**Not yet verified.** v0.1.0 is a technical preview without a native Google Drive API connector, a tested Cloudflare deployment, or completed real-provider, independent security and novice-onboarding review. Use fictional content in tests.
 
-### Can I contribute to the public code?
+### Can you guarantee zero incidents or legal liability?
 
-Yes. [GitHub participation](CONTRIBUTING.md) is public. Do not put personal memories, recordings, account details, diagnoses, credentials or family URLs in issues or PRs. Use fictional examples.
+No. No software can. We can commit to verifiable *no project custody* and deny-by-default permissions without claiming that Google, an authorized family administrator or attackers can never access data.
+
+### Does Being There diagnose dementia?
+
+No. The app is for enjoying family memories, not testing or clinical diagnosis.
+
+### How can I contribute?
+
+Use [public GitHub participation](CONTRIBUTING.md) with **fictional** examples. Never post family photos, stories, medical information, account details or credentials.

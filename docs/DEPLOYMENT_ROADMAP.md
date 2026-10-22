@@ -1,26 +1,24 @@
-# Being There — family-owned web app roadmap
+# Being There Community — family-owned deployment roadmap
 
-**Non-negotiable: [Being There does not handle anybody else's data](NO_CUSTODY.md), including encrypted bytes.** We publish source, signed/versioned releases, guides and fictional demos. Families operate the real app, accounts, OAuth callbacks, private API, storage, backups, logs and encryption keys in systems they control. **No central Being There family service, data relay or recovery service.**
+**Target:** Google-first experience without project custody, user-managed content keys or Being There-only recovery steps. Default identity is Google sign-in; hosting can be the family's Cloudflare account or another supported family-owned host; Google Drive is the preferred owner-held archive.
 
-**Not yet ready:** The current public Community technical preview uses Node/SQLite, manual Google OAuth and a locally operated backend with readable originals; E2EE and easy family installation are not implemented. Use synthetic data only.
+**Not shipped:** v0.1.0 currently uses Node/SQLite plus a family-owned Google OAuth client; it has no native Cloudflare Workers/Pages runtime adapter or native Google Drive connector, and is not verified for real family data. Use synthetic content until required security, provider and recovery gates are complete.
 
-## The family experience
+## Family journey
 
-1. Choose a guided **installation into your family's own provider account** or ask a helper to install on a home server. The project website supplies software/instructions, not family logins or private uploads.
-2. Open **your own private Being There web address**. The family-controlled install handles Google/OIDC authentication and private invites; no Being There-operated OAuth callback or token service.
-3. Enroll family-held encryption keys and two independent recovery methods. Import existing originals **without modifying them**; upload only new encrypted vault copies, stories and metadata.
-4. Enjoy shared memories on any authorized web/tablet device. Independently verify encrypted backups and offline recovery.
+1. Organizer follows a guided installer to create a **private instance in their own provider account**; creates/authorizes their own Google OAuth client. No real family account or OAuth callback exists on Being There's project site.
+2. Organizer signs in with Google; explicitly selects and authorizes a family-owned Drive archive with least permissions. Sign-in and Drive permission are **separate consents**.
+3. Organizer invites relatives by their verified Google identity. No invitation or revoked membership means **no private API/data access**, regardless of having a Google account. Loved ones may use a caregiver-enrolled tablet.
+4. Photos, audio, notes and stories remain readable/portable without an app encryption key. Preserve originals untouched and verify separate backups of new recordings and metadata.
 
-## Priorities
+## Priorities and release blockers
 
-**P0: Security and custody.** [Absolute no-project custody](NO_CUSTODY.md) and [family-held E2EE](SECURITY_PROMISE.md) block every real-family release. No project-controlled family-data endpoint, no central login or token broker, no project-hosted live client which can silently substitute malicious JavaScript. Family controls the client origin, pinned release and update approvals. [Implementation #25](https://github.com/Being-There/community/issues/25).
+**P0 — Hard authorization and no-project-custody gate.** Enforce valid session plus active family membership and role on every private API including media GET/HEAD/Range, exports and asynchronous work. No anonymous, noninvited, cross-family or revoked user may cause a Drive API operation, receive Drive credentials or view family data. Reject malformed and spoofed identity/header claims, untrusted origins, CSRF and public/shareable media links. Test denial and actual zero Drive calls with spies. Maintain absolute no-project-data custody. [Security contract](SECURITY_PROMISE.md).
 
-**P1: One nontechnical installation.** Build and test one simple account-owned installer producing a family web address, private identity, encrypted vault and durable independent backups. AWS [#13](https://github.com/Being-There/community/issues/13), Google-first [#17](https://github.com/Being-There/community/issues/17) and portable container [#19](https://github.com/Being-There/community/issues/19) are community implementation options, not separate products. Google Drive OAuth configuration may still require owner setup; never pretend an API key suffices.
+**P0 — Protect transport, storage, secrets and recovery.** HTTPS/TLS and provider-managed encryption at rest; no Being There E2EE, family decryption keys or recovery kit. Keep OAuth refresh tokens server-side in the family account, scope/revoke them, protect logs, enforce restricted cloud permissions and independent backups. Test clean restore and member revocation.
 
-**P2: Validate family sharing, tablet and recovery.** Test with fictional photos/audio/stories, independent user accounts and a caregiver-provisioned tablet. A lost server or project shutdown must not prevent the family from decrypting and restoring from family-held keys and archives. [Auth #14](https://github.com/Being-There/community/issues/14), [recovery #15](https://github.com/Being-There/community/issues/15), [family pilot #16](https://github.com/Being-There/community/issues/16), [tablet #21](https://github.com/Being-There/community/issues/21).
+**P1 — One easy Google-first installer.** Compare Cloudflare and other family-owned hosting for durable execution/data storage; implement a verified host-specific runtime and OAuth callback configuration. Do not call the current Node/SQLite technical preview deployable directly to Cloudflare Pages or promise zero Google Cloud Console setup before it is proven. [Google integration #17](https://github.com/Being-There/community/issues/17).
 
-**Others can implement more installer templates.** See [deployment options](deployment/OPTIONS.md) and the public issue backlog. Provider-specific infrastructure must not introduce project-operated storage, telemetry, email/OAuth token relay or support access.
+**P2 — Verify usable family experience.** Independent organizer/member/outsider pilot with synthetic media; invitation acceptance, role changes, tablet session, upload, storytelling, backup and restore. Security/provider tests and accessibility review are required before real families use Community Edition.
 
-## Honest boundary
-
-The project's servers cannot handle real family data—not even ciphertext. Families choose their own cloud/NAS services and are responsible for those providers' data handling terms. A signed software release does not guarantee no future compromise; independent review, pinned code and family-controlled updates are necessary before making a strong security promise. **No design eliminates all legal liability.**
+Provider templates are replaceable; verified privacy, family control, direct-readable archives, no project custody and deny-by-default access are not. A provider-managed encrypted disk does not prevent that provider or a privileged family admin from reading content, and no design removes all legal risk.
