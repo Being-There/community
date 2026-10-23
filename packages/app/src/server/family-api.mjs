@@ -130,6 +130,19 @@ export function createFamilyApi({ sessions, repository, appOrigin, subtleCrypto,
             original.contributorId !== media.contributorId || original.originalId !== undefined || !['thumbnail', 'preview', 'playback'].includes(media.variant)) throw new AccessError(404);
       }
       if (!Number.isSafeInteger(media.byteLength) || media.byteLength < 1 || media.byteLength > maxMediaBytes) throw new AccessError(503);
+      // Metadata reads above are local; a future remote-media adapter must only
+      // acquire credentials or contact its provider AFTER this fresh authorization.
+      // Check again after I/O so revocation during an in-flight read cannot return bytes.
+      async function requireCurrentMediaAccess() {
+        const currentMedia = await repository.getMedia(familyId, resolvedId);
+        if (!currentMedia || ['id', 'familyId', 'memoryId', 'contributorId', 'originalId', 'variant', 'sha256', 'byteLength']
+          .some(key => currentMedia[key] !== media[key])) throw new AccessError(404);
+        const currentMemory = await repository.getMemory(familyId, media.memoryId);
+        // Membership is deliberately the LAST awaited metadata check before provider I/O.
+        const currentMembership = await latestAccess();
+        if (currentMemory?.id !== media.memoryId || !canReadMemory(currentMembership, currentMemory)) throw new AccessError(404);
+      }
+      await requireCurrentMediaAccess();
       let range;
       try { range = rangeFor(request.method === 'HEAD' ? null : request.headers.get('range'), media.byteLength); }
       catch (error) { if (error.status === 416) return reply(416, null, { 'Content-Range': 'bytes */' + media.byteLength }); throw error; }
@@ -137,12 +150,7 @@ export function createFamilyApi({ sessions, repository, appOrigin, subtleCrypto,
       if (!(raw instanceof Uint8Array) || raw.byteLength !== media.byteLength) throw new AccessError(503);
       const bytes = Uint8Array.from(raw);
       if (!await verifyMediaOriginalBytes(media, bytes, subtleCrypto)) throw new AccessError(503);
-      // Recheck access after blob I/O before returning any bytes/metadata.
-      const latest = await latestAccess();
-      const latestMedia = await repository.getMedia(familyId, resolvedId);
-      if (!latestMedia || ['id', 'familyId', 'memoryId', 'contributorId', 'originalId', 'variant', 'sha256', 'byteLength'].some(key => latestMedia[key] !== media[key])) throw new AccessError(404);
-      const latestMemory = await repository.getMemory(familyId, media.memoryId);
-      if (latestMemory?.id !== media.memoryId || !canReadMemory(latest, latestMemory)) throw new AccessError(404);
+      await requireCurrentMediaAccess();
       const type = safeMediaType(bytes, media.kind);
       const extra = { 'Content-Type': type ?? 'application/octet-stream', 'Content-Disposition': type ? 'inline' : 'attachment',
         'Accept-Ranges': 'bytes', 'Content-Length': String(range ? range[1] - range[0] + 1 : bytes.length) };
