@@ -45,3 +45,43 @@ test('denied media GET, HEAD and Range requests never reach a provider adapter',
     assert.equal(provider.apiCalls, 0);
   }
 });
+
+test('revocation while resolving media metadata blocks token and provider calls before GET, HEAD, Range and size errors', async t => {
+  const f = await familyApiFixture(t);
+  const member = await f.signIn('alice');
+  const membership = f.memberships.get(tuple('alice', 'familyA'));
+  const originalGetMemory = f.repository.getMemory.bind(f.repository);
+  const originalGetMediaBytes = f.repository.getMediaBytes.bind(f.repository);
+  let tokenLoads = 0, providerCalls = 0;
+  f.repository.getMediaBytes = async (...args) => {
+    tokenLoads++;
+    providerCalls++;
+    return originalGetMediaBytes(...args);
+  };
+  for (const { method, range } of [
+    { method: 'GET' },
+    { method: 'HEAD' },
+    { method: 'GET', range: 'bytes=0-3' },
+    { method: 'GET', range: 'bytes=999999-' }
+  ]) {
+    membership.state = 'active';
+    let revokedDuringMetadata = false;
+    f.repository.getMemory = async (familyId, memoryId) => {
+      const row = await originalGetMemory(familyId, memoryId);
+      if (!revokedDuringMetadata && familyId === 'familyA') {
+        revokedDuringMetadata = true;
+        membership.state = 'revoked';
+      }
+      return row;
+    };
+    const response = await f.request('/api/families/familyA/media/toneA', {
+      method, headers: { cookie: member.cookie, ...(range ? { range } : {}) }
+    });
+    assert.equal(revokedDuringMetadata, true, 'test did not revoke during metadata lookup');
+    assert.equal(response.status, 404, method + ' ' + (range ?? 'full'));
+    assert.equal(response.headers.get('content-range'), null, 'denial leaked byte length');
+    assert.equal(response.headers.get('accept-ranges'), null, 'denial leaked media metadata');
+    assert.equal(tokenLoads, 0, 'denied request loaded provider credentials');
+    assert.equal(providerCalls, 0, 'denied request contacted media provider');
+  }
+});
