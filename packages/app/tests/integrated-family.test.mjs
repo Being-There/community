@@ -55,6 +55,66 @@ test('signed OIDC → invitation → durable photo → separate stories → play
   assert.equal((await owner.request('/api/families/restoredFamily/memories')).status, 404);
   assert.throws(() => f.repository.commitIsolatedRestore(restored));
 });
+test('export denial before snapshot makes no original reads for outsiders or invalid CSRF/Origin', async t => {
+  const { f, owner } = await household(t);
+  await photograph(owner);
+  const outsider = await f.login('fictional-export-outsider', 'export-outsider@family.example.test');
+  const originalRead = f.repository.getMediaBytes.bind(f.repository);
+  let reads = 0;
+  f.repository.getMediaBytes = (...args) => { reads++; return originalRead(...args); };
+  const path = '/api/families/familyA/exports';
+  assert.equal((await outsider.request(path, { method: 'POST' })).status, 404);
+  assert.equal((await owner.request(path, { method: 'POST', headers: { 'x-csrf-token': 'invalid' } })).status, 403);
+  assert.equal((await owner.request(path, { method: 'POST', headers: { origin: 'https://untrusted.example.test' } })).status, 403);
+  assert.equal(reads, 0);
+});
+
+test('export revoked after snapshot cannot reach even the first archive provider read', async t => {
+  const { f, owner } = await household(t);
+  await photograph(owner);
+  const originalExport = f.repository.exportSnapshot.bind(f.repository);
+  const originalMembership = f.repository.getMembership.bind(f.repository);
+  let revoked = false, providerReads = 0;
+  f.repository.getMembership = (...args) => {
+    const membership = originalMembership(...args);
+    return revoked && args[1] === 'familyA' ? { ...membership, state: 'revoked' } : membership;
+  };
+  f.repository.exportSnapshot = (...args) => {
+    const snapshot = originalExport(...args);
+    const read = snapshot.bytes.get.bind(snapshot.bytes);
+    snapshot.bytes.get = key => { providerReads++; return read(key); };
+    revoked = true; // Race: membership revoked after snapshot, before first archive get().
+    return snapshot;
+  };
+  const response = await owner.request('/api/families/familyA/exports', { method: 'POST' });
+  assert.equal(response.status, 404);
+  assert.equal(response.headers.get('content-disposition'), null);
+  assert.equal(providerReads, 0);
+});
+
+test('export revocation during snapshot stops all subsequent original reads', async t => {
+  const { f, owner } = await household(t);
+  await photograph(owner, 'photo1');
+  await photograph(owner, 'photo2');
+  const originalRead = f.repository.getMediaBytes.bind(f.repository);
+  const originalMembership = f.repository.getMembership.bind(f.repository);
+  let revoked = false, providerReads = 0;
+  f.repository.getMembership = (...args) => {
+    const membership = originalMembership(...args);
+    return revoked && args[1] === 'familyA' ? { ...membership, state: 'revoked' } : membership;
+  };
+  f.repository.getMediaBytes = (...args) => {
+    providerReads++;
+    const bytes = originalRead(...args);
+    revoked = true; // First authorized read races a membership revocation.
+    return bytes;
+  };
+  const response = await owner.request('/api/families/familyA/exports', { method: 'POST' });
+  assert.equal(response.status, 404);
+  assert.equal(response.headers.get('content-disposition'), null);
+  assert.equal(providerReads, 1); // No second storage/provider read after revocation.
+});
+
 test('idempotent retries preserve originals; conflicting retries and foreign scopes cannot overwrite', async t => {
   const { f, owner } = await household(t); const p = await photograph(owner);
   const retry = await json(await owner.request('/api/families/familyA/contributions', { method: 'POST', body: p.body }));
