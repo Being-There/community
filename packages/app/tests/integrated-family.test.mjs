@@ -4,7 +4,8 @@ import sharp from 'sharp';
 import { webcrypto, createHash } from 'node:crypto';
 import { archiveFamilyFixture } from '../examples/archive-family.mjs';
 import { originalStorageKey } from '../src/core/original-storage.mjs';
-import { integratedFixture } from './helpers/integrated-app-fixture.mjs';
+import { integratedFixture, origin } from './helpers/integrated-app-fixture.mjs';
+import { createFamilyWriteApi } from '../src/server/family-write-api.mjs';
 import { decodeArchiveFiles } from '../src/server/archive-transport.mjs';
 import { prepareFamilyRestore } from '../src/core/family-archive.mjs';
 const json = async response => { const result = await response.json(); assert.ok(response.ok, result.error); return result; };
@@ -55,6 +56,78 @@ test('signed OIDC → invitation → durable photo → separate stories → play
   assert.equal((await owner.request('/api/families/restoredFamily/memories')).status, 404);
   assert.throws(() => f.repository.commitIsolatedRestore(restored));
 });
+// Exercise the real authenticated write API with a wrapped, immutable SQLite
+// repository. The production repository is frozen; the wrapper is a synthetic
+// provider seam, not a mutation of production state or an OAuth bypass.
+function exportThrough(f, account, repository, headers = {}) {
+  const api = createFamilyWriteApi({ sessions: f.app.sessions, repository, appOrigin: origin,
+    readApi: () => new Response(null, { status: 404 }) });
+  return api(new Request(origin + '/api/families/familyA/exports', { method: 'POST', headers: {
+    cookie: account.cookie, origin, 'x-csrf-token': account.csrf, ...headers
+  } }));
+}
+
+test('export denial before snapshot makes no original reads for outsiders or invalid CSRF/Origin', async t => {
+  const { f, owner } = await household(t);
+  await photograph(owner);
+  const outsider = await f.login('fictional-export-outsider', 'export-outsider@family.example.test');
+  let snapshotCalls = 0;
+  const repository = { ...f.repository, exportSnapshot(...args) {
+    snapshotCalls++; return f.repository.exportSnapshot(...args);
+  } };
+  assert.equal((await exportThrough(f, outsider, repository)).status, 404);
+  assert.equal((await exportThrough(f, owner, repository, { 'x-csrf-token': 'invalid' })).status, 403);
+  assert.equal((await exportThrough(f, owner, repository, { origin: 'https://untrusted.example.test' })).status, 403);
+  assert.equal(snapshotCalls, 0); // No snapshot means no original or provider read.
+});
+
+test('export revoked after snapshot cannot reach even the first archive provider read', async t => {
+  const { f, owner } = await household(t);
+  await photograph(owner);
+  let revoked = false, providerReads = 0;
+  const repository = { ...f.repository,
+    getMembership(...args) {
+      const membership = f.repository.getMembership(...args);
+      return revoked && args[1] === 'familyA' ? { ...membership, state: 'revoked' } : membership;
+    },
+    exportSnapshot(...args) {
+      const snapshot = f.repository.exportSnapshot(...args);
+      const read = snapshot.bytes.get.bind(snapshot.bytes);
+      snapshot.bytes.get = key => { providerReads++; return read(key); };
+      revoked = true; // Race: revoked after snapshot, before archive store.get().
+      return snapshot;
+    }
+  };
+  const response = await exportThrough(f, owner, repository);
+  assert.equal(response.status, 404);
+  assert.equal(response.headers.get('content-disposition'), null);
+  assert.equal(providerReads, 0);
+});
+
+test('export revocation during snapshot stops all subsequent original reads', async t => {
+  const { f, owner } = await household(t);
+  await photograph(owner, 'photo1');
+  await photograph(owner, 'photo2');
+  let revoked = false, allowedReads = 0;
+  const repository = { ...f.repository,
+    getMembership(...args) {
+      const membership = f.repository.getMembership(...args);
+      return revoked && args[1] === 'familyA' ? { ...membership, state: 'revoked' } : membership;
+    },
+    exportSnapshot(principal, familyId, beforeRead) {
+      return f.repository.exportSnapshot(principal, familyId, () => {
+        beforeRead();
+        allowedReads++;
+        if (allowedReads === 1) revoked = true; // Revocation before next original.
+      });
+    }
+  };
+  const response = await exportThrough(f, owner, repository);
+  assert.equal(response.status, 404);
+  assert.equal(response.headers.get('content-disposition'), null);
+  assert.equal(allowedReads, 1); // Second storage read is never authorized.
+});
+
 test('idempotent retries preserve originals; conflicting retries and foreign scopes cannot overwrite', async t => {
   const { f, owner } = await household(t); const p = await photograph(owner);
   const retry = await json(await owner.request('/api/families/familyA/contributions', { method: 'POST', body: p.body }));

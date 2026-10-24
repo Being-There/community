@@ -244,10 +244,15 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
       return { revoked: true };
     }); },
     recordExportAudit(principal, familyId) { return transaction(() => { actor(principal, familyId, true); const row = { id: opaque(), familyId, accountId: principal.accountId, at: now(), action: 'export-prepared' }; db.prepare('INSERT INTO audits VALUES(?,?,?)').run(row.id, familyId, text(row)); }); },
-    exportSnapshot(principal, familyId) { return transaction(() => {
+    exportSnapshot(principal, familyId, beforeRead) { return transaction(() => {
       actor(principal, familyId, true);
       const content = contentFor(familyId);
-      const bytes = new Map(content.originals.map(row => [row.id, repository.getMediaBytes(familyId, row.id)]));
+      const bytes = new Map(content.originals.map(row => {
+        // Synchronous SQLite transaction: do not read the next original after
+        // membership/session policy has changed in a preceding storage hook.
+        if (beforeRead) beforeRead();
+        return [row.id, repository.getMediaBytes(familyId, row.id)];
+      }));
       return { content, bytes };
     }); },
     // Explicit operator-owned fresh destination; identities/memberships are NOT imported.
