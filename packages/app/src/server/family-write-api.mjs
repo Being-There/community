@@ -71,12 +71,31 @@ export function createFamilyWriteApi({ sessions, repository, appOrigin, readApi 
       sessions.requireMutation(request, principal, appOrigin);
       if (family?.[2] === 'exports') {
         requireOrganizer(membership); sessions.requireRecentAuthentication(principal);
-        const snapshot = repository.exportSnapshot(principal, familyId);
+        // Every original read is a separate authorization boundary. The current
+        // SQLite snapshot is synchronous, but future Drive-backed stores must
+        // never acquire tokens or fetch bytes before this check succeeds.
+        const authorizeRead = async () => {
+          const current = await sessions.authenticate(request);
+          sessions.requireMutation(request, current, appOrigin);
+          sessions.requireRecentAuthentication(current);
+          requireOrganizer(validateMembership(await repository.getMembership(current.accountId, familyId), current.accountId, familyId));
+          return current;
+        };
+        const snapshot = repository.exportSnapshot(principal, familyId, () => {
+          // No async gap inside the SQLite snapshot transaction. Recheck before
+          // each byte read so a revocation during the snapshot stops later reads.
+          sessions.requireRecentAuthentication(principal);
+          requireOrganizer(validateMembership(repository.getMembership(principal.accountId, familyId), principal.accountId, familyId));
+        });
         const files = await createFamilyArchive({ content: snapshot.content, expectedFamilyId: familyId, subtleCrypto: webcrypto.subtle,
-          store: { get: async key => { const parts = key.split('/'); return parts.length === 4 && parts[0] === 'families' && parts[1] === familyId && parts[2] === 'originals' ? snapshot.bytes.get(parts[3]) ?? null : null; } } });
+          store: { get: async key => {
+            const parts = key.split('/');
+            if (parts.length !== 4 || parts[0] !== 'families' || parts[1] !== familyId || parts[2] !== 'originals') return null;
+            await authorizeRead(); // Before any token lookup, provider call or snapshot byte access.
+            return snapshot.bytes.get(parts[3]) ?? null;
+          } } });
         // No temporary export files; recheck current authority after hashing.
-        const current = await sessions.authenticate(request); sessions.requireRecentAuthentication(current);
-        requireOrganizer(validateMembership(repository.getMembership(current.accountId, familyId), current.accountId, familyId));
+        const current = await authorizeRead();
         repository.recordExportAudit(current, familyId);
         return json(200, encodeArchiveFiles(files), { 'Content-Disposition': 'attachment; filename="being-there-export.json"' });
       }
