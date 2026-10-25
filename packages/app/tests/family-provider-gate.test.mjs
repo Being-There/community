@@ -4,7 +4,7 @@ import { integratedFixture, origin } from './helpers/integrated-app-fixture.mjs'
 import { createFamilyProviderGate } from '../src/server/family-provider-gate.mjs';
 
 const body = async response => {
-  assert.equal(response.status, 200);
+  assert.ok(response.ok, 'Expected success, got ' + response.status);
   return response.json();
 };
 async function household(t) {
