@@ -307,9 +307,9 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
       if (account?.issuer !== 'https://accounts.google.com' || account.subject !== input.subject ||
           input.scope !== 'https://www.googleapis.com/auth/drive.file' ||
           typeof input.refreshToken !== 'string' || !input.refreshToken || input.refreshToken.length > 8192 ||
-          !Number.isSafeInteger(input.consentedAt) || input.consentedAt > now() ||
-          input.generation !== driveGeneration(familyId))
+          !Number.isSafeInteger(input.consentedAt) || input.consentedAt > now())
         throw new AccessError(400);
+      if (input.generation !== driveGeneration(familyId)) throw new AccessError(404);
       const row = { familyId, accountId: principal.accountId, subject: input.subject,
         refreshToken: input.refreshToken, scope: input.scope, consentedAt: input.consentedAt };
       db.prepare('INSERT INTO drive_consents VALUES(?,?) ON CONFLICT(family_id) DO UPDATE SET record=excluded.record').run(familyId, text(row));
