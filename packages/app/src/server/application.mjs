@@ -39,7 +39,7 @@ export function createApplication({ repository, appOrigin, googleClientId, googl
       } catch { return new Response('Sign-in could not be completed. Return to the app and try again.', { status: 401, headers: security }); }
     }
     if (url.pathname === '/auth/drive/callback' ||
-        /^\\/api\\/families\\/[A-Za-z0-9_-]{1,80}\\/drive\\//.test(url.pathname)) return driveConsent.handle(request);
+        (url.pathname.startsWith('/api/families/') && url.pathname.split('/')[4] === 'drive')) return driveConsent.handle(request);
     if (url.pathname.startsWith('/api/')) return api(request);
     if (url.pathname === '/health' && request.method === 'GET') return new Response('ok', { headers: security });
     const asset = assets.get(url.pathname);
