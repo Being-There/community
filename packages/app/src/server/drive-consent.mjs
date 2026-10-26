@@ -8,6 +8,7 @@ import { validateMembership, requireOrganizer } from './family-policy.mjs';
 const digest = value => createHash('sha256').update(value).digest('hex');
 const driveScope = 'https://www.googleapis.com/auth/drive.file';
 const requestedScopes = ['openid', 'email', driveScope];
+const returnedScopes = new Set([...requestedScopes, 'https://www.googleapis.com/auth/userinfo.email']);
 const validId = value => typeof value === 'string' && /^[A-Za-z0-9_-]{1,80}$/.test(value);
 const statePattern = /^[A-Za-z0-9_-]{43}$/;
 const common = { 'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff',
@@ -80,7 +81,7 @@ export function createDriveConsent({ sessions, repository, appOrigin, clientId, 
         payload.aud !== clientId || payload.nonce !== consumed.nonce ||
         payload.sub !== first.account.subject || !Number.isInteger(payload.exp) || payload.exp * 1000 <= now() ||
         !Number.isInteger(payload.iat) || payload.iat * 1000 > now() + 30000 ||
-        !scopes.has(driveScope) || [...scopes].some(scope => !requestedScopes.includes(scope)) ||
+        !scopes.has(driveScope) || [...scopes].some(scope => !returnedScopes.has(scope)) ||
         typeof tokens.refresh_token !== 'string' || !tokens.refresh_token || tokens.refresh_token.length > 8192)
       throw new AccessError(401);
     // A revoked organizer or rotated session cannot persist the exchanged token.
