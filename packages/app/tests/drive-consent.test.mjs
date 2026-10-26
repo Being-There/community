@@ -34,7 +34,7 @@ function mockDrive() {
       return { getPayload: () => payload };
     }
   };
-  return { client, counters, setPayload(value) { payload = value; },
+  return { client, counters, setPayload(value) { payload = value; }, setSubject(subject) { payload = { ...payload, sub: subject }; },
     onExchange(fn) { onExchange = fn; }, setScopes(value) { scopes = value; } };
 }
 async function household(t) {
@@ -144,9 +144,7 @@ test('overbroad scopes and wrong Google account fail without storing consent', a
   assert.equal((await parse(await owner.request(path('status')))).connected, false);
   drive.setScopes('openid email ' + driveScope);
   const second = await start(owner, drive);
-  drive.setPayload({ iss: 'https://accounts.google.com', aud: clientId, sub: 'different-google-account',
-    nonce: new URL('https://family.example.test' + second).searchParams.get('state'), iat: Math.floor(Date.now()/1000),
-    exp: Math.floor(Date.now()/1000) + 3600 });
+  drive.setSubject('different-google-account');
   assert.equal((await owner.request(second)).status, 401);
   assert.equal((await parse(await owner.request(path('status')))).connected, false);
 });
