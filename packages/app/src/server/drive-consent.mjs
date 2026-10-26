@@ -89,7 +89,7 @@ export function createDriveConsent({ sessions, repository, appOrigin, clientId, 
     if (latest.principal.sessionHash !== first.principal.sessionHash ||
         latest.account.subject !== first.account.subject) throw new AccessError(401);
     repository.saveDriveConsent(latest.principal, attempt.familyId, {
-      refreshToken: tokens.refresh_token, scope: driveScope, subject: payload.sub, consentedAt: now()
+      refreshToken: tokens.refresh_token, scope: driveScope, subject: payload.sub, consentedAt: now(), generation: consumed.generation
     });
     return new Response(null, { status: 303, headers: { ...common, Location: '/?drive=connected' } });
   }
