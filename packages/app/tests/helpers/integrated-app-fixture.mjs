@@ -7,7 +7,7 @@ import { openFamilyRepository } from '../../src/server/sqlite-repository.mjs';
 import { createApplication } from '../../src/server/application.mjs';
 export const origin = 'https://family.example.test';
 export const clientId = 'fictional-client.apps.googleusercontent.com';
-export async function integratedFixture(t, { originOverride } = {}) {
+export async function integratedFixture(t, { originOverride, driveClient } = {}) {
   const appOrigin = originOverride ?? origin;
   const directory = await mkdtemp(join(tmpdir(), 'being-there-integrated-'));
   let now = Date.now();
@@ -24,7 +24,7 @@ export async function integratedFixture(t, { originOverride } = {}) {
     const signature = sign('RSA-SHA256', Buffer.from(head + '.' + body), privateKey).toString('base64url');
     return { tokens: { id_token: head + '.' + body + '.' + signature } };
   };
-  let app = createApplication({ repository, appOrigin, googleClientId: clientId, googleClientSecret: 'fictional-no-network-secret', googleClient: client, now: () => now });
+  let app = createApplication({ repository, appOrigin, googleClientId: clientId, googleClientSecret: 'fictional-no-network-secret', googleClient: client, driveClient, now: () => now });
   const request = (path, { cookie = '', method = 'GET', body, csrf, headers = {} } = {}) => app.handle(new Request(appOrigin + path, { method, headers: { cookie, ...(method !== 'GET' ? { origin: appOrigin, 'Content-Type': 'application/json', 'X-CSRF-Token': csrf ?? '' } : {}), ...headers }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) }));
   async function login(subject, email, overrides = {}) {
     const start = await request('/auth/google/start'); const location = new URL(start.headers.get('location')); challenge = location.searchParams.get('code_challenge');
@@ -38,6 +38,6 @@ export async function integratedFixture(t, { originOverride } = {}) {
   }
   return { get repository() { return repository; }, get app() { return app; }, directory, request, login,
     advance(ms) { now += ms; },
-    reopen() { repository.close(); repository = openFamilyRepository({ filename: join(directory, 'family.sqlite'), now: () => now }); app = createApplication({ repository, appOrigin, googleClientId: clientId, googleClientSecret: 'fictional-no-network-secret', googleClient: client, now: () => now }); }
+    reopen() { repository.close(); repository = openFamilyRepository({ filename: join(directory, 'family.sqlite'), now: () => now }); app = createApplication({ repository, appOrigin, googleClientId: clientId, googleClientSecret: 'fictional-no-network-secret', googleClient: client, driveClient, now: () => now }); }
   };
 }
