@@ -148,3 +148,24 @@ test('overbroad scopes and wrong Google account fail without storing consent', a
   assert.equal((await owner.request(second)).status, 401);
   assert.equal((await parse(await owner.request(path('status')))).connected, false);
 });
+
+test('disconnect during token exchange cannot resurrect consent', async t => {
+  const { drive, owner, backup } = await household(t);
+  const callback = await start(owner, drive);
+  drive.onExchange(async () => {
+    assert.equal((await backup.request(path('disconnect'), { method: 'POST' })).status, 200);
+  });
+  assert.equal((await owner.request(callback)).status, 404);
+  assert.equal(drive.counters.tokenExchanges, 1, 'authorized exchange had already begun');
+  assert.deepEqual(await parse(await backup.request(path('status'))), { connected: false });
+});
+
+test('a newer organizer consent attempt invalidates old callback before token exchange', async t => {
+  const { drive, owner } = await household(t);
+  const oldCallback = await start(owner, drive);
+  const newCallback = await start(owner, drive);
+  assert.equal((await owner.request(oldCallback)).status, 404);
+  assert.equal(drive.counters.tokenExchanges, 0);
+  assert.equal((await owner.request(newCallback)).status, 303);
+  assert.equal(drive.counters.tokenExchanges, 1);
+});
