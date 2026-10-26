@@ -37,6 +37,9 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
     CREATE TABLE IF NOT EXISTS archive_sequences(family_id TEXT PRIMARY KEY,sequence INTEGER NOT NULL,FOREIGN KEY(family_id) REFERENCES families(id));
     CREATE TABLE IF NOT EXISTS audits(id TEXT PRIMARY KEY,family_id TEXT NOT NULL,record TEXT NOT NULL,FOREIGN KEY(family_id) REFERENCES families(id));
     CREATE TABLE IF NOT EXISTS oauth(hash TEXT PRIMARY KEY,record TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS drive_oauth(hash TEXT PRIMARY KEY,family_id TEXT NOT NULL,record TEXT NOT NULL,FOREIGN KEY(family_id) REFERENCES families(id));
+    CREATE TABLE IF NOT EXISTS drive_consents(family_id TEXT PRIMARY KEY,record TEXT NOT NULL,FOREIGN KEY(family_id) REFERENCES families(id));
+    CREATE TABLE IF NOT EXISTS drive_controls(family_id TEXT PRIMARY KEY,generation INTEGER NOT NULL,FOREIGN KEY(family_id) REFERENCES families(id));
     PRAGMA user_version=1;`);
   const archive = createIndependentArchive(originalsDirectory ?? join(dirname(path), 'original-archive'));
   const getRecord = (kind, family, key) => parse(db.prepare('SELECT record FROM records WHERE kind=? AND family_id=? AND id=?').get(kind, family, key));
@@ -55,6 +58,7 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
     return archive(snapshot.content, key => snapshot.bytes.get(key), snapshot.sequence);
   }
   function durable(familyId, operation) { const result = transaction(operation); preserveFamily(familyId); return result; }
+  const driveGeneration = familyId => db.prepare('SELECT generation FROM drive_controls WHERE family_id=?').get(familyId)?.generation ?? 0;
   function member(accountId, familyId) { return parse(db.prepare('SELECT record FROM memberships WHERE account_id=? AND family_id=?').get(accountId, familyId)); }
   function actor(principal, familyId, organizer = false) {
     const session = parse(db.prepare('SELECT record FROM sessions WHERE hash=?').get(principal.sessionHash));
@@ -268,6 +272,58 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
       else { const family = createFamily({ id: familyId, label }); db.prepare('INSERT INTO families VALUES(?,?)').run(familyId, text(family)); }
       const token = randomBytes(32).toString('base64url'); const invitation = { familyId, email: email.toLowerCase(), role: 'organizer', state: 'pending', expiresAt: now() + 7 * 86400000 };
       db.prepare('INSERT INTO invitations VALUES(?,?,?)').run(hash(token), familyId, text(invitation)); return { token };
+    }); },
+    // The refresh token is private installation state (SQLite mode 0600).
+    // Never include it in family archives, API responses, audit records or logs.
+    saveDriveAttempt(principal, familyId, stateHash, input) { return transaction(() => {
+      actor(principal, familyId, true);
+      if (!/^[a-f0-9]{64}$/.test(stateHash) || !/^[A-Za-z0-9_-]{43}$/.test(input.nonce) ||
+          typeof input.codeVerifier !== 'string' || input.codeVerifier.length < 43 || input.codeVerifier.length > 128 ||
+          !Number.isSafeInteger(input.expiresAt) || input.expiresAt <= now() || input.expiresAt > now() + 600000)
+        throw new AccessError(400);
+      db.prepare('DELETE FROM drive_oauth WHERE json_extract(record, \'$.expiresAt\') <= ?').run(now());
+      if (db.prepare('SELECT count(*) AS n FROM drive_oauth').get().n >= 1000) throw new AccessError(429);
+      // A newer consent attempt or disconnect invalidates every older callback.
+      db.prepare('INSERT INTO drive_controls VALUES(?,1) ON CONFLICT(family_id) DO UPDATE SET generation=generation+1').run(familyId);
+      db.prepare('DELETE FROM drive_oauth WHERE family_id=?').run(familyId);
+      const row = { ...input, familyId, accountId: principal.accountId, sessionHash: principal.sessionHash, generation: driveGeneration(familyId) };
+      db.prepare('INSERT INTO drive_oauth VALUES(?,?,?)').run(stateHash, familyId, text(row));
+    }); },
+    peekDriveAttempt(stateHash) {
+      if (!/^[a-f0-9]{64}$/.test(stateHash)) return null;
+      return parse(db.prepare('SELECT record FROM drive_oauth WHERE hash=?').get(stateHash));
+    },
+    consumeDriveAttempt(principal, familyId, stateHash) { return transaction(() => {
+      actor(principal, familyId, true);
+      const row = repository.peekDriveAttempt(stateHash);
+      if (!row || row.familyId !== familyId || row.accountId !== principal.accountId ||
+          row.sessionHash !== principal.sessionHash || row.expiresAt <= now() || row.generation !== driveGeneration(familyId)) return null;
+      db.prepare('DELETE FROM drive_oauth WHERE hash=? AND family_id=?').run(stateHash, familyId);
+      return row;
+    }); },
+    saveDriveConsent(principal, familyId, input) { return transaction(() => {
+      actor(principal, familyId, true);
+      const account = repository.getAccount(principal.accountId);
+      if (account?.issuer !== 'https://accounts.google.com' || account.subject !== input.subject ||
+          input.scope !== 'https://www.googleapis.com/auth/drive.file' ||
+          typeof input.refreshToken !== 'string' || !input.refreshToken || input.refreshToken.length > 8192 ||
+          !Number.isSafeInteger(input.consentedAt) || input.consentedAt > now())
+        throw new AccessError(400);
+      if (input.generation !== driveGeneration(familyId)) throw new AccessError(404);
+      const row = { familyId, accountId: principal.accountId, subject: input.subject,
+        refreshToken: input.refreshToken, scope: input.scope, consentedAt: input.consentedAt };
+      db.prepare('INSERT INTO drive_consents VALUES(?,?) ON CONFLICT(family_id) DO UPDATE SET record=excluded.record').run(familyId, text(row));
+    }); },
+    getDriveConsentStatus(principal, familyId) {
+      actor(principal, familyId, true);
+      const row = parse(db.prepare('SELECT record FROM drive_consents WHERE family_id=?').get(familyId));
+      return row ? { connected: true, scope: row.scope, consentedAt: row.consentedAt } : { connected: false };
+    },
+    clearDriveConsent(principal, familyId) { return transaction(() => {
+      actor(principal, familyId, true);
+      db.prepare('INSERT INTO drive_controls VALUES(?,1) ON CONFLICT(family_id) DO UPDATE SET generation=generation+1').run(familyId);
+      db.prepare('DELETE FROM drive_oauth WHERE family_id=?').run(familyId);
+      db.prepare('DELETE FROM drive_consents WHERE family_id=?').run(familyId);
     }); },
     saveOAuth(key, value) { return transaction(() => {
       const rows = db.prepare('SELECT hash,record FROM oauth LIMIT 1002').all();

@@ -4,11 +4,14 @@ import { createSessionService } from './sessions.mjs';
 import { createFamilyApi } from './family-api.mjs';
 import { createFamilyWriteApi } from './family-write-api.mjs';
 import { createGoogleLogin } from './google-login.mjs';
-export function createApplication({ repository, appOrigin, googleClientId, googleClientSecret, googleClient, now = Date.now }) {
+import { createDriveConsent } from './drive-consent.mjs';
+export function createApplication({ repository, appOrigin, googleClientId, googleClientSecret, googleClient, driveClient, now = Date.now }) {
   const google = createGoogleLogin({ clientId: googleClientId, clientSecret: googleClientSecret, appOrigin, repository, now, client: googleClient });
   const sessions = createSessionService({ repository, now, verifyIdentity: async request => {
     const identity = await google.verifyCallback(request); repository.ensureVerifiedAccount(identity); return identity;
   } });
+  const driveConsent = createDriveConsent({ sessions, repository, appOrigin, clientId: googleClientId,
+    clientSecret: googleClientSecret, now, client: driveClient });
   const readApi = createFamilyApi({ sessions, repository, appOrigin, subtleCrypto: webcrypto.subtle });
   const api = createFamilyWriteApi({ sessions, repository, appOrigin, readApi });
   const assets = new Map([
@@ -35,6 +38,8 @@ export function createApplication({ repository, appOrigin, googleClientId, googl
         return response;
       } catch { return new Response('Sign-in could not be completed. Return to the app and try again.', { status: 401, headers: security }); }
     }
+    if (url.pathname === '/auth/drive/callback' ||
+        (url.pathname.startsWith('/api/families/') && url.pathname.split('/')[4] === 'drive')) return driveConsent.handle(request);
     if (url.pathname.startsWith('/api/')) return api(request);
     if (url.pathname === '/health' && request.method === 'GET') return new Response('ok', { headers: security });
     const asset = assets.get(url.pathname);
