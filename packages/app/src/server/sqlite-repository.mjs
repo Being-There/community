@@ -314,6 +314,19 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
         refreshToken: input.refreshToken, scope: input.scope, consentedAt: input.consentedAt };
       db.prepare('INSERT INTO drive_consents VALUES(?,?) ON CONFLICT(family_id) DO UPDATE SET record=excluded.record').run(familyId, text(row));
     }); },
+    // Server-only credential accessor. No token is returned from any HTTP route.
+    // A fresh actor check is mandatory before loading this private record.
+    getDriveCredential(principal, familyId) {
+      actor(principal, familyId, true);
+      const row = parse(db.prepare('SELECT record FROM drive_consents WHERE family_id=?').get(familyId));
+      if (!row) return null;
+      const account = repository.getAccount(principal.accountId);
+      if (account?.issuer !== 'https://accounts.google.com' || account.subject !== row.subject ||
+          row.scope !== 'https://www.googleapis.com/auth/drive.file' ||
+          typeof row.refreshToken !== 'string' || !row.refreshToken) throw new AccessError(404);
+      return Object.freeze({ refreshToken: row.refreshToken, scope: row.scope,
+        subject: row.subject, generation: driveGeneration(familyId) });
+    },
     getDriveConsentStatus(principal, familyId) {
       actor(principal, familyId, true);
       const row = parse(db.prepare('SELECT record FROM drive_consents WHERE family_id=?').get(familyId));
