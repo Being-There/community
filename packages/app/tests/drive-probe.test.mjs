@@ -64,7 +64,6 @@ test('only a recently authenticated organizer with separate consent can probe th
   assert.deepEqual(await result.json(), { verified: true });
   assert.equal(result.headers.get('cache-control'), 'private, no-store');
   assert.deepEqual(calls, { refresh: 1, drive: 1 });
-  assert.doesNotMatch(JSON.stringify(await result.clone().json().catch(() => ({}))), /token/);
 });
 
 test('anonymous, Google-signed-in outsider, contributor and wrong family cause ZERO token or Drive calls', async t => {
