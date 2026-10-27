@@ -49,7 +49,7 @@ async function household(t, { connected = true } = {}) {
       { headers: { cookie: owner.cookie } }));
     f.repository.saveDriveConsent(principal, familyId, {
       refreshToken: 'fixture-private-refresh', scope: driveScope,
-      subject: 'drive-probe-owner', consentedAt: Date.now(), generation: 0
+      subject: 'drive-probe-owner', consentedAt: Date.now() - 10000, generation: 0
     });
   }
   return { f, owner, outsider, contributor, backup, calls,
