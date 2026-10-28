@@ -135,9 +135,16 @@ test('revocation during provider call denies result and leaves a safe pending re
 });
 
 test('two simultaneous folder requests cannot create duplicate Drive folders', async t => {
-  const { owner, calls } = await household(t);
-  const [a, b] = await Promise.all([owner.request(path, { method: 'POST' }),
-    owner.request(path, { method: 'POST' })]);
-  assert.deepEqual([a.status, b.status].sort(), [201, 409]);
+  const { owner, calls, onDrive } = await household(t);
+  let entered, release;
+  const started = new Promise(resolve => { entered = resolve; });
+  const held = new Promise(resolve => { release = resolve; });
+  onDrive(async () => { entered(); await held; });
+  const first = owner.request(path, { method: 'POST' });
+  await started; // The first request has reserved the folder and entered Drive.
+  const second = await owner.request(path, { method: 'POST' });
+  assert.equal(second.status, 409);
+  release();
+  assert.equal((await first).status, 201);
   assert.deepEqual(calls, { refresh: 2, drive: 1 });
 });
