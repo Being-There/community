@@ -40,6 +40,7 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
     CREATE TABLE IF NOT EXISTS drive_oauth(hash TEXT PRIMARY KEY,family_id TEXT NOT NULL,record TEXT NOT NULL,FOREIGN KEY(family_id) REFERENCES families(id));
     CREATE TABLE IF NOT EXISTS drive_consents(family_id TEXT PRIMARY KEY,record TEXT NOT NULL,FOREIGN KEY(family_id) REFERENCES families(id));
     CREATE TABLE IF NOT EXISTS drive_controls(family_id TEXT PRIMARY KEY,generation INTEGER NOT NULL,FOREIGN KEY(family_id) REFERENCES families(id));
+    CREATE TABLE IF NOT EXISTS drive_folders(family_id TEXT PRIMARY KEY,record TEXT NOT NULL,FOREIGN KEY(family_id) REFERENCES families(id));
     PRAGMA user_version=1;`);
   const archive = createIndependentArchive(originalsDirectory ?? join(dirname(path), 'original-archive'));
   const getRecord = (kind, family, key) => parse(db.prepare('SELECT record FROM records WHERE kind=? AND family_id=? AND id=?').get(kind, family, key));
@@ -327,6 +328,45 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
       return Object.freeze({ refreshToken: row.refreshToken, scope: row.scope,
         subject: row.subject, generation: driveGeneration(familyId) });
     },
+    // Private folder state. Pending claims deliberately survive provider uncertainty:
+    // retrying an ambiguous create could duplicate a family's Drive archive.
+    getDriveFolder(principal, familyId) {
+      actor(principal, familyId, true);
+      const credential = repository.getDriveCredential(principal, familyId);
+      if (!credential) throw new AccessError(404);
+      const row = parse(db.prepare('SELECT record FROM drive_folders WHERE family_id=?').get(familyId));
+      if (!row) return null;
+      if (row.subject !== credential.subject) throw new AccessError(409);
+      return row.state === 'ready' ? { state: 'ready', id: row.id } : { state: 'pending' };
+    },
+    reserveDriveFolder(principal, familyId, expected) { return transaction(() => {
+      actor(principal, familyId, true);
+      const current = repository.getDriveCredential(principal, familyId);
+      if (!current || current.subject !== expected.subject ||
+          current.generation !== expected.generation || current.refreshToken !== expected.refreshToken)
+        throw new AccessError(404);
+      if (db.prepare('SELECT 1 FROM drive_folders WHERE family_id=?').get(familyId))
+        throw new AccessError(409);
+      const claim = opaque();
+      db.prepare('INSERT INTO drive_folders VALUES(?,?)').run(familyId, text({
+        state: 'pending', subject: current.subject, generation: current.generation,
+        refreshHash: hash(current.refreshToken), claim
+      }));
+      return claim;
+    }); },
+    finishDriveFolder(principal, familyId, claim, folderId) { return transaction(() => {
+      actor(principal, familyId, true);
+      if (typeof folderId !== 'string' || !/^[A-Za-z0-9_-]{10,200}$/.test(folderId))
+        throw new AccessError(400);
+      const current = repository.getDriveCredential(principal, familyId);
+      const row = parse(db.prepare('SELECT record FROM drive_folders WHERE family_id=?').get(familyId));
+      if (!current || row?.state !== 'pending' || row.claim !== claim ||
+          row.subject !== current.subject || row.generation !== current.generation ||
+          row.refreshHash !== hash(current.refreshToken)) throw new AccessError(404);
+      db.prepare('UPDATE drive_folders SET record=? WHERE family_id=?').run(text({
+        state: 'ready', subject: row.subject, id: folderId
+      }), familyId);
+    }); },
     getDriveConsentStatus(principal, familyId) {
       actor(principal, familyId, true);
       const row = parse(db.prepare('SELECT record FROM drive_consents WHERE family_id=?').get(familyId));
