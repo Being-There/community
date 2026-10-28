@@ -146,5 +146,5 @@ test('two simultaneous folder requests cannot create duplicate Drive folders', a
   assert.equal(second.status, 409);
   release();
   assert.equal((await first).status, 201);
-  assert.deepEqual(calls, { refresh: 2, drive: 1 });
+  assert.deepEqual(calls, { refresh: 1, drive: 1 });
 });
