@@ -41,6 +41,7 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
     CREATE TABLE IF NOT EXISTS drive_consents(family_id TEXT PRIMARY KEY,record TEXT NOT NULL,FOREIGN KEY(family_id) REFERENCES families(id));
     CREATE TABLE IF NOT EXISTS drive_controls(family_id TEXT PRIMARY KEY,generation INTEGER NOT NULL,FOREIGN KEY(family_id) REFERENCES families(id));
     CREATE TABLE IF NOT EXISTS drive_folders(family_id TEXT PRIMARY KEY,record TEXT NOT NULL,FOREIGN KEY(family_id) REFERENCES families(id));
+    CREATE TABLE IF NOT EXISTS drive_metadata(family_id TEXT NOT NULL,digest TEXT NOT NULL,generation INTEGER NOT NULL,record TEXT NOT NULL,PRIMARY KEY(family_id,digest,generation),FOREIGN KEY(family_id) REFERENCES families(id));
     PRAGMA user_version=1;`);
   const archive = createIndependentArchive(originalsDirectory ?? join(dirname(path), 'original-archive'));
   const getRecord = (kind, family, key) => parse(db.prepare('SELECT record FROM records WHERE kind=? AND family_id=? AND id=?').get(kind, family, key));
@@ -367,6 +368,57 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
         state: 'ready', subject: row.subject, id: folderId
       }), familyId);
     }); },
+    // Snapshot only portable, non-identity metadata. This deliberately never
+    // loads original bytes, sessions, invitations, or Google credentials.
+    snapshotDriveMetadata(principal, familyId) { return transaction(() => {
+      actor(principal, familyId, true);
+      return contentFor(familyId);
+    }); },
+    getDriveMetadata(principal, familyId, digest, expected, folderId) {
+      actor(principal, familyId, true);
+      const current = repository.getDriveCredential(principal, familyId);
+      const folder = repository.getDriveFolder(principal, familyId);
+      if (!current || current.subject !== expected.subject ||
+          current.generation !== expected.generation || current.refreshToken !== expected.refreshToken ||
+          folder?.state !== 'ready' || folder.id !== folderId) throw new AccessError(404);
+      if (typeof digest !== 'string' || !/^[a-f0-9]{64}$/.test(digest)) throw new AccessError(400);
+      const row = parse(db.prepare('SELECT record FROM drive_metadata WHERE family_id=? AND digest=? AND generation=?')
+        .get(familyId, digest, current.generation));
+      if (!row) return null;
+      if (row.subject !== current.subject || row.folderId !== folderId) throw new AccessError(409);
+      return row.state === 'ready' ? { state: 'ready', id: row.id } : { state: 'pending' };
+    },
+    reserveDriveMetadata(principal, familyId, digest, expected, folderId) { return transaction(() => {
+      actor(principal, familyId, true);
+      if (repository.getDriveMetadata(principal, familyId, digest, expected, folderId))
+        throw new AccessError(409);
+      if (db.prepare('SELECT COUNT(*) AS n FROM drive_metadata WHERE family_id=?').get(familyId).n >= 1000)
+        throw new AccessError(429);
+      const claim = opaque();
+      db.prepare('INSERT INTO drive_metadata VALUES(?,?,?,?)').run(familyId, digest, expected.generation,
+        text({ state: 'pending', subject: expected.subject, folderId,
+          refreshHash: hash(expected.refreshToken), claim }));
+      return claim;
+    }); },
+    finishDriveMetadata(principal, familyId, digest, expected, folderId, claim, fileId) {
+      return transaction(() => {
+        actor(principal, familyId, true);
+        if (typeof fileId !== 'string' || !/^[A-Za-z0-9_-]{10,200}$/.test(fileId))
+          throw new AccessError(400);
+        const current = repository.getDriveCredential(principal, familyId);
+        const folder = repository.getDriveFolder(principal, familyId);
+        const row = parse(db.prepare('SELECT record FROM drive_metadata WHERE family_id=? AND digest=? AND generation=?')
+          .get(familyId, digest, expected.generation));
+        if (!current || current.subject !== expected.subject ||
+            current.generation !== expected.generation || current.refreshToken !== expected.refreshToken ||
+            folder?.state !== 'ready' || folder.id !== folderId || row?.state !== 'pending' ||
+            row.claim !== claim || row.subject !== current.subject || row.folderId !== folderId ||
+            row.refreshHash !== hash(current.refreshToken)) throw new AccessError(404);
+        db.prepare('UPDATE drive_metadata SET record=? WHERE family_id=? AND digest=? AND generation=?')
+          .run(text({ state: 'ready', subject: row.subject, folderId, id: fileId }),
+            familyId, digest, current.generation);
+      });
+    },
     getDriveConsentStatus(principal, familyId) {
       actor(principal, familyId, true);
       const row = parse(db.prepare('SELECT record FROM drive_consents WHERE family_id=?').get(familyId));
