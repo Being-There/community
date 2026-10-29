@@ -182,5 +182,5 @@ test('simultaneous identical metadata writes create at most one Drive file', asy
   assert.equal(second.status, 409);
   release();
   assert.equal((await first).status, 201);
-  assert.deepEqual(h.calls, { refresh: 2, upload: 1, folder: 0 });
+  assert.deepEqual(h.calls, { refresh: 1, upload: 1, folder: 0 });
 });
