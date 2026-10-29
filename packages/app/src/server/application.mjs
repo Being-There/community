@@ -7,6 +7,7 @@ import { createGoogleLogin } from './google-login.mjs';
 import { createDriveConsent } from './drive-consent.mjs';
 import { createDriveProbe } from './drive-probe.mjs';
 import { createDriveFolder } from './drive-folder.mjs';
+import { createDriveMetadata } from './drive-metadata.mjs';
 export function createApplication({ repository, appOrigin, googleClientId, googleClientSecret, googleClient, driveClient, driveAccessToken, driveFetch, now = Date.now }) {
   const google = createGoogleLogin({ clientId: googleClientId, clientSecret: googleClientSecret, appOrigin, repository, now, client: googleClient });
   const sessions = createSessionService({ repository, now, verifyIdentity: async request => {
@@ -17,6 +18,8 @@ export function createApplication({ repository, appOrigin, googleClientId, googl
   const driveProbe = createDriveProbe({ sessions, repository, appOrigin, clientId: googleClientId,
     clientSecret: googleClientSecret, refreshAccessToken: driveAccessToken, driveFetch });
   const driveFolder = createDriveFolder({ sessions, repository, appOrigin, clientId: googleClientId,
+    clientSecret: googleClientSecret, refreshAccessToken: driveAccessToken, driveFetch });
+  const driveMetadata = createDriveMetadata({ sessions, repository, appOrigin, clientId: googleClientId,
     clientSecret: googleClientSecret, refreshAccessToken: driveAccessToken, driveFetch });
   const readApi = createFamilyApi({ sessions, repository, appOrigin, subtleCrypto: webcrypto.subtle });
   const api = createFamilyWriteApi({ sessions, repository, appOrigin, readApi });
@@ -44,6 +47,8 @@ export function createApplication({ repository, appOrigin, googleClientId, googl
         return response;
       } catch { return new Response('Sign-in could not be completed. Return to the app and try again.', { status: 401, headers: security }); }
     }
+    if (/^\/api\/families\/[A-Za-z0-9_-]{1,80}\/drive\/metadata$/.test(url.pathname))
+      return driveMetadata.handle(request);
     if (/^\/api\/families\/[A-Za-z0-9_-]{1,80}\/drive\/folder$/.test(url.pathname))
       return driveFolder.handle(request);
     if (/^\/api\/families\/[A-Za-z0-9_-]{1,80}\/drive\/verify$/.test(url.pathname))
