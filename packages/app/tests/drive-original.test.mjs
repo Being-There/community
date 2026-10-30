@@ -169,6 +169,15 @@ test('anonymous, signed-in outsider, wrong family, contributor, derivative, GET/
   assert.deepEqual(h.calls, { refresh: 0, upload: 0, folder: 0, metadata: 0 });
 });
 
+test('a previously authorized organizer revoked before upload cannot reach token or Drive', async t => {
+  const h = await household(t);
+  const ownerId = (await (await h.owner.request('/api/session')).json()).accountId;
+  assert.equal((await h.backup.request('/api/families/familyA/members/' + ownerId + '/revoke',
+    { method: 'POST', body: {} })).status, 200);
+  assert.equal((await h.owner.request(prefix + h.originalId, { method: 'POST' })).status, 404);
+  assert.deepEqual(h.calls, { refresh: 0, upload: 0, folder: 0, metadata: 0 });
+});
+
 test('bad CSRF, Origin, cross-site and stale authentication deny before token access', async t => {
   const h = await household(t);
   for (const headers of [{ 'x-csrf-token': 'wrong' },

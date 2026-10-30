@@ -56,7 +56,7 @@ export function createDriveOriginal({ sessions, repository, appOrigin, clientId,
       const url = new URL(request.url);
       const match = /^\/api\/families\/([A-Za-z0-9_-]{1,80})\/drive\/originals\/([A-Za-z0-9_-]{1,80})$/.exec(url.pathname);
       if (url.origin !== appOrigin || !match || url.search || request.method !== 'POST' ||
-          request.headers.has('content-length') && Number(request.headers.get('content-length')) > 0)
+          request.body !== null)
         throw new AccessError(404);
       const [, familyId, originalId] = match;
 
