@@ -42,6 +42,7 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
     CREATE TABLE IF NOT EXISTS drive_controls(family_id TEXT PRIMARY KEY,generation INTEGER NOT NULL,FOREIGN KEY(family_id) REFERENCES families(id));
     CREATE TABLE IF NOT EXISTS drive_folders(family_id TEXT PRIMARY KEY,record TEXT NOT NULL,FOREIGN KEY(family_id) REFERENCES families(id));
     CREATE TABLE IF NOT EXISTS drive_metadata(family_id TEXT NOT NULL,digest TEXT NOT NULL,generation INTEGER NOT NULL,record TEXT NOT NULL,PRIMARY KEY(family_id,digest,generation),FOREIGN KEY(family_id) REFERENCES families(id));
+    CREATE TABLE IF NOT EXISTS drive_originals(family_id TEXT NOT NULL,original_id TEXT NOT NULL,digest TEXT NOT NULL,generation INTEGER NOT NULL,record TEXT NOT NULL,PRIMARY KEY(family_id,original_id,digest,generation),FOREIGN KEY(family_id) REFERENCES families(id));
     PRAGMA user_version=1;`);
   const archive = createIndependentArchive(originalsDirectory ?? join(dirname(path), 'original-archive'));
   const getRecord = (kind, family, key) => parse(db.prepare('SELECT record FROM records WHERE kind=? AND family_id=? AND id=?').get(kind, family, key));
@@ -417,6 +418,60 @@ export function openFamilyRepository({ filename, now = Date.now, originalsDirect
         db.prepare('UPDATE drive_metadata SET record=? WHERE family_id=? AND digest=? AND generation=?')
           .run(text({ state: 'ready', subject: row.subject, folderId, id: fileId }),
             familyId, digest, current.generation);
+      });
+    },
+    // Per-original durable claims prevent duplicate uploads after ambiguous Drive failures.
+    // A different consent generation may upload again; old claims are never reused.
+    getDriveOriginal(principal, familyId, original, expected, folderId) {
+      actor(principal, familyId, true);
+      const current = repository.getDriveCredential(principal, familyId);
+      const folder = repository.getDriveFolder(principal, familyId);
+      const stored = getRecord('media', familyId, original?.id);
+      if (!current || current.subject !== expected.subject ||
+          current.generation !== expected.generation || current.refreshToken !== expected.refreshToken ||
+          folder?.state !== 'ready' || folder.id !== folderId ||
+          !stored || stored.originalId !== undefined || stored.sha256 !== original.sha256 ||
+          stored.byteLength !== original.byteLength || stored.kind !== original.kind)
+        throw new AccessError(404);
+      const row = parse(db.prepare('SELECT record FROM drive_originals WHERE family_id=? AND original_id=? AND digest=? AND generation=?')
+        .get(familyId, original.id, original.sha256, current.generation));
+      if (!row) return null;
+      if (row.subject !== current.subject || row.folderId !== folderId) throw new AccessError(409);
+      return row.state === 'ready' ? { state: 'ready', id: row.id } : { state: 'pending' };
+    },
+    reserveDriveOriginal(principal, familyId, original, expected, folderId) { return transaction(() => {
+      actor(principal, familyId, true);
+      if (repository.getDriveOriginal(principal, familyId, original, expected, folderId))
+        throw new AccessError(409);
+      if (db.prepare('SELECT COUNT(*) AS n FROM drive_originals WHERE family_id=?').get(familyId).n >= 10000)
+        throw new AccessError(429);
+      const claim = opaque();
+      db.prepare('INSERT INTO drive_originals VALUES(?,?,?,?,?)').run(
+        familyId, original.id, original.sha256, expected.generation,
+        text({ state: 'pending', subject: expected.subject, folderId,
+          refreshHash: hash(expected.refreshToken), claim }));
+      return claim;
+    }); },
+    finishDriveOriginal(principal, familyId, original, expected, folderId, claim, fileId) {
+      return transaction(() => {
+        actor(principal, familyId, true);
+        if (typeof fileId !== 'string' || !/^[A-Za-z0-9_-]{10,200}$/.test(fileId))
+          throw new AccessError(400);
+        const current = repository.getDriveCredential(principal, familyId);
+        const folder = repository.getDriveFolder(principal, familyId);
+        const stored = getRecord('media', familyId, original.id);
+        const row = parse(db.prepare('SELECT record FROM drive_originals WHERE family_id=? AND original_id=? AND digest=? AND generation=?')
+          .get(familyId, original.id, original.sha256, expected.generation));
+        if (!current || current.subject !== expected.subject ||
+            current.generation !== expected.generation || current.refreshToken !== expected.refreshToken ||
+            folder?.state !== 'ready' || folder.id !== folderId ||
+            !stored || stored.originalId !== undefined || stored.sha256 !== original.sha256 ||
+            stored.byteLength !== original.byteLength || row?.state !== 'pending' ||
+            row.claim !== claim || row.subject !== current.subject || row.folderId !== folderId ||
+            row.refreshHash !== hash(current.refreshToken)) throw new AccessError(404);
+        db.prepare('UPDATE drive_originals SET record=? WHERE family_id=? AND original_id=? AND digest=? AND generation=?')
+          .run(text({ state: 'ready', subject: row.subject, folderId, id: fileId }),
+            familyId, original.id, original.sha256, current.generation);
       });
     },
     getDriveConsentStatus(principal, familyId) {
